@@ -30,9 +30,11 @@ class road{
     this.wallhp = 1000;
     this.direction = direction;
     this.max_distance = 20;
-    this.troop_location = [];
+    this.army_location = [];
+    this.enemy_location = [];
     for(var i=0; i<this.max_distance; i++){
-      this.troop_location = 0;
+      this.army_location = 0;
+      this.enemy_location = 0;
     }
   }
 }
@@ -40,12 +42,10 @@ class road{
 class Environment {
   //環境變數
   constructor(){
-        this.wallHp = {
-            "E":1000 ,  
-            "S":1000 ,
-            "W":1000 ,
-            "N":1000 , 
-        }
+        this.east_road = new road(east);
+        this.south_road = new road(south);
+        this.west_road = new road(west);
+        this.north_road = new road(north);
         this.round = 1 ; 
         this.wood = 500 ;
         this.num_of_troop = {

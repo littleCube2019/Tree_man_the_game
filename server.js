@@ -60,10 +60,21 @@ class Environment {
 var Env = null;
 
 function newGame(){
-   Env = new Environment();
+  Env = new Environment();
 }
 
-
+function player_movement_update(recuit, move_army, build_wall){
+  //test
+  if(recuit){
+    env.num_of_troop.archer += 1;
+  }
+  if(move_army){
+    
+  }
+  if(build_wall){
+    env.build_wall.wallhp = Math.max(1000, env.build_wall.wallhp+100);
+  }
+}
 
 io.on('connection', (socket) => {
   newGame();  //初始化
@@ -76,7 +87,22 @@ io.on('connection', (socket) => {
 
   io.emit("update_state", Env);
 
+  socket.on("action_done", (player_id, recuit, move_army, build_wall)=>{
+    if(player_id==1){
+      //test
+      player_movement_update(recuit, move_army, build_wall);
 
+      io.emit("update_state", Env);
+      io.emit("player2 turn");
+    }
+    else if(player_id==2){
+      //test
+      player_movement_update(recuit, move_army, build_wall);
+
+      io.emit("update_state", Env);
+      io.emit("player2 turn");
+    }
+  })
 
   /*
 

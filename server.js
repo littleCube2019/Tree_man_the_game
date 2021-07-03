@@ -12,7 +12,7 @@ const { env } = require('process');
 //const itemcard = require('./itemcard.js');
 
 
-
+//WAH
 
 
 app.get('/', function(req, res){
@@ -25,8 +25,17 @@ http.listen(process.env.PORT || 3000, function(){
 
 app.use(express.static('public'));
 
-
-
+class road{
+  constructor(direction){
+    this.wallhp = 1000;
+    this.direction = direction;
+    this.max_distance = 20;
+    this.troop_location = [];
+    for(var i=0; i<this.max_distance; i++){
+      this.troop_location = 0;
+    }
+  }
+}
 
 class Environment {
   //環境變數
@@ -36,7 +45,6 @@ class Environment {
             "S":1000 ,
             "W":1000 ,
             "N":1000 , 
-
         }
         this.round = 1 ; 
         this.wood = 500 ;
@@ -54,8 +62,6 @@ var Env = null;
 function newGame(){
    Env = new Environment();
 }
-
-
 
 
 

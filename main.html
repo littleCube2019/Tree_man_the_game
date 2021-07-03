@@ -21,6 +21,46 @@
     	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 
 		<!-- ==================================== -->
+
+
+		<script>
+
+			let socket = io();
+
+
+			//message
+			var num_message = 0; 
+			var MAX_MESSAGE = 19; 
+			function addMessage(Text){
+				if(num_message>= MAX_MESSAGE){
+					$("#message div:nth-child(1)").remove();
+				}
+
+				if(num_message %2 ==0){
+					$("#message").append("<div class=\"message_div\" style=\"background-color:#F5FFFA;\">"+Text+"</div>");
+				} 
+				else{
+					$("#message").append("<div class=\"message_div\" style=\"background-color:#DCDCDC\">"+Text+"</div>");
+				}
+				num_message+=1;
+			}
+			
+
+			socket.on("update_state", (env)=>{  //更新雙方血量
+				$("#round").text(env.round);
+
+				$("#east_hp").text(env.wallHP["E"]);
+				$("#south_hp").text(env.wallHP["S"]);
+				$("#west_hp").text(env.wallHP["W"]);
+				$("#north_hp").text(env.wallHP["N"]);
+			}
+			)
+
+
+		</script>
+
+
+
 	</head>
 	
 	
@@ -39,9 +79,21 @@
 	<!-- ==================================== -->
 	<div class="LEFT_TOP">
 		<!--屬性欄，此div為最外框-->
-    	<div id="my_status" >我方當前狀態 
+    	<div id="status" >當前狀態 
+			<div id="my_basic-data">
+				<!--基本數值-->
+				<div>你堅守了<span id="round"> 1 </span>天</div>
+				<div> 城牆狀態</div>
+				<div>東: <span id="east_hp"> 1000</span> </div>
+				<div>南: <span id="south_hp"> 1000 </span> </div>
+				<div>西: <span id="west_hp"> 1000 </span> </div>
+				<div>北: <span id="north_hp"> 1000 </span> </div>
+				<div>軍隊狀態</div>
+				<div>弓箭隊:    <span id="archer"> 1 </span>    隊         </div>
+				<div>重步兵隊:    <span id="armor"> 0 </span>   隊          </div>
+				<div>騎兵隊:    <span id="ranger"> 0 </span>    隊         </div>
+			</div>		
 
-		 
         </div> <!-- id=LEFT_TOP closing tag , this section ending here-->
 
 	<!-- all status showing above-->
@@ -60,8 +112,17 @@
 	<!-- ==================================== -->
 	<div class="LEFT_BOTTOM">
 		
-			<div id="my_mission">當前任務:</div>
-				
+			<div id="my_mission">操作</div>
+			
+			<div id = "choose_action">
+			你這回合選擇
+
+			<button class="choice_button" id="choose_left">軍隊調度</button>
+			<button class="choice_button" id="choose_left">招募士兵</button>
+			<button class="choice_button" id="choose_left">修築城牆</button>
+
+		    </div>
+
 	</div>
 
 	</div>
@@ -83,7 +144,6 @@
 
 
 </body>
-
 
 
 </html>

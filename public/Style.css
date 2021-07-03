@@ -1,0 +1,131 @@
+.LEFT {
+	width: 50%; 
+	float: left;
+	height:100%;
+}
+
+.RIGHT {
+	width: 50%; 
+	float: left;
+	height:100%;
+}
+
+.window_title {
+	width: 100%; 
+	height:10%;
+	font-size:150%;
+}
+
+.LEFT_TOP {
+	width: 100%; 
+	float: left;
+	height:50%;
+	background-color: #F0F8FF;
+}
+
+
+.LEFT_BOTTOM {
+	width: 100%; 
+	float: left;
+	height:50%;
+	background-color: #FFEBCD;
+}
+
+.interact-sector{
+	height:25%;
+
+}
+
+.status_content{
+
+	border-style:solid;
+	width:80%;
+	height:15%;
+
+}
+
+.choice_description {
+	position: relative;
+	height:60%;
+	left:25px;
+}
+
+
+.choice_button{
+
+	
+	height: 8%;
+	width: 20%;
+}
+
+
+div {
+	font-family:"DFKai-SB";
+}
+
+.message_div{
+    height:5%;
+	font-size : 200%;
+}
+
+
+
+
+
+#interact_sector {
+	background-color: #7FFFD4;
+	width: 50%; 
+	float: left;
+	height:100%;
+}
+
+
+#message {
+	background-color: #DCDCDC;
+	height:100%;
+	float: left;
+	width: 100%;
+	/*overflow:scroll;*/
+} 
+
+.interact-button{
+	/*float: left;*/
+	height:25px;
+	width: 70px;
+}
+
+
+/*for draw card pop out window */
+.close {
+    position:absolute;
+    top:-40px;
+    right:-5px;
+    width:25px;
+    height:25px;
+    cursor:pointer;
+    color: #fff;
+    display: inline-block;
+}
+.pop_window {  /*跳出全螢幕的背景*/
+     position:absolute;
+    display:none;
+    top:0;
+    right:0;
+    bottom:0;
+    left:0;
+    background:rgba(0, 0, 0, 0.8);
+    z-index:9999;
+}
+
+.pop_center {
+    position:absolute;
+    width:50%;
+    height:50%;
+    top:25%;
+    left:25%;
+    text-align:center;
+    border-radius: 10px;
+    background:rgb(240,240,240);
+    box-shadow: 0px 0px 10px 0px black;
+}
+

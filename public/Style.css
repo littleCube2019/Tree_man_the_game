@@ -129,3 +129,11 @@ div {
     box-shadow: 0px 0px 10px 0px black;
 }
 
+#go-back {
+	position: absolute; 
+	background: orange;
+	width: 50px;
+	height: 25px;
+	top: 93% ;        
+	left: 45%;       
+}

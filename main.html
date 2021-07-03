@@ -19,7 +19,12 @@
 		<!--<script src="/socket.io/socket.io.js"></script>-->
 		<script src="/socket.io/socket.io.js"></script>
     	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-
+		
+		<!-- vue.js-->
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/vue"></script>
 		<!-- ==================================== -->
 
 
@@ -63,8 +68,11 @@
 				
 				round = 1;
 				$("#choose_player").hide();
+				$(".detail_choose").hide();
+				
 				$(".LEFT").show();
 				$(".RIGHT").show();
+				
 				/*
 				$("#my_item_2").hide();
 				$("#my_item_content_2").hide();
@@ -104,8 +112,36 @@
 					socket.emit("choose_character", 2);
 				});
 				//========  ==============================================================================	
+				
+				// id :  1 : archer , 2 : armor
+				$("#choose_troop_move").click(()=>{
+					 $("#choose_basic_action").hide();
+					 $("#troop_move").show();
+					 $("#go-back").show();
+				}
+				)
+
+				$("#choose_recuit_troop").click(()=>{
+					$("#choose_basic_action").hide();
+					$("#recuit_troop").show();
+					$("#go-back").show();
+
+				})
+				
+				$("#choose_repair_wall").click(()=>{
+					$("#choose_basic_action").hide();
+					$("#repair_wall").show();
+					$("#go-back").show();
+    
+				})
+	            
+				$("#go-back ").click(()=>{
+					$(".detail_choose").hide();
+					$("#choose_basic_action").show();
+				})
+				//========  ==============================================================================	
 			
-			})
+				})
 		</script>
 
 
@@ -119,7 +155,7 @@
 
 	<body>
    
-	<!-- 選角畫面 -->
+	<!-- 選角畫面 ======================          -->
 	<div id="choose_player">
 	<img src="title.PNG" >
 	<div style="text-align: center">
@@ -128,7 +164,7 @@
 		  <button id="pl2">player2</button>
 		</div>
 	</div>
-
+	<!-- ======================================  -->
 
 
 
@@ -146,9 +182,16 @@
 				<div>你堅守了<span id="round"> 1 </span>天</div>
 				<div> 城牆狀態</div>
 				<div>東: <span id="east_hp"> 1000</span> </div>
+				<!--
+				<div class="progress">
+					<div class="progress-bar" role="progressbar" style="'width:'+ env.roads["E"].wallhp*100+'%'" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+				</div>-->
 				<div>南: <span id="south_hp"> 1000 </span> </div>
+				
 				<div>西: <span id="west_hp"> 1000 </span> </div>
+				
 				<div>北: <span id="north_hp"> 1000 </span> </div>
+				
 				<div>軍隊狀態</div>
 				<div>弓箭隊:    <span id="archer"> 1 </span>    隊         </div>
 				<div>重步兵隊:    <span id="armor"> 0 </span>   隊          </div>
@@ -175,14 +218,28 @@
 		
 			<div id="my_mission">操作</div>
 			
-			<div id = "choose_action">
+			<div id = "choose_basic_action">
 			你這回合選擇
 
-			<button class="choice_button" id="choose_left">軍隊調度</button>
-			<button class="choice_button" id="choose_left">招募士兵</button>
-			<button class="choice_button" id="choose_left">修築城牆</button>
+			<button class="choice_button" id="choose_troop_move">軍隊調度</button>
+			<button class="choice_button" id="choose_recuit_troop">招募士兵</button>
+			<button class="choice_button" id="choose_repair_wall">修築城牆</button>
 
 		    </div>
+
+			<div class= "detail_choose" id = "troop_move">  轉守為攻!!
+				
+			</div>
+			
+			<div class= "detail_choose" id = "recuit_troop">  </div>
+			<div class= "detail_choose" id = "repair_wall">  
+				<div>選擇修補方向  </div>  
+				<div> <button class="repair_wall" id="W">東</button>  </div>
+				<div> <button class="repair_wall" id="S">南</button> </div>
+			    <div> <button class="repair_wall" id="E">西</button>  </div>
+				<div> <button class="repair_wall" id="N">北</button>  </div>
+			</div>
+			<button class="detail_choose" , id="go-back"> 返回</button>
 
 	</div>
 

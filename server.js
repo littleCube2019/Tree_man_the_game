@@ -110,6 +110,10 @@ io.on('connection', (socket) => {
       io.emit("start_game");
      
       console.log("start game");
+
+
+      //Env.roads["E"].wallhp -= 500;
+       //io.emit("update_state", Env);
     }
   });
   //  =================================================
@@ -120,7 +124,7 @@ io.on('connection', (socket) => {
   console.log('Client connected');
   socket.on('disconnect', () => console.log('Client disconnected'));
 
- 
+
   io.emit("update_state", Env);
 
 

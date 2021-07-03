@@ -27,3 +27,13 @@ class ranger{
         this.move_distance = 3;
     }
 }
+
+class troop{
+    constructor(type, hp, attack, attack_range, move_distance){
+        this.type = type;
+        this.hp = hp;
+        this.attack = attack;
+        this.attack_range = attack_range;
+        this.move_distance = move_distance;
+    }
+}

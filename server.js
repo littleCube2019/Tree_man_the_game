@@ -28,8 +28,8 @@ class road{
     this.wallhp = 1000;
     this.direction = direction;
     this.max_distance = 20;
-    this.army_location = [];
-    this.enemy_location = [];
+    this.army_location = [[]];
+    this.enemy_location = [[]];
     for(var i=0; i<this.max_distance; i++){
       this.army_location = 0;
       this.enemy_location = 0;
@@ -67,42 +67,70 @@ function chooseCharacter(id)
 class Environment {
   //環境變數
   constructor(){
-        this.roads = {
-            "E":new road("E") ,  
-            "S":new road("S") ,
-            "W":new road("W") ,
-            "N":new road("N") , 
-        }
-        this.round = 1 ; 
-        this.wood = 500 ;
-        this.num_of_troop = {
-            "archer":1 ,
-            "armor":0 , 
-            "ranger":0 ,
-        } 
+    this.roads = {
+        "E":new road("E") ,  
+        "S":new road("S") ,
+        "W":new road("W") ,
+        "N":new road("N") , 
+    }
+    this.round = 1 ; 
+    this.wood = 500 ;
+    this.num_of_troop = {
+        "archer":1 ,
+        "armor":0 , 
+        "ranger":0 ,
+    }
+    this.archer = [];
+    this.armor = [];
+    this.ranger = [];   
+  }
 
-        
+  recuit(type){
+    if(type=='archer')
+      this.num_of_troop.archer = this.archer.push('archer');
+    else if(type=='armor')
+      this.num_of_troop.armor = this.armor.push('armor');
+    else if(type=='ranger')
+      this.num_of_troop.ranger = this.ranger.push('ranger');
+  }
+
+  moveArmy(troop_type, direction){
+    if(direction=='E')
+      this.roads.E.army_location[0].push(troop_type);
+    else if(direction=='S')
+      this.roads.S.army_location[0].push(troop_type);
+    else if(direction=='W')
+      this.roads.W.army_location[0].push(troop_type);
+    else if(direction=='N')
+      this.roads.N.army_location[0].push(troop_type);
+  }
+
+  repairWall(direction, unit){
+    if(direction=='E')
+      this.roads.E.wallhp = Math.max(this.roads.E.wallhp+unit*100, 1000);
+    else if(direction=='S')
+      this.roads.S.wallhp = Math.max(this.roads.S.wallhp+unit*100, 1000);
+    else if(direction=='W')
+      this.roads.W.wallhp = Math.max(this.roads.W.wallhp+unit*100, 1000);
+    else if(direction=='N')
+      this.roads.N.wallhp = Math.max(this.roads.N.wallhp+unit*100, 1000);
   }
 };
 
  
 
-var Env = null;
+var env = null;
 
 function newGame(){
-  Env = new Environment();
+  env = new Environment();
 }
 
-function player_movement_update(recuit, move_army, build_wall){
+function player_movement_update(action){
   //test
-  if(recuit){
-    env.num_of_troop.archer += 1;
-  }
-  if(move_army){
-    
-  }
-  if(build_wall){
-    env.build_wall.wallhp = Math.max(1000, env.build_wall.wallhp+100);
+  switch(action.type){
+    case('recuit'): env.recuit(action.recuit);
+    case('move_army'): env.moveArmy(action.troop_type, action.direction);
+    case('repair_wall'): env.repairWall(direction, repair_unit);
   }
 }
 
@@ -134,24 +162,26 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => console.log('Client disconnected'));
 
  
-  io.emit("update_state", Env);
-
-  socket.on("action_done", (player_id, recuit, move_army, build_wall)=>{
+  io.emit("update_state", env);
+  
+  //結算玩家的行動並更新環境
+  socket.on("action_done", (player_id, action)=>{
     if(player_id==1){
       //test
-      player_movement_update(recuit, move_army, build_wall);
+      player_movement_update(action);
 
-      io.emit("update_state", Env);
-      io.emit("player2 turn");
+      io.emit("update_state", env);
+      io.emit("player2_turn");
     }
     else if(player_id==2){
       //test
-      player_movement_update(recuit, move_army, build_wall);
+      player_movement_update(action);
 
-      io.emit("update_state", Env);
-      io.emit("player2 turn");
+      io.emit("update_state", env);
+      io.emit("player1_turn");
     }
   })
+  //===================================================
 
   /*
 

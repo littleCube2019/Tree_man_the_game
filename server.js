@@ -24,6 +24,17 @@ http.listen(process.env.PORT || 3000, function(){
 
 app.use(express.static('public'));
 
+class road{
+  constructor(direction){
+    this.direction = direction;
+    this.max_distance = 20;
+    this.troop_location = [];
+    for(var i=0; i<this.max_distance; i++){
+      
+    }
+  }
+}
+
 function addMessage(Text){
   if(num_message>= MAX_MESSAGE){
     $("#message div:nth-child(1)").remove();
@@ -37,3 +48,11 @@ function addMessage(Text){
   }
   num_message+=1;
 }
+
+function attack(){
+
+}
+
+io.on('connection', (socket)=>{
+
+})

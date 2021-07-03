@@ -45,18 +45,67 @@
 				num_message+=1;
 			}
 			
+			//選擇玩家 socket  ==============================================================================
+			socket.on("welcome",()=>{ //when start,hide the main page to let player select charcters.
+						$(".LEFT").hide();
+						$(".RIGHT").hide();
+				})
+
+			socket.on("player_choosed", (id)=>{ 
+						if(id==1){
+							$("#pl1").hide();
+						}else if(id==2){
+							$("#pl2").hide();
+						}
+				})
+
+			socket.on("start_game",()=>{
+				
+				round = 1;
+				$("#choose_player").hide();
+				$(".LEFT").show();
+				$(".RIGHT").show();
+				/*
+				$("#my_item_2").hide();
+				$("#my_item_content_2").hide();
+				$("#item_sub_accept_1").hide();
+				$("#item_sub_accept_2").hide();
+				$("#item_sub_deny").hide();
+				$("#action_pray").hide(); */
+			})	
+
+			
+			//========  ==============================================================================	
 
 			socket.on("update_state", (env)=>{  //更新雙方血量
 				$("#round").text(env.round);
-
-				$("#east_hp").text(env.wallHP["E"]);
-				$("#south_hp").text(env.wallHP["S"]);
-				$("#west_hp").text(env.wallHP["W"]);
-				$("#north_hp").text(env.wallHP["N"]);
+				$("#east_hp").text(env.roads["E"].wallhp);
+				$("#south_hp").text(env.roads["S"].wallhp);
+				$("#west_hp").text(env.roads["W"].wallhp);
+				$("#north_hp").text(env.roads["N"].wallhp);
 			}
 			)
 
-
+			// jQuery , 按鈕與互動
+			$(document).ready(()=>{
+				//選擇玩家 按鈕 ========================
+				$("#pl1").click(()=>{
+					playerId = 1;
+					$("#pl1").hide();
+					$("#pl2").hide();
+					$("#pl").text("你是玩家1");
+					socket.emit("choose_character", 1);
+				});
+				$("#pl2").click(()=>{
+					playerId = 2;
+					$("#pl1").hide();
+					$("#pl2").hide();
+					$("#pl").text("你是玩家2");
+					socket.emit("choose_character", 2);
+				});
+				//========  ==============================================================================	
+			
+			})
 		</script>
 
 
@@ -65,11 +114,23 @@
 	
 	
 
+
+
+
 	<body>
-	
-
-
    
+	<!-- 選角畫面 -->
+	<div id="choose_player">
+	<img src="title.PNG" >
+	<div style="text-align: center">
+		<p id="pl">請選擇角色</p>
+		<button id="pl1">player1</button>
+		  <button id="pl2">player2</button>
+		</div>
+	</div>
+
+
+
 
 	<div class="LEFT">
 	
@@ -126,20 +187,20 @@
 	</div>
 
 	</div>
-<div class="RIGHT">
-<!-- show message below--> 
-		<!-- ==================================== -->
+	<div class="RIGHT">
+	<!-- show message below--> 
+			<!-- ==================================== -->
+			
+			<div id="message">message
 		
-    	<div id="message">messageWAH
-	
 
-    	</div>
-        
-        
-        <!-- show message above--> 
-		<!-- ==================================== -->
+			</div>
+			
+			
+			<!-- show message above--> 
+			<!-- ==================================== -->
 
-</div> 
+	</div> 
 
 
 

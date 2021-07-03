@@ -12,8 +12,6 @@ const { env } = require('process');
 //const itemcard = require('./itemcard.js');
 
 
-//WAH
-
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/main.html');
@@ -39,13 +37,42 @@ class road{
   }
 }
 
+
+// ======= 選角相關變數&function
+
+var player1HasBeenChoosen = false ;
+var player2HasBeenChoosen = false; 
+
+
+function chooseCharacter(id)
+{
+  if(id==1){
+    console.log("player1 has been choosed");
+    player1HasBeenChoosen = true;
+  }else if(id==2){
+    console.log("player2 has been choosed");
+    player2HasBeenChoosen = true;
+  }
+  io.emit("player_choosed", id);
+}
+
+
+
+
+// ========
+
+
+
+
 class Environment {
   //環境變數
   constructor(){
-        this.east_road = new road(east);
-        this.south_road = new road(south);
-        this.west_road = new road(west);
-        this.north_road = new road(north);
+        this.roads = {
+            "E":new road("E") ,  
+            "S":new road("S") ,
+            "W":new road("W") ,
+            "N":new road("N") , 
+        }
         this.round = 1 ; 
         this.wood = 500 ;
         this.num_of_troop = {
@@ -53,9 +80,12 @@ class Environment {
             "armor":0 , 
             "ranger":0 ,
         } 
+
+        
   }
 };
 
+ 
 
 var Env = null;
 
@@ -78,13 +108,32 @@ function player_movement_update(recuit, move_army, build_wall){
 
 io.on('connection', (socket) => {
   newGame();  //初始化
+  
+  
+  
+  
+  
+  
   io.emit("welcome");
+
+  // 選角  =============================================
+  socket.on("choose_character", (id)=>{
+    chooseCharacter(id);
+    if(player1HasBeenChoosen && player2HasBeenChoosen){
+      io.emit("start_game");
+     
+      console.log("start game");
+    }
+  });
+  //  =================================================
+
+
+
+
   console.log('Client connected');
   socket.on('disconnect', () => console.log('Client disconnected'));
 
-  //test 
-  Env.round+=1;
-
+ 
   io.emit("update_state", Env);
 
   socket.on("action_done", (player_id, recuit, move_army, build_wall)=>{

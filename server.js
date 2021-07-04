@@ -10,7 +10,8 @@ const { env } = require('process');
 //var mission = require("./mission.js");
 //var item = require("./item.js");
 //const itemcard = require('./itemcard.js');
-
+var army = require('./army.js');
+var enemy = require('./enemy.js');
 
 
 app.get('/', function(req, res){
@@ -34,6 +35,9 @@ class road{
       this.army_location = 0;
       this.enemy_location = 0;
     }
+  }
+  repairWall(repair_unit){
+    this.wallhp = Math.max(this.wallhp + repair_unit*100, 1000);
   }
 }
 
@@ -76,7 +80,7 @@ class Environment {
     this.round = 1 ; 
     this.wood = 500 ;
     this.num_of_troop = {
-        "archer":1 ,
+        "archer":0 ,
         "armor":0 , 
         "ranger":0 ,
     }
@@ -86,51 +90,61 @@ class Environment {
   }
 
   recuit(type){
-    if(type=='archer')
-      this.num_of_troop.archer = this.archer.push('archer');
-    else if(type=='armor')
-      this.num_of_troop.armor = this.armor.push('armor');
-    else if(type=='ranger')
-      this.num_of_troop.ranger = this.ranger.push('ranger');
+    if(type=='archer'){
+      var archer_team = army.archer;
+      this.wood -= archer_team.cost;
+      this.num_of_troop["archer"] = this.archer.push(archer_team);
+    }
+    else if(type=='armor'){
+      var armor_team = army.armor;
+      this.wood -= armor_team.cost;
+      this.num_of_troop["armor"] = this.armor.push(armor_team);
+    }
+    else if(type=='ranger'){
+      var ranger_team = army.ranger;
+      this.wood -= ranger_team.cost;
+      this.num_of_troop["ranger"] = this.ranger.push(ranger_team);
+    }
   }
 
   moveArmy(troop_type, direction){
     if(direction=='E')
-      this.roads.E.army_location[0].push(troop_type);
+      this.roads[E].army_location[0].push(troop_type);
     else if(direction=='S')
-      this.roads.S.army_location[0].push(troop_type);
+      this.roads[S].army_location[0].push(troop_type);
     else if(direction=='W')
-      this.roads.W.army_location[0].push(troop_type);
+      this.roads[W].army_location[0].push(troop_type);
     else if(direction=='N')
-      this.roads.N.army_location[0].push(troop_type);
+      this.roads[N].army_location[0].push(troop_type);
   }
 
   repairWall(direction, unit){
+    this.wood = this.wood - unit*100;
     if(direction=='E')
-      this.roads.E.wallhp = Math.max(this.roads.E.wallhp+unit*100, 1000);
+      this.roads[E].wallhp = Math.min(this.roads[E].wallhp+unit*100, 1000);
     else if(direction=='S')
-      this.roads.S.wallhp = Math.max(this.roads.S.wallhp+unit*100, 1000);
+      this.roads[S].wallhp = Math.min(this.roads[S].wallhp+unit*100, 1000);
     else if(direction=='W')
-      this.roads.W.wallhp = Math.max(this.roads.W.wallhp+unit*100, 1000);
+      this.roads[W].wallhp = Math.min(this.roads[W].wallhp+unit*100, 1000);
     else if(direction=='N')
-      this.roads.N.wallhp = Math.max(this.roads.N.wallhp+unit*100, 1000);
+      this.roads[N].wallhp = Math.min(this.roads[N].wallhp+unit*100, 1000);
   }
 };
 
  
 
-var env = null;
+var Env = null;
 
 function newGame(){
-  env = new Environment();
+  Env = new Environment();
 }
 
 function player_movement_update(action){
   //test
   switch(action.type){
-    case('recuit'): env.recuit(action.recuit);
-    case('move_army'): env.moveArmy(action.troop_type, action.direction);
-    case('repair_wall'): env.repairWall(direction, repair_unit);
+    case('recuit'): Env.recuit(action.recuit);
+    case('move_army'): Env.moveArmy(action.troop_type, action.direction);
+    case('repair_wall'): Env.repairWall(direction, repair_unit);
   }
 }
 
@@ -167,7 +181,7 @@ io.on('connection', (socket) => {
 
 
  
-  io.emit("update_state", env);
+  io.emit("update_state", Env);
   
   //結算玩家的行動並更新環境
   socket.on("action_done", (player_id, action)=>{
@@ -175,7 +189,7 @@ io.on('connection', (socket) => {
       //test
       player_movement_update(action);
 
-      io.emit("update_state", env);
+      io.emit("update_state", Env);
       io.emit("player2_turn");
     }
     else if(player_id==2){
@@ -183,7 +197,7 @@ io.on('connection', (socket) => {
       player_movement_update(action);
 
 
-      io.emit("update_state", env);
+      io.emit("update_state", Env);
       io.emit("player1_turn");
     }
   })

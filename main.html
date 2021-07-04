@@ -37,7 +37,8 @@
 
 
 		<script>
-
+			var TURN = -1;  //第一次player_turn 會解鎖 button 
+			var PLAYER_ID = 0 ; 
 			let socket = io();
 
 
@@ -62,18 +63,20 @@
 			socket.on("welcome",()=>{ //when start,hide the main page to let player select charcters.
 						$(".LEFT").hide();
 						$(".RIGHT").hide();
+						
 				})
 
 			socket.on("player_choosed", (id)=>{ 
+				
 						if(id==1){
 							$("#pl1").hide();
-						}else if(id==2){
+						}else if(id==-1){
 							$("#pl2").hide();
 						}
 				})
 
 			socket.on("start_game",()=>{
-				
+				$("button").attr('disabled', true);
 				round = 1;
 				$("#choose_player").hide();
 				$(".detail_choose").hide();
@@ -89,7 +92,20 @@
 				$("#item_sub_deny").hide();
 				$("#action_pray").hide(); */
 			})	
-
+			
+			socket.on("player_turn" , ()=>{
+				TURN *= -1;
+				console.log(TURN );
+				console.log( PLAYER_ID );
+				if(TURN == PLAYER_ID){
+					$("button").attr('disabled', false);
+				}
+				else{
+					$("button").attr('disabled', true);
+				}
+				$("#go-back").attr("disabled", false);
+				
+			})
 			
 			//========  ==============================================================================	
 
@@ -121,18 +137,18 @@
 			$(document).ready(()=>{
 				//選擇玩家 按鈕 ========================
 				$("#pl1").click(()=>{
-					playerId = 1;
+					PLAYER_ID = 1;
 					$("#pl1").hide();
 					$("#pl2").hide();
 					$("#pl").text("你是玩家1");
 					socket.emit("choose_character", 1);
 				});
 				$("#pl2").click(()=>{
-					playerId = 2;
+					PLAYER_ID = -1;
 					$("#pl1").hide();
 					$("#pl2").hide();
 					$("#pl").text("你是玩家2");
-					socket.emit("choose_character", 2);
+					socket.emit("choose_character", -1);
 				});
 				//========  ==============================================================================	
 				
@@ -238,6 +254,10 @@
 			<div id="my_basic-data">
 				<!--基本數值-->
 				<div>你堅守了<span id="round"> 1 </span>天</div>
+				<div> 內政狀態</div>
+				<div>木頭: <span id="east_hp"> 1000</span> </div>
+
+
 				<div> 城牆狀態</div>
 				<div>東: <span id="east_hp"> 1000</span> </div>
 

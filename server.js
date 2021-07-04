@@ -53,7 +53,7 @@ function chooseCharacter(id)
   if(id==1){
     console.log("player1 has been choosed");
     player1HasBeenChoosen = true;
-  }else if(id==2){
+  }else if(id==-1){
     console.log("player2 has been choosed");
     player2HasBeenChoosen = true;
   }
@@ -151,7 +151,7 @@ function player_movement_update(action ){
     case('recuit'): Env.recuit(action.recuit);
     case('move_army'): Env.moveArmy(action.troop_type, action.direction);
     case('repair_wall'): Env.repairWall(action.direction, action.unit);
-
+  }
 }
 
 io.on('connection', (socket) => {
@@ -168,9 +168,10 @@ io.on('connection', (socket) => {
   socket.on("choose_character", (id)=>{
     chooseCharacter(id);
     if(player1HasBeenChoosen && player2HasBeenChoosen){
+
       io.emit("start_game");
-     
-      console.log("start game");
+      io.emit("player_turn");
+      //console.log("start game");
 
 
       Env.roads["E"].wallhp -= 500;
@@ -200,16 +201,16 @@ io.on('connection', (socket) => {
     if(player_id==1){
       player_movement_update(action);
       io.emit("update_state", Env);
-    
-      io.emit("player2_turn");
+      
+      io.emit("player_turn");
     }
-    else if(player_id==2){
+    else if(player_id==-1){
 
       player_movement_update(action);
       io.emit("update_state", Env);
-      io.emit("player1_turn");
+      io.emit("player_turn");
     }
-  })
+  });
   //===================================================
 
   /*

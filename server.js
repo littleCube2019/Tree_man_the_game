@@ -81,26 +81,30 @@ class Environment {
     this.round = 1 ; 
     this.wood = 500 ;
     this.num_of_troop = {
-        "archer":0 ,
+        "archer":1 ,
         "armor":0 , 
         "ranger":0 ,
     }
-    this.archer = [];
+    this.archer = [army.archer];
     this.armor = [];
     this.ranger = [];   
   }
 
-  recuit(type){
+  recruit(type){
+    
     if(type=='archer'){
 
       var archer_team = army.archer;
       this.wood -= archer_team.cost;
-      this.num_of_troop["archer"] = this.archer.push(archer_team);
+      this.num_of_troop["archer"] = this.archer.push(archer_team); //len
+
     }
     else if(type=='armor'){
       var armor_team = army.armor;
+      
       this.wood -= armor_team.cost;
       this.num_of_troop["armor"] = this.armor.push(armor_team);
+      console.log(this.armor);
     }
     else if(type=='ranger'){
       var ranger_team = army.ranger;
@@ -145,10 +149,10 @@ function newGame(){
 }
 
 function player_movement_update(action ){
-
+  console.log(action);
   switch(action.type){
 
-    case('recuit'): Env.recuit(action.recuit);
+    case('recruit'): Env.recruit(action.troop_type);
     case('move_army'): Env.moveArmy(action.troop_type, action.direction);
     case('repair_wall'): Env.repairWall(action.direction, action.unit);
   }
@@ -173,8 +177,9 @@ io.on('connection', (socket) => {
       io.emit("player_turn");
       //console.log("start game");
 
-
-      Env.roads["E"].wallhp -= 500;
+      //test
+      Env.wood += 5000;
+      console.log(Env);
       io.emit("update_state", Env);
     }
   });

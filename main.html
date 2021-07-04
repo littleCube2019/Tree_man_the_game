@@ -40,7 +40,7 @@
 			var TURN = -1;  //第一次player_turn 會解鎖 button 
 			var PLAYER_ID = 0 ; 
 			let socket = io();
-
+			var Env = null;
 
 			//message
 			var num_message = 0; 
@@ -109,14 +109,21 @@
 			
 			//========  ==============================================================================	
 
-			socket.on("update_state", (env)=>{  //更新雙方血量
+			socket.on("update_state", (env)=>{  //更新狀態
+				Env = env;
+
+
+
 				$("#round").text(env.round);
 				$("#east_hp").text(env.roads["E"].wallhp);
+				$("#wood").text(env.wood);
 				$("#south_hp").text(env.roads["S"].wallhp);
 				$("#west_hp").text(env.roads["W"].wallhp);
 				$("#north_hp").text(env.roads["N"].wallhp);
 				
-
+				$("#num_archer").text(env.num_of_troop["archer"]);
+				$("#num_armor").text(env.num_of_troop["armor"]);
+				$("#num_ranger").text(env.num_of_troop["ranger"]);
 		
 				$("#W-wall-bar").css("width" , (env.roads["W"].wallhp*100/env.maxWallhp).toString()  + "%");
 		
@@ -183,16 +190,38 @@
 				// recruit_troop wall button ====================================================================
 				$(".recruit_troop").click(function(e){
 
-					troop_type = e.target.id
+					troop_type = e.target.id;
+					troop_name = "沒有";
 					class recruit_troop {
 						constructor(troop_type){
 							this.type ='recruit';
 							this.troop_type = troop_type ;
 						}
 					}
-					action = new recruit_troop(troop_type);
-
-					socket.emit("action_done" , 1 , action);
+					can_recruit = true;
+					if(troop_type == "archer" && Env.wood >= 1000  ){
+						action = new recruit_troop(troop_type);
+						troop_name= "弓箭";
+						
+					}
+					else if(troop_type == "armor" && Env.wood >= 500  ){
+						action = new recruit_troop(troop_type);
+						troop_name="重甲步兵";
+					}
+					else if(troop_type == "archer" && Env.wood >= 2000 ){
+						action = new recruit_troop(troop_type);
+						troop_name="騎兵";
+					}
+					else{
+						addMessage("你沒有足夠的木頭招募士兵");
+						can_recruit=false;
+					}
+					
+					if(can_recruit){
+						addMessage("你招募了一隊"+troop_name+"隊!");
+						socket.emit("action_done" , PLAYER_ID , action);
+					}
+					
 				})
 
 				//========  ==============================================================================	
@@ -209,7 +238,7 @@
 					}
 					action = new repair_wall(dir,2);
 
-					socket.emit("action_done" , 1 , action);
+					socket.emit("action_done" , PLAYER_ID , action);
 				})
 	
 				//========  ==============================================================================	
@@ -255,7 +284,7 @@
 				<!--基本數值-->
 				<div>你堅守了<span id="round"> 1 </span>天</div>
 				<div> 內政狀態</div>
-				<div>木頭: <span id="east_hp"> 1000</span> </div>
+				<div>木頭: <span id="wood">500 </span> </div>
 
 
 				<div> 城牆狀態</div>
@@ -299,9 +328,9 @@
 
 
 				<div>軍隊狀態</div>
-				<div>弓箭隊:    <span id="archer"> 1 </span>    隊         </div>
-				<div>重步兵隊:    <span id="armor"> 0 </span>   隊          </div>
-				<div>騎兵隊:    <span id="ranger"> 0 </span>    隊         </div>
+				<div>弓箭隊:    <span id="num_archer"> 1 </span>    隊         </div>
+				<div>重步兵隊:    <span id="num_armor"> 0 </span>   隊          </div>
+				<div>騎兵隊:    <span id="num_ranger"> 0 </span>    隊         </div>
 			</div>		
 
         </div> <!-- id=LEFT_TOP closing tag , this section ending here-->

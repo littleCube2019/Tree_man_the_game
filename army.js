@@ -1,3 +1,4 @@
+/*
 class archer{
     constructor(archer_id){
         this.id = archer_id;
@@ -27,13 +28,17 @@ class ranger{
         this.move_distance = 3;
     }
 }
-
+*/
 class troop{
-    constructor(type, hp, attack, attack_range, move_distance){
-        this.type = type;
+    constructor(cost, hp, attack, attack_range, move_distance){
+        this.cost = cost;
         this.hp = hp;
         this.attack = attack;
         this.attack_range = attack_range;
         this.move_distance = move_distance;
     }
 }
+
+export const archer = new troop(1000, 1, 100, 3, 0);
+export const armor = new troop(500, 1000, 50, 0, 1);
+export const ranger = new troop(2000, 500, 300, 0, 3);

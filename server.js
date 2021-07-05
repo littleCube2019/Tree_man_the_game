@@ -28,7 +28,7 @@ class road{
   constructor(direction){
     this.wallhp = 1000;
     this.direction = direction;
-    this.max_distance = 20;
+    this.max_distance = 21;
     this.army_location = [[]];
     this.enemy_location = [[]];
     for(var i=0; i<this.max_distance; i++){
@@ -77,6 +77,7 @@ class Environment {
         "W":new road("W") ,
         "N":new road("N") , 
     }
+    this.maxWallhp = 1000 ; 
     this.round = 1 ; 
     this.wood = 500 ;
     this.num_of_troop = {
@@ -119,15 +120,14 @@ class Environment {
   }
 
   repairWall(direction, unit){
-    this.wood = this.wood - unit*100;
     if(direction=='E')
-      this.roads["E"].wallhp = Math.min(this.roads["E"].wallhp+unit*100, 1000);
+      this.roads["E"].wallhp = Math.min(this.roads["E"].wallhp+unit*100, this.maxWallhp);
     else if(direction=='S')
-      this.roads["S"].wallhp = Math.min(this.roads["S"].wallhp+unit*100, 1000);
+      this.roads["S"].wallhp = Math.min(this.roads["S"].wallhp+unit*100, this.maxWallhp);
     else if(direction=='W')
-      this.roads["W"].wallhp = Math.min(this.roads["W"].wallhp+unit*100, 1000);
+      this.roads["W"].wallhp = Math.min(this.roads["W"].wallhp+unit*100, this.maxWallhp);
     else if(direction=='N')
-      this.roads["N"].wallhp = Math.min(this.roads["N"].wallhp+unit*100, 1000);
+      this.roads["N"].wallhp = Math.min(this.roads["N"].wallhp+unit*100, this.maxWallhp);
   }
 };
 
@@ -139,13 +139,44 @@ function newGame(){
   Env = new Environment();
 }
 
-function player_movement_update(action){
-  //test
+function player_movement_update(action ){
+
   switch(action.type){
     case('recruit'): Env.recruit(action.recruit);
     case('move_army'): Env.moveArmy(action.troop_type, action.direction);
-    case('repair_wall'): Env.repairWall(direction, repair_unit);
+    case('repair_wall'): Env.repairWall(action.direction, action.unit);
   }
+}
+
+function roundCheck(){
+  troopMove();
+  enemyMove();
+  spawnEnemy();
+}
+
+function troopMove(){
+  for(var i=19; i>=0; i--){
+    if(Env.roads["E"].army_location[i].length){
+      var troop_num = Env.roads["E"].army_location[i].length;
+      for(var j=0; j<troop_num; j++){
+        var move_to = Math.max(Env.roads["E"].army_location[i][j].move_distance+i, 20); 
+        Env.roads["E"].army_location[move_to].push(Env.roads["E"].army_location[i][j]); 
+      }
+      Env.roads["E"].army_location[i] = [];
+    }
+  }
+}
+
+function enemyMove(){
+
+}
+
+function spawnEnemy(){
+
+}
+
+function gameover(){
+
 }
 
 io.on('connection', (socket) => {
@@ -167,11 +198,16 @@ io.on('connection', (socket) => {
       console.log("start game");
 
 
-      //Env.roads["E"].wallhp -= 500;
-       //io.emit("update_state", Env);
+      Env.roads["E"].wallhp -= 500;
+      io.emit("update_state", Env);
+      io.emit("player_turn");
     }
   });
   //  =================================================
+
+
+ 
+
 
 
 
@@ -181,26 +217,44 @@ io.on('connection', (socket) => {
 
 
  
-  io.emit("update_state", Env);
-  
-  //結算玩家的行動並更新環境
+
+  //每回合結算玩家的行動並更新環境
   socket.on("action_done", (player_id, action)=>{
+    
+
+
     if(player_id==1){
-      //test
       player_movement_update(action);
       io.emit("update_state", Env);
-      io.emit("player2_turn");
+      io.emit("player_turn");
     }
     else if(player_id==2){
       //test
       player_movement_update(action);
+      roundCheck();
       io.emit("update_state", Env);
-      io.emit("player1_turn");
+      io.emit("player_turn");
     }
-  })
+  });
   //===================================================
 
   /*
+
+
+   socket.on("test", ()=>{
+    console.log("test")
+    Env.roads["E"].wallhp +=100;
+    io.emit("update_state", Env);
+
+  });
+
+  socket.on("test2", ()=>{
+    console.log("test")
+    Env.roads["E"].wallhp -=100;
+    io.emit("update_state", Env);
+
+  });
+
 
   //============================================================任務控制==============================================================
   socket.on("mission_control", (id, type)=>{ 

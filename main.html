@@ -20,11 +20,19 @@
 		<script src="/socket.io/socket.io.js"></script>
     	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 		
-		<!-- vue.js-->
+
+		<!-- bootsrap-->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		<!-- vue.js
 		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		
 		<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+		<script type="text/javascript" src="vue-app.js"></script>
+			-->
+
 		<!-- ==================================== -->
 
 
@@ -91,6 +99,21 @@
 				$("#south_hp").text(env.roads["S"].wallhp);
 				$("#west_hp").text(env.roads["W"].wallhp);
 				$("#north_hp").text(env.roads["N"].wallhp);
+				
+
+		
+				$("#W-wall-bar").css("width" , (env.roads["W"].wallhp*100/env.maxWallhp).toString()  + "%");
+		
+				$("#W-wall-bar").text( (env.roads["W"].wallhp*100/env.maxWallhp).toString() + "%" );
+
+				$("#E-wall-bar").css("width" , (env.roads["E"].wallhp*100/env.maxWallhp).toString()  + "%");
+				$("#E-wall-bar").text( (env.roads["E"].wallhp*100/env.maxWallhp).toString() + "%");
+
+				$("#N-wall-bar").css("width" , (env.roads["N"].wallhp*100/env.maxWallhp).toString()  + "%");
+				$("#N-wall-bar").text( (env.roads["N"].wallhp*100/env.maxWallhp).toString()  + "%");
+
+				$("#S-wall-bar").css("width" , (env.roads["S"].wallhp*100/env.maxWallhp).toString()  + "%");
+				$("#S-wall-bar").text( (env.roads["S"].wallhp*100/env.maxWallhp ).toString() + "%");
 			}
 			)
 
@@ -121,9 +144,9 @@
 				}
 				)
 
-				$("#choose_recuit_troop").click(()=>{
+				$("#choose_recruit_troop").click(()=>{
 					$("#choose_basic_action").hide();
-					$("#recuit_troop").show();
+					$("#recruit_troop").show();
 					$("#go-back").show();
 
 				})
@@ -140,7 +163,42 @@
 					$("#choose_basic_action").show();
 				})
 				//========  ==============================================================================	
-			
+				
+				// recruit_troop wall button ====================================================================
+				$(".recruit_troop").click(function(e){
+
+					troop_type = e.target.id
+					class recruit_troop {
+						constructor(troop_type){
+							this.type ='recruit';
+							this.troop_type = troop_type ;
+						}
+					}
+					action = new recruit_troop(troop_type);
+
+					socket.emit("action_done" , 1 , action);
+				})
+
+				//========  ==============================================================================	
+
+				// repair wall button ====================================================================
+				$(".repair_wall ").click(function(e){
+					dir = e.target.id
+					class repair_wall {
+						constructor(dir,unit){
+							this.type ='repair_wall';
+							this.direction =  dir;
+							this.unit = unit ;
+						}
+					}
+					action = new repair_wall(dir,2);
+
+					socket.emit("action_done" , 1 , action);
+				})
+	
+				//========  ==============================================================================	
+
+
 				})
 		</script>
 
@@ -182,16 +240,44 @@
 				<div>你堅守了<span id="round"> 1 </span>天</div>
 				<div> 城牆狀態</div>
 				<div>東: <span id="east_hp"> 1000</span> </div>
-				<!--
+
 				<div class="progress">
-					<div class="progress-bar" role="progressbar" style="'width:'+ env.roads["E"].wallhp*100+'%'" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-				</div>-->
+					<div id="E-wall-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="70"
+					aria-valuemin="0" aria-valuemax="100" style="width:70%">
+					  70%
+					</div>
+				</div>
+	
+
 				<div>南: <span id="south_hp"> 1000 </span> </div>
 				
+				<div class="progress">
+					<div id="S-wall-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="70"
+					aria-valuemin="0" aria-valuemax="100" style="width:70%">
+					  70%
+					</div>
+				</div>
+	
+
+
 				<div>西: <span id="west_hp"> 1000 </span> </div>
-				
+				<div class="progress">
+					<div id="W-wall-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="70"
+					aria-valuemin="0" aria-valuemax="100" style="width:70%">
+					  70%
+					</div>
+				</div>
+	
 				<div>北: <span id="north_hp"> 1000 </span> </div>
-				
+				<div class="progress">
+					<div id="N-wall-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="70"
+					aria-valuemin="0" aria-valuemax="100" style="width:70%">
+					  70%
+					</div>
+				</div>
+	
+
+
 				<div>軍隊狀態</div>
 				<div>弓箭隊:    <span id="archer"> 1 </span>    隊         </div>
 				<div>重步兵隊:    <span id="armor"> 0 </span>   隊          </div>
@@ -210,7 +296,7 @@
 	<!-- ==================================== -->
 
 
-
+	
 
 	<!-- all buttons or something user interaction below-->
 	<!-- ==================================== -->
@@ -221,8 +307,8 @@
 			<div id = "choose_basic_action">
 			你這回合選擇
 
-			<button class="choice_button" id="choose_troop_move">軍隊調度</button>
-			<button class="choice_button" id="choose_recuit_troop">招募士兵</button>
+			<button class="choice_button" id="choose_troop_move">轉守為攻!!</button>
+			<button class="choice_button" id="choose_recruit_troop">招募士兵</button>
 			<button class="choice_button" id="choose_repair_wall">修築城牆</button>
 
 		    </div>
@@ -230,16 +316,31 @@
 			<div class= "detail_choose" id = "troop_move">  轉守為攻!!
 				
 			</div>
+			<!--  招募士兵  -->
+			<div class= "detail_choose" id = "recruit_troop"> 
+				<div>選擇招募兵種  </div>  
+				<div  > <button  class="recruit_troop" id="archer" >弓箭隊</button>   </div>
+				<div > <button class="recruit_troop" id="armor" >重甲步兵隊</button> </div>
+			    <div > <button  class="recruit_troop" id="ranger"> 騎兵隊 </button>  </div>
 			
-			<div class= "detail_choose" id = "recuit_troop">  </div>
+			
+			
+			</div>
+			<!--   =======================================   -->			
+			
+			<!--   修城牆  -->
 			<div class= "detail_choose" id = "repair_wall">  
 				<div>選擇修補方向  </div>  
-				<div> <button class="repair_wall" id="W">東</button>  </div>
-				<div> <button class="repair_wall" id="S">南</button> </div>
-			    <div> <button class="repair_wall" id="E">西</button>  </div>
-				<div> <button class="repair_wall" id="N">北</button>  </div>
+				<div  > <button  class="repair_wall" id="E" >東</button>  </div>
+				<div > <button class="repair_wall" id="S" >南</button> </div>
+			    <div > <button  class="repair_wall" id="W">西</button>  </div>
+				<div > <button class="repair_wall" id="N" >北</button>  </div>
 			</div>
 			<button class="detail_choose" , id="go-back"> 返回</button>
+			<!--   =======================================   -->
+			
+
+
 
 	</div>
 

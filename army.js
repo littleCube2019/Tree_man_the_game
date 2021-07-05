@@ -39,6 +39,6 @@ class troop{
     }
 }
 
-export const archer = new troop(1000, 1, 100, 3, 0);
-export const armor = new troop(500, 1000, 50, 0, 1);
-export const ranger = new troop(2000, 500, 300, 0, 3);
+module.exports.archer = new troop(1000, 1, 100, 3, 0);
+module.exports.armor = new troop(500, 1000, 50, 0, 1);
+module.exports.ranger = new troop(2000, 500, 300, 0, 3);

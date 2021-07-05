@@ -26,7 +26,7 @@ app.use(express.static('public'));
 
 class road{
   constructor(direction){
-    this.wallhp = 1000;
+    this.wallhp = 500;
     this.direction = direction;
     this.max_distance = 21;
     this.nearest_enemy = this.max_distance-1;
@@ -114,6 +114,7 @@ function recruit(type){
 }
 
 function moveArmy(troop_type, direction){
+
   if(troop_type=="archer"){
     //console.log(Env.roads[direction].army_location);
     Env.roads[direction].army_location[0].push(army.archer);
@@ -128,6 +129,7 @@ function moveArmy(troop_type, direction){
     Env.num_of_troop["ranger"] -= 1;
   }
 }
+
 
 /*
     if(direction=='E')
@@ -168,10 +170,12 @@ function roundCheck(){
   spawnEnemy();
   troopMove();
   enemyMove();
+
   combat("N");
   combat("E");
   combat("W");
   combat("S");
+  Env.round+=1
   console.log(Env.roads);
 }
 

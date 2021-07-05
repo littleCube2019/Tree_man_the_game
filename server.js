@@ -29,6 +29,8 @@ class road{
     this.wallhp = 500;
     this.direction = direction;
     this.max_distance = 21;
+    this.nearest_enemy = this.max_distance-1;
+    this.farest_army = 0;
     this.army_location = [];
     this.enemy_location = [];
     for(var i=0; i<this.max_distance; i++){
@@ -165,11 +167,59 @@ function player_movement_update(action ){
 }
 
 function roundCheck(){
+  spawnEnemy();
   troopMove();
   enemyMove();
-  spawnEnemy();
+
+  combat("N");
+  combat("E");
+  combat("W");
+  combat("S");
   Env.round+=1
   console.log(Env.roads);
+}
+
+function combat(dir){
+  
+  if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length && Env.roads[dir].army_location[Env.roads[dir].farest_army].length){
+    var army_damage = 0;
+    var enemy_damage = 0;
+    var nearest_enemy_hp = Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].hp;
+    var farest_army_hp = Env.roads[dir].army_location[Env.roads[dir].farest_army][0].hp;
+    for(var loc=0; loc<20; loc++){
+      var troop_num = Env.roads[dir].army_location[loc].length;
+      var enemy_num = Env.roads[dir].enemy_location[loc].length;
+      for(var i=0; i<troop_num; i++){
+        if(Env.roads[dir].army_location[loc][i].attack_range + loc >= Env.roads[dir].nearest_enemy){
+          army_damage += Env.roads[dir].army_location[loc][i].attack;
+        }
+      }
+      for(var i=0; i<enemy_num; i++){
+        if(loc - Env.roads[dir].enemy_location[loc][i].attack_range <= Env.roads[dir].farest_army){
+          enemy_damage += Env.roads[dir].enemy_location[loc][i].attack;
+        }
+      }
+    }
+    //軍隊造成的傷害
+    if(army_damage>=nearest_enemy_hp){
+      Env.wood += Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].reward;
+      Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].splice(0, 1);
+    }
+    else{
+      nearest_enemy_hp -= army_damage;
+    }
+    //==============
+    //樹人造成的傷害
+    if(enemy_damage>=farest_army_hp){
+      Env.roads[dir].army_location[Env.roads[dir].farest_army].splice(0, 1);
+    }
+    else{
+      farest_army_hp -= enemy_damage;
+    }
+    //===================
+    console.log(army_damage);
+    console.log(enemy_damage);
+  }
 }
 
 function troopMove(){
@@ -181,12 +231,21 @@ function troopMove(){
     else if(d==3) dir = "S";
     for(var i=19; i>=0; i--){
       if(Env.roads[dir].army_location[i].length){
-        var troop_num = Env.roads[dir].army_location[i].length;
-        for(var j=0; j<troop_num; j++){
+        for(var j=0; j<Env.roads[dir].army_location[i].length;){
           var move_to = Math.min(Env.roads[dir].army_location[i][j].move_distance+i, 20); 
-          Env.roads[dir].army_location[move_to].push(Env.roads[dir].army_location[i][j]); 
+          move_to = Math.min(move_to, Env.roads[dir].nearest_enemy-Env.roads[dir].army_location[i][j].attack_range);
+          if(move_to!=i){
+            Env.roads[dir].army_location[move_to].push(Env.roads[dir].army_location[i][j]);
+            Env.roads[dir].army_location[i].splice(j, 1);
+          } 
+          else j++;
         }
-        Env.roads[dir].army_location[i] = [];
+      }
+    }
+    for(var i=20; i>=0; i--){
+      if(Env.roads[dir].army_location[i].length){
+        Env.roads[dir].farest_army = i;
+        break;
       }
     }
   }
@@ -199,14 +258,24 @@ function enemyMove(){
     else if(d==1) dir = "W";
     else if(d==2) dir = "N";
     else if(d==3) dir = "S";
-    for(var i=1; i<21; i++){
+    for(var i=0; i<21; i++){
       if(Env.roads[dir].enemy_location[i].length){
-        var enemy_num = Env.roads[dir].enemy_location[i].length;
-        for(var j=0; j<enemy_num; j++){
-          var move_to = Math.max(i-Env.roads[dir].enemy_location[i][j].move_distance, 0); 
-          Env.roads[dir].enemy_location[move_to].push(Env.roads[dir].enemy_location[i][j]); 
+        for(var j=0; j<Env.roads[dir].enemy_location[i].length;){
+          var move_to = Math.max(i-Env.roads[dir].enemy_location[i][j].move_distance, 0);
+          move_to = Math.max(move_to, Env.roads[dir].farest_army + Env.roads[dir].enemy_location[i][j].attack_range); 
+          if(move_to!=i){
+            Env.roads[dir].enemy_location[move_to].push(Env.roads[dir].enemy_location[i][j]); 
+            Env.roads[dir].enemy_location[i].splice(j, 1);
+          }
+          else j++;
         }
-        Env.roads[dir].enemy_location[i] = [];
+
+      }
+    }
+    for(var i=0; i<21; i++){
+      if(Env.roads[dir].enemy_location[i].length){
+        Env.roads[dir].nearest_enemy = i;
+        break;
       }
     }
   }

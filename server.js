@@ -32,8 +32,8 @@ class road{
     this.army_location = [[]];
     this.enemy_location = [[]];
     for(var i=0; i<this.max_distance; i++){
-      this.army_location = 0;
-      this.enemy_location = 0;
+      this.army_location[i] = [];
+      this.enemy_location[i] = [];
     }
   }
   repairWall(repair_unit){
@@ -162,7 +162,7 @@ function troopMove(){
     if(Env.roads["E"].army_location[i].length){
       var troop_num = Env.roads["E"].army_location[i].length;
       for(var j=0; j<troop_num; j++){
-        var move_to = Math.max(Env.roads["E"].army_location[i][j].move_distance+i, 20); 
+        var move_to = Math.min(Env.roads["E"].army_location[i][j].move_distance+i, 20); 
         Env.roads["E"].army_location[move_to].push(Env.roads["E"].army_location[i][j]); 
       }
       Env.roads["E"].army_location[i] = [];
@@ -183,7 +183,7 @@ function gameover(){
 }
 
 io.on('connection', (socket) => {
-  newGame();  //初始化
+  
   
   
   
@@ -196,9 +196,9 @@ io.on('connection', (socket) => {
   socket.on("choose_character", (id)=>{
     chooseCharacter(id);
     if(player1HasBeenChoosen && player2HasBeenChoosen){
-
-      io.emit("start_game");
       
+      io.emit("start_game");
+      newGame();  //初始化
       io.emit("player_turn");
       //console.log("start game");
 

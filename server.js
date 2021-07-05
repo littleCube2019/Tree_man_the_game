@@ -29,8 +29,8 @@ class road{
     this.wallhp = 1000;
     this.direction = direction;
     this.max_distance = 21;
-    this.army_location = [[]];
-    this.enemy_location = [[]];
+    this.army_location = [];
+    this.enemy_location = [];
     for(var i=0; i<this.max_distance; i++){
       this.army_location[i] = [];
       this.enemy_location[i] = [];
@@ -80,7 +80,7 @@ class Environment {
     this.maxWallhp = 1000 ; 
     this.round = 1 ; 
     this.wood = 500 ;
-    this.num_of_troop = {
+    this.num_of_troop = { //目前記錄城內的兵種數目
         "archer":1 ,
         "armor":0 , 
         "ranger":0 ,
@@ -89,29 +89,44 @@ class Environment {
     this.armor = [];
     this.ranger = [];   
   }
-
-  recruit(type){
+};
+function recruit(type){
     if(type=='archer'){
       var archer_team = army.archer;
-      this.wood -= archer_team.cost;
-      this.num_of_troop["archer"] = this.archer.push(archer_team); //len
-      console.log(Env);
+      Env.wood -= archer_team.cost;
+      Env.num_of_troop["archer"] += 1;
+      Env.archer.push(archer_team); //len
     }
     else if(type=='armor'){
       var armor_team = army.armor;
-      
-      this.wood -= armor_team.cost;
-      this.num_of_troop["armor"] = this.armor.push(armor_team);
-      console.log(this.armor);
+      Env.wood -= armor_team.cost;
+      Env.num_of_troop["armor"] += 1;
+      Env.armor.push(armor_team);
     }
     else if(type=='ranger'){
       var ranger_team = army.ranger;
-      this.wood -= ranger_team.cost;
-      this.num_of_troop["ranger"] = this.ranger.push(ranger_team);
+      Env.wood -= ranger_team.cost;
+      Env.num_of_troop["ranger"] += 1;
+      Env.ranger.push(ranger_team);
     }
-  }
+}
 
-  moveArmy(troop_type, direction){
+function moveArmy(troop_type, direction){
+    if(troop_type=="archer"){
+      console.log(Env.roads[direction].army_location);
+      Env.roads[direction].army_location[0].push(army.archer);
+      Env.num_of_troop["archer"] -= 1;
+    }
+    else if(troop_type=="armor"){
+      Env.roads[direction].army_location[0].push(army.armor);
+      Env.num_of_troop["armor"] -= 1;
+    }
+    else if(troop_type=="ranger"){
+      Env.roads[direction].army_location[0].push(army.ranger);
+      Env.num_of_troop["ranger"] -= 1;
+    }
+
+/*
     if(direction=='E')
       this.roads["E"].army_location[0].push(troop_type);
     else if(direction=='S')
@@ -120,19 +135,20 @@ class Environment {
       this.roads["W"].army_location[0].push(troop_type);
     else if(direction=='N')
       this.roads["N"].army_location[0].push(troop_type);
-  }
+*/
+}
 
-  repairWall(direction, unit){
+function repairWall(direction, unit){
     if(direction=='E')
-      this.roads["E"].wallhp = Math.min(this.roads["E"].wallhp+unit*100, this.maxWallhp);
+      Env.roads["E"].wallhp = Math.min(Env.roads["E"].wallhp+unit*100, Env.maxWallhp);
     else if(direction=='S')
-      this.roads["S"].wallhp = Math.min(this.roads["S"].wallhp+unit*100, this.maxWallhp);
+      Env.roads["S"].wallhp = Math.min(Env.roads["S"].wallhp+unit*100, Env.maxWallhp);
     else if(direction=='W')
-      this.roads["W"].wallhp = Math.min(this.roads["W"].wallhp+unit*100, this.maxWallhp);
+      Env.roads["W"].wallhp = Math.min(Env.roads["W"].wallhp+unit*100, Env.maxWallhp);
     else if(direction=='N')
-      this.roads["N"].wallhp = Math.min(this.roads["N"].wallhp+unit*100, this.maxWallhp);
-  }
-};
+      Env.roads["N"].wallhp = Math.min(Env.roads["N"].wallhp+unit*100, Env.maxWallhp);
+}
+
 
  
 
@@ -143,11 +159,11 @@ function newGame(){
 }
 
 function player_movement_update(action ){
-  console.log(action);
+  //console.log(action);
   switch(action.type){
-    case('recruit'): Env.recruit(action.troop_type);
-    case('move_army'): Env.moveArmy(action.troop_type, action.direction);
-    case('repair_wall'): Env.repairWall(action.direction, action.unit);
+    case('recruit'): recruit(action.troop_type);
+    case('move_army'): moveArmy(action.troop_type, action.direction);
+    case('repair_wall'): repairWall(action.direction, action.unit);
   }
 }
 
@@ -158,24 +174,62 @@ function roundCheck(){
 }
 
 function troopMove(){
-  for(var i=19; i>=0; i--){
-    if(Env.roads["E"].army_location[i].length){
-      var troop_num = Env.roads["E"].army_location[i].length;
-      for(var j=0; j<troop_num; j++){
-        var move_to = Math.min(Env.roads["E"].army_location[i][j].move_distance+i, 20); 
-        Env.roads["E"].army_location[move_to].push(Env.roads["E"].army_location[i][j]); 
+  for(var d=0; d<4; d++){
+    var dir;
+    if(d==0) dir = "E";
+    else if(d==1) dir = "W";
+    else if(d==2) dir = "N";
+    else if(d==3) dir = "S";
+    for(var i=19; i>=0; i--){
+      if(Env.roads[dir].army_location[i].length){
+        var troop_num = Env.roads[dir].army_location[i].length;
+        for(var j=0; j<troop_num; j++){
+          var move_to = Math.min(Env.roads[dir].army_location[i][j].move_distance+i, 20); 
+          Env.roads[dir].army_location[move_to].push(Env.roads[dir].army_location[i][j]); 
+        }
+        Env.roads[dir].army_location[i] = [];
       }
-      Env.roads["E"].army_location[i] = [];
     }
   }
 }
 
 function enemyMove(){
-
+  for(var d=0; d<4; d++){
+    var dir;
+    if(d==0) dir = "E";
+    else if(d==1) dir = "W";
+    else if(d==2) dir = "N";
+    else if(d==3) dir = "S";
+    for(var i=1; i<21; i++){
+      if(Env.roads[dir].enemy_location[i].length){
+        var enemy_num = Env.roads[dir].enemy_location[i].length;
+        for(var j=0; j<enemy_num; j++){
+          var move_to = Math.max(i-Env.roads[dir].enemy_location[i][j].move_distance, 0); 
+          Env.roads[dir].army_location[move_to].push(Env.roads[dir].army_location[i][j]); 
+        }
+        Env.roads[dir].enemy_location[i] = [];
+      }
+    }
+  }
 }
 
 function spawnEnemy(){
-
+  var spawn = Math.floor(Math.random()*2);
+  var spawn_direction = Math.floor(Math.random()*4);
+  if(spawn){
+    if(spawn_direction==0){//E
+      Env.roads["E"].enemy_location[21].push(enemy.treeMan);
+    }
+    else if(spawn_direction==1){//W
+      Env.roads["W"].enemy_location[21].push(enemy.treeMan);
+    }
+    else if(spawn_direction==2){//N
+      Env.roads["N"].enemy_location[21].push(enemy.treeMan);
+    }
+    else if(spawn_direction==3){//S
+      Env.roads["S"].enemy_location[21].push(enemy.treeMan);
+    }
+  }
 }
 
 function gameover(){
@@ -183,7 +237,7 @@ function gameover(){
 }
 
 io.on('connection', (socket) => {
-  
+
   
   
   
@@ -196,9 +250,8 @@ io.on('connection', (socket) => {
   socket.on("choose_character", (id)=>{
     chooseCharacter(id);
     if(player1HasBeenChoosen && player2HasBeenChoosen){
-      
+      newGame();
       io.emit("start_game");
-      newGame();  //初始化
       io.emit("player_turn");
       //console.log("start game");
 

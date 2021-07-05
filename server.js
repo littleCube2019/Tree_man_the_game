@@ -26,7 +26,7 @@ app.use(express.static('public'));
 
 class road{
   constructor(direction){
-    this.wallhp = 1000;
+    this.wallhp = 500;
     this.direction = direction;
     this.max_distance = 21;
     this.army_location = [];
@@ -168,6 +168,7 @@ function roundCheck(){
   troopMove();
   enemyMove();
   spawnEnemy();
+  Env.round+=1
   console.log(Env.roads);
 }
 

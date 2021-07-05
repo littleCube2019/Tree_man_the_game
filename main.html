@@ -24,14 +24,15 @@
 		<!-- bootsrap-->
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-		<!-- vue.js
+		<!-- vue.js --> 
+		<!---
 		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 		
 		<script src="https://cdn.jsdelivr.net/npm/vue"></script>
 
-		<script type="text/javascript" src="vue-app.js"></script>
-			-->
+		<script type="text/javascript" src="vue.js"></script>
+		-->
 
 		<!-- ==================================== -->
 
@@ -41,7 +42,14 @@
 			var PLAYER_ID = 0 ; 
 			let socket = io();
 			var Env = null;
+			var WALL_DIR = "Default";
 
+			direct_dic = {
+						"E" : "東",
+						"S" : "南",
+						"W" : "西",
+						"N" : "北"
+					}
 			//message
 			var num_message = 0; 
 			var MAX_MESSAGE = 19; 
@@ -231,12 +239,7 @@
 							this.direction = dir
 						}
 					}
-					direct_dic = {
-						"E" : "東",
-						"S" : "南",
-						"W" : "西",
-						"N" : "北"
-					}
+				
 					can_move = true;
 					if(troop_type == "archer" && Env.num_of_troop["archer"] > 0   ){
 						action = new move_troop(troop_type,dir);
@@ -309,8 +312,29 @@
 				//========  ==============================================================================	
 
 				// repair wall button ====================================================================
-				$(".repair_wall ").click(function(e){
-					dir = e.target.id
+				$(".repair_wall_dir ").click(function(e){
+					
+					WALL_DIR = e.target.id;
+			
+					// 計算可以修補的選項
+					if( Env.roads[WALL_DIR].wallhp == Env.maxWallhp){
+						
+						addMessage("此面城牆完好無損，不需要維修!")
+
+					}
+					else{
+						$('#repair_wall_pop').modal('toggle');
+						$("#repair_wall_select").empty()
+						for(var i=1; i<= parseInt((Env.maxWallhp-Env.roads[WALL_DIR].wallhp)/100) ; i++){
+						 	$("#repair_wall_select").append("<option value=\""+i+"\">"+i+"</option>") 
+						}
+					}
+
+
+				})
+
+				$("#submit_repair_wall").click(()=>{
+					repair_value = parseInt(document.getElementById("repair_wall_select").value);
 					class repair_wall {
 						constructor(dir,unit){
 							this.type ='repair_wall';
@@ -318,15 +342,27 @@
 							this.unit = unit ;
 						}
 					}
-					action = new repair_wall(dir,2);
-
+					
+					
+					console.log(repair_value);
+					action = new repair_wall(WALL_DIR,repair_value);
+					addMessage("維修了"+direct_dic[WALL_DIR]+"方牆"+repair_value*100+"點");
 					socket.emit("action_done" , PLAYER_ID , action);
 				})
 				
 			
 
 				//========  ==============================================================================	
-
+				// skip  =================================================================================
+				$("#skip").click(function(e){
+					class skip {
+						constructor(){
+							this.type ='skip';
+						}
+					}
+					socket.emit("action_done" , PLAYER_ID , skip);
+				})
+				//========  ==============================================================================	 
 
 				})
 		</script>
@@ -350,7 +386,13 @@
 		<button class="btn btn-info" id="pl1">player1</button>
 		  <button class="btn btn-info" id="pl2">player2</button>
 		</div>
+	
+
+
+	
 	</div>
+
+	
 	<!-- ======================================  -->
 
 
@@ -437,6 +479,11 @@
 		
 			<div id="my_mission">操作</div>
 			
+
+
+
+
+
 			<!--  基本操作  -->
 			<div id = "choose_basic_action">
 			你這回合選擇
@@ -444,11 +491,14 @@
 			<button class="choice_button btn btn-dark" id="choose_troop_move">轉守為攻!!</button>
 			<button class="choice_button btn btn-dark" id="choose_recruit_troop">招募士兵</button>
 			<button class="choice_button btn btn-dark" id="choose_repair_wall">修築城牆</button>
+			<button class="choice_button btn btn-dark" id="skip">跳過這回合</button>
 
 		    </div>
-
+     
 		
 			<!--   =======================================   -->
+			
+		
 
 			<!--  移動士兵-->
 			<div class= "detail_choose" id = "move_troop"> 
@@ -479,13 +529,51 @@
 			<!--   修城牆  -->
 			<div class= "detail_choose" id = "repair_wall">  
 				<div>選擇修補方向  </div>  
-				<div  > <button  class="repair_wall" id="E" >東</button>  </div>
-				<div > <button class="repair_wall" id="S" >南</button> </div>
-			    <div > <button  class="repair_wall" id="W">西</button>  </div>
-				<div > <button class="repair_wall" id="N" >北</button>  </div>
+				<div  > <button  class="repair_wall_dir " id="E"  >東</button>  </div>
+				<!-- 按下去就先選擇wall direction -->
+				
+
+
+				
+
+
+				<div > <button class="repair_wall_dir " id="S"  >南</button> </div> 
+			    <div > <button  class="repair_wall_dir " id="W" >西</button>  </div>
+				<div > <button class="repair_wall_dir " id="N"  >北</button>  </div>
+
+
+				<!---  這是一個彈出視窗，可以選擇城牆數量-->
+				<div class="modal" id="repair_wall_pop" tabindex="-1" role="dialog">
+					<div class="modal-dialog" role="document">
+					  <div class="modal-content">
+						<div class="modal-header">
+						  <h5 class="modal-title">Modal title</h5>
+						  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						  </button>
+						</div>
+						<div class="modal-body">
+							<!-- 這是一個選擇條-->
+							<div class="form-group">
+								<label for="exampleFormControlSelect1">選擇城牆修築數量</label>
+								<select class="form-control" id="repair_wall_select">
+								  
+								</select>
+							  </div>
+						</div>
+						<div class="modal-footer">
+						  <button type="button" class="btn btn-primary" data-dismiss="modal" id="submit_repair_wall">送出並結束回合</button>
+						  <button type="button" class="btn btn-secondary" data-dismiss="modal">返回</button>
+						</div>
+					  </div>
+					</div>
+				  </div>
+				<!-- end of pop window-->
+
+
 			</div>
 			
-			<button class="detail_choose" , id="submit"> 送出</button>
+			
 			<button class="detail_choose" , id="go-back"> 返回</button>
 			<!--   =======================================   -->
 			

@@ -4,3 +4,10 @@ var app = new Vue({
       message: 'Hello Vue!' // app內都可以使用 {{message}}
     }
   })
+
+var wall_repair_option = new Vue({
+    el: '#wall_repair_option',  
+    data: {
+      option: 'Hello Vue!' // app內都可以使用 {{message}}
+    }
+})

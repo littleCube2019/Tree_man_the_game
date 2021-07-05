@@ -60,18 +60,36 @@
 			}
 			
 			//選擇玩家 socket  ==============================================================================
-			socket.on("welcome",()=>{ //when start,hide the main page to let player select charcters.
+			socket.on("welcome",(player1HasBeenChoosen , player2HasBeenChoosen  )=>{ //when start,hide the main page to let player select charcters.
+						
+						if(player1HasBeenChoosen){
+							$("#pl1").attr('disabled',true);
+							$("#pl1").text("player1 has been choosed");
+						}
+						
+						if(player2HasBeenChoosen){
+							$("#pl2").attr('disabled',true);
+							$("#pl2").text("player2 has been choosed");
+						}
+
 						$(".LEFT").hide();
 						$(".RIGHT").hide();
+
+
 						
 				})
 
 			socket.on("player_choosed", (id)=>{ 
 				
 						if(id==1){
-							$("#pl1").hide();
+							
+							$("#pl1").attr('disabled',true);
+							$("#pl1").text("player2 has been choosed");
+							
 						}else if(id==-1){
-							$("#pl2").hide();
+							$("#pl2").attr('disabled',true);
+							$("#pl2").text("player2 has been choosed");
+							
 						}
 				})
 
@@ -80,7 +98,14 @@
 				round = 1;
 				$("#choose_player").hide();
 				$(".detail_choose").hide();
-				
+				//放入玩家名
+				if(PLAYER_ID == 1){
+					$("#player_name").text("player id:1");
+				}
+				else{
+					$("#player_name").text("player id:2");
+				}
+
 				$(".LEFT").show();
 				$(".RIGHT").show();
 				
@@ -95,8 +120,7 @@
 			
 			socket.on("player_turn" , ()=>{
 				TURN *= -1;
-				console.log(TURN );
-				console.log( PLAYER_ID );
+				
 				if(TURN == PLAYER_ID){
 					$("button").attr('disabled', false);
 				}
@@ -113,7 +137,7 @@
 				Env = env;
 
 
-
+				// 基本數值更新區
 				$("#round").text(env.round);
 				$("#east_hp").text(env.roads["E"].wallhp);
 				$("#wood").text(env.wood);
@@ -121,10 +145,13 @@
 				$("#west_hp").text(env.roads["W"].wallhp);
 				$("#north_hp").text(env.roads["N"].wallhp);
 				
+
 				$("#num_archer").text(env.num_of_troop["archer"]);
 				$("#num_armor").text(env.num_of_troop["armor"]);
 				$("#num_ranger").text(env.num_of_troop["ranger"]);
-		
+				// ========================================================================================
+				
+				// progress bar 調整
 				$("#W-wall-bar").css("width" , (env.roads["W"].wallhp*100/env.maxWallhp).toString()  + "%");
 		
 				$("#W-wall-bar").text( (env.roads["W"].wallhp*100/env.maxWallhp).toString() + "%" );
@@ -137,6 +164,7 @@
 
 				$("#S-wall-bar").css("width" , (env.roads["S"].wallhp*100/env.maxWallhp).toString()  + "%");
 				$("#S-wall-bar").text( (env.roads["S"].wallhp*100/env.maxWallhp ).toString() + "%");
+				// ========================================================================================
 			}
 			)
 
@@ -208,7 +236,7 @@
 						action = new recruit_troop(troop_type);
 						troop_name="重甲步兵";
 					}
-					else if(troop_type == "archer" && Env.wood >= 2000 ){
+					else if(troop_type == "ranger" && Env.wood >= 2000 ){
 						action = new recruit_troop(troop_type);
 						troop_name="騎兵";
 					}
@@ -263,8 +291,8 @@
 	<img src="title.PNG" >
 	<div style="text-align: center">
 		<p id="pl">請選擇角色</p>
-		<button id="pl1">player1</button>
-		  <button id="pl2">player2</button>
+		<button class="btn btn-info" id="pl1">player1</button>
+		  <button class="btn btn-info" id="pl2">player2</button>
 		</div>
 	</div>
 	<!-- ======================================  -->
@@ -279,7 +307,7 @@
 	<!-- ==================================== -->
 	<div class="LEFT_TOP">
 		<!--屬性欄，此div為最外框-->
-    	<div id="status" >當前狀態 
+    	<div id="status" > <div>當前狀態 <span id="player_name"> </span> </div>   
 			<div id="my_basic-data">
 				<!--基本數值-->
 				<div>你堅守了<span id="round"> 1 </span>天</div>
@@ -356,9 +384,9 @@
 			<div id = "choose_basic_action">
 			你這回合選擇
 
-			<button class="choice_button" id="choose_troop_move">轉守為攻!!</button>
-			<button class="choice_button" id="choose_recruit_troop">招募士兵</button>
-			<button class="choice_button" id="choose_repair_wall">修築城牆</button>
+			<button class="choice_button btn btn-dark" id="choose_troop_move">轉守為攻!!</button>
+			<button class="choice_button btn btn-dark" id="choose_recruit_troop">招募士兵</button>
+			<button class="choice_button btn btn-dark" id="choose_repair_wall">修築城牆</button>
 
 		    </div>
 

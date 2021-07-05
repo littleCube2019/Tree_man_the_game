@@ -97,7 +97,7 @@ class Environment {
       var archer_team = army.archer;
       this.wood -= archer_team.cost;
       this.num_of_troop["archer"] = this.archer.push(archer_team); //len
-
+      console.log(Env);
     }
     else if(type=='armor'){
       var armor_team = army.armor;
@@ -166,7 +166,7 @@ io.on('connection', (socket) => {
   
   
   
-  io.emit("welcome");
+  socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
 
   // 選角  =============================================
   socket.on("choose_character", (id)=>{
@@ -174,12 +174,13 @@ io.on('connection', (socket) => {
     if(player1HasBeenChoosen && player2HasBeenChoosen){
 
       io.emit("start_game");
+      
       io.emit("player_turn");
       //console.log("start game");
 
       //test
       Env.wood += 5000;
-      console.log(Env);
+    
       io.emit("update_state", Env);
     }
   });

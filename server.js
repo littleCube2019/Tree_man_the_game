@@ -28,7 +28,7 @@ class road{
   constructor(direction){
     this.wallhp = 1000;
     this.direction = direction;
-    this.max_distance = 20;
+    this.max_distance = 21;
     this.army_location = [[]];
     this.enemy_location = [[]];
     for(var i=0; i<this.max_distance; i++){
@@ -91,9 +91,7 @@ class Environment {
   }
 
   recruit(type){
-    
     if(type=='archer'){
-
       var archer_team = army.archer;
       this.wood -= archer_team.cost;
       this.num_of_troop["archer"] = this.archer.push(archer_team); //len
@@ -110,24 +108,21 @@ class Environment {
       var ranger_team = army.ranger;
       this.wood -= ranger_team.cost;
       this.num_of_troop["ranger"] = this.ranger.push(ranger_team);
-
     }
   }
 
   moveArmy(troop_type, direction){
     if(direction=='E')
-      this.roads[E].army_location[0].push(troop_type);
+      this.roads["E"].army_location[0].push(troop_type);
     else if(direction=='S')
-      this.roads[S].army_location[0].push(troop_type);
+      this.roads["S"].army_location[0].push(troop_type);
     else if(direction=='W')
-      this.roads[W].army_location[0].push(troop_type);
+      this.roads["W"].army_location[0].push(troop_type);
     else if(direction=='N')
-      this.roads[N].army_location[0].push(troop_type);
+      this.roads["N"].army_location[0].push(troop_type);
   }
 
   repairWall(direction, unit){
-
-
     if(direction=='E')
       this.roads["E"].wallhp = Math.min(this.roads["E"].wallhp+unit*100, this.maxWallhp);
     else if(direction=='S')
@@ -136,7 +131,6 @@ class Environment {
       this.roads["W"].wallhp = Math.min(this.roads["W"].wallhp+unit*100, this.maxWallhp);
     else if(direction=='N')
       this.roads["N"].wallhp = Math.min(this.roads["N"].wallhp+unit*100, this.maxWallhp);
-
   }
 };
 
@@ -151,11 +145,41 @@ function newGame(){
 function player_movement_update(action ){
   console.log(action);
   switch(action.type){
-
     case('recruit'): Env.recruit(action.troop_type);
     case('move_army'): Env.moveArmy(action.troop_type, action.direction);
     case('repair_wall'): Env.repairWall(action.direction, action.unit);
   }
+}
+
+function roundCheck(){
+  troopMove();
+  enemyMove();
+  spawnEnemy();
+}
+
+function troopMove(){
+  for(var i=19; i>=0; i--){
+    if(Env.roads["E"].army_location[i].length){
+      var troop_num = Env.roads["E"].army_location[i].length;
+      for(var j=0; j<troop_num; j++){
+        var move_to = Math.max(Env.roads["E"].army_location[i][j].move_distance+i, 20); 
+        Env.roads["E"].army_location[move_to].push(Env.roads["E"].army_location[i][j]); 
+      }
+      Env.roads["E"].army_location[i] = [];
+    }
+  }
+}
+
+function enemyMove(){
+
+}
+
+function spawnEnemy(){
+
+}
+
+function gameover(){
+
 }
 
 io.on('connection', (socket) => {
@@ -181,6 +205,7 @@ io.on('connection', (socket) => {
       Env.wood += 5000;
       console.log(Env);
       io.emit("update_state", Env);
+      io.emit("player_turn");
     }
   });
   //  =================================================
@@ -206,12 +231,11 @@ io.on('connection', (socket) => {
     if(player_id==1){
       player_movement_update(action);
       io.emit("update_state", Env);
-      
       io.emit("player_turn");
     }
     else if(player_id==-1){
-
       player_movement_update(action);
+      roundCheck();
       io.emit("update_state", Env);
       io.emit("player_turn");
     }

@@ -1,3 +1,4 @@
+/*
 class treeMan{
     constructor(treeMan_id){
         this.id = treeMan_id;
@@ -19,3 +20,16 @@ class bigTreeMan{
         this.reward = 10000;
     }
 }
+*/
+class enemy{
+    constructor(hp, atk, atk_range, move_distance, reward){
+        this.hp = hp;
+        this.atk = atk;
+        this.atk_range = atk_range;
+        this.move_distance = move_distance;
+        this.reward = reward;
+    }
+}
+
+module.exports.treeMan = new enemy(250, 600, 0, 1, 2000);
+module.exports.bigTreeMan = new enemy(500, 3000, 0, 1, 10000);

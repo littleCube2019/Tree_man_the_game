@@ -113,6 +113,7 @@ function recruit(type){
 
 function moveArmy(troop_type, direction){
     if(troop_type=="archer"){
+      console.log(Env.roads[direction].army_location);
       Env.roads[direction].army_location[0].push(army.archer);
       Env.num_of_troop["archer"] -= 1;
     }
@@ -139,13 +140,13 @@ function moveArmy(troop_type, direction){
 
 function repairWall(direction, unit){
     if(direction=='E')
-      Env.roads["E"].wallhp = Math.min(this.roads["E"].wallhp+unit*100, this.maxWallhp);
+      Env.roads["E"].wallhp = Math.min(Env.roads["E"].wallhp+unit*100, Env.maxWallhp);
     else if(direction=='S')
-      Env.roads["S"].wallhp = Math.min(this.roads["S"].wallhp+unit*100, this.maxWallhp);
+      Env.roads["S"].wallhp = Math.min(Env.roads["S"].wallhp+unit*100, Env.maxWallhp);
     else if(direction=='W')
-      Env.roads["W"].wallhp = Math.min(this.roads["W"].wallhp+unit*100, this.maxWallhp);
+      Env.roads["W"].wallhp = Math.min(Env.roads["W"].wallhp+unit*100, Env.maxWallhp);
     else if(direction=='N')
-      Env.roads["N"].wallhp = Math.min(this.roads["N"].wallhp+unit*100, this.maxWallhp);
+      Env.roads["N"].wallhp = Math.min(Env.roads["N"].wallhp+unit*100, Env.maxWallhp);
 }
 
 
@@ -158,7 +159,7 @@ function newGame(){
 }
 
 function player_movement_update(action ){
-  console.log(action);
+  //console.log(action);
   switch(action.type){
     case('recruit'): recruit(action.troop_type);
     case('move_army'): moveArmy(action.troop_type, action.direction);
@@ -236,7 +237,7 @@ function gameover(){
 }
 
 io.on('connection', (socket) => {
-  //初始化
+
   
   
   

@@ -11,3 +11,17 @@ var wall_repair_option = new Vue({
       option: 'Hello Vue!' // app內都可以使用 {{message}}
     }
 })
+
+var move_troop = Vue({
+  el: '.troop_move_btn',  
+  data: {
+    items: [
+      { ID: 'E' , content : '東' },
+      { ID: 'S' , content : '南' },
+      { ID: 'W' , content : '西' },
+      { ID: 'N' , content : '北' },
+    ]
+  }
+})
+
+

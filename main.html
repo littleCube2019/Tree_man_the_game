@@ -37,7 +37,7 @@
 
 
 		<script>
-			var TURN = 1;  //第一次player_turn 會解鎖 button 
+			var TURN = 1;  //第一次player_turn 會解鎖 button ，但有兩個人進來都會改
 			var PLAYER_ID = 0 ; 
 			let socket = io();
 			var Env = null;
@@ -120,7 +120,8 @@
 			
 			socket.on("player_turn" , ()=>{
 				TURN *= -1;
-				
+			//	console.log(TURN);
+			//	console.log(PLAYER_ID)
 				if(TURN == PLAYER_ID){
 					$("button").attr('disabled', false);
 				}
@@ -190,7 +191,7 @@
 				// id :  1 : archer , 2 : armor
 				$("#choose_troop_move").click(()=>{
 					 $("#choose_basic_action").hide();
-					 $("#troop_move").show();
+					 $("#move_troop").show();
 					 $("#go-back").show();
 				}
 				)
@@ -214,7 +215,60 @@
 					$("#choose_basic_action").show();
 				})
 				//========  ==============================================================================	
+				// move troop button =====================================================================
 				
+				$(".troop_move").click(function(e){
+					
+					troop_type = e.target.getAttribute("type");
+					dir = e.target.getAttribute("dir");
+					troop_name = "沒有";
+					console.log(troop_type , dir)
+					dir_name = "X";
+					class move_troop {
+						constructor(troop_type,dir){
+							this.type ='move_army';
+							this.troop_type = troop_type ;
+							this.direction = dir
+						}
+					}
+					direct_dic = {
+						"E" : "東",
+						"S" : "南",
+						"W" : "西",
+						"N" : "北"
+					}
+					can_move = true;
+					if(troop_type == "archer" && Env.num_of_troop["archer"] > 0   ){
+						action = new move_troop(troop_type,dir);
+						troop_name= "弓箭";
+						dir_name = direct_dic[dir];
+						
+					}
+					else if(troop_type == "armor" && Env.num_of_troop["armor"] > 0   ){
+						action = new move_troop(troop_type,dir);
+						troop_name="重甲步兵";
+						dir_name = direct_dic[dir];
+					}
+					else if(troop_type == "ranger" && Env.num_of_troop["ranger"] > 0  ){
+						action = new move_troop(troop_type,dir);
+						troop_name="騎兵";
+						dir_name = direct_dic[dir];
+					}
+					else{
+						addMessage("你沒有可移動的士兵");
+						can_move=false;
+					}
+					
+					if(can_move){
+						addMessage("你調動了一隊"+troop_name+"隊前往"+dir_name+"方");
+						socket.emit("action_done" , PLAYER_ID , action);
+					}
+					
+				})
+
+				//========================================================================================
+
+
 				// recruit_troop wall button ====================================================================
 				$(".recruit_troop").click(function(e){
 
@@ -268,7 +322,9 @@
 
 					socket.emit("action_done" , PLAYER_ID , action);
 				})
-	
+				
+			
+
 				//========  ==============================================================================	
 
 
@@ -381,6 +437,7 @@
 		
 			<div id="my_mission">操作</div>
 			
+			<!--  基本操作  -->
 			<div id = "choose_basic_action">
 			你這回合選擇
 
@@ -390,9 +447,23 @@
 
 		    </div>
 
-			<div class= "detail_choose" id = "troop_move">  轉守為攻!!
-				
+		
+			<!--   =======================================   -->
+
+			<!--  移動士兵-->
+			<div class= "detail_choose" id = "move_troop"> 
+				<div>選擇移動兵種  </div>  
+				<div  class="troop_move_btn" v-for="item in items" :key="item.content"> 弓箭隊 <button class="troop_move" type="archer" dir="E">東 </button> <button class="troop_move" type="archer" dir="S">南 </button> <button class="troop_move" type="archer" dir="W" >西 </button> <button class="troop_move" type="archer" dir="N">北 </button></div>
+				<div  class="troop_move_btn" v-for="item in items" > 重甲步兵隊 <button class="troop_move" type="armor" dir="E">東 </button> <button class="troop_move" type="armor" dir="S">南 </button> <button class="troop_move" type="armor" dir="W"  >西 </button> <button class="troop_move" type="armor" dir="N">北 </button></div>
+			    <div  class="troop_move_btn" v-for="item in items"> 騎兵隊 <button class="troop_move" type="ranger" dir="E">東 </button> <button class="troop_move" type="ranger" dir="S">南 </button> <button class="troop_move" type="ranger" dir="W" >西 </button> <button class="troop_move" type="ranger" dir="N">北 </button></div> 
 			</div>
+
+
+
+			<!--   =======================================   -->
+
+
+
 			<!--  招募士兵  -->
 			<div class= "detail_choose" id = "recruit_troop"> 
 				<div>選擇招募兵種  </div>  
@@ -413,6 +484,8 @@
 			    <div > <button  class="repair_wall" id="W">西</button>  </div>
 				<div > <button class="repair_wall" id="N" >北</button>  </div>
 			</div>
+			
+			<button class="detail_choose" , id="submit"> 送出</button>
 			<button class="detail_choose" , id="go-back"> 返回</button>
 			<!--   =======================================   -->
 			

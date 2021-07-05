@@ -113,7 +113,7 @@ function recruit(type){
 
 function moveArmy(troop_type, direction){
     if(troop_type=="archer"){
-      console.log(Env.roads[direction].army_location);
+  
       Env.roads[direction].army_location[0].push(army.archer);
       Env.num_of_troop["archer"] -= 1;
     }

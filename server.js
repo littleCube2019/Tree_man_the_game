@@ -53,7 +53,7 @@ function chooseCharacter(id)
   if(id==1){
     console.log("player1 has been choosed");
     player1HasBeenChoosen = true;
-  }else if(id==2){
+  }else if(id==-1){
     console.log("player2 has been choosed");
     player2HasBeenChoosen = true;
   }
@@ -94,12 +94,15 @@ class Environment {
     if(type=='archer'){
       var archer_team = army.archer;
       this.wood -= archer_team.cost;
-      this.num_of_troop["archer"] = this.archer.push(archer_team);
+      this.num_of_troop["archer"] = this.archer.push(archer_team); //len
+
     }
     else if(type=='armor'){
       var armor_team = army.armor;
+      
       this.wood -= armor_team.cost;
       this.num_of_troop["armor"] = this.armor.push(armor_team);
+      console.log(this.armor);
     }
     else if(type=='ranger'){
       var ranger_team = army.ranger;
@@ -140,9 +143,9 @@ function newGame(){
 }
 
 function player_movement_update(action ){
-
+  console.log(action);
   switch(action.type){
-    case('recruit'): Env.recruit(action.recruit);
+    case('recruit'): Env.recruit(action.troop_type);
     case('move_army'): Env.moveArmy(action.troop_type, action.direction);
     case('repair_wall'): Env.repairWall(action.direction, action.unit);
   }
@@ -193,12 +196,14 @@ io.on('connection', (socket) => {
   socket.on("choose_character", (id)=>{
     chooseCharacter(id);
     if(player1HasBeenChoosen && player2HasBeenChoosen){
+
       io.emit("start_game");
-     
-      console.log("start game");
+      io.emit("player_turn");
+      //console.log("start game");
 
-
-      Env.roads["E"].wallhp -= 500;
+      //test
+      Env.wood += 5000;
+      console.log(Env);
       io.emit("update_state", Env);
       io.emit("player_turn");
     }
@@ -228,8 +233,7 @@ io.on('connection', (socket) => {
       io.emit("update_state", Env);
       io.emit("player_turn");
     }
-    else if(player_id==2){
-      //test
+    else if(player_id==-1){
       player_movement_update(action);
       roundCheck();
       io.emit("update_state", Env);

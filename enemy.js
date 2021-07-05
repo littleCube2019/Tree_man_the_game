@@ -22,14 +22,14 @@ class bigTreeMan{
 }
 */
 class enemy{
-    constructor(hp, atk, atk_range, move_distance, reward){
+    constructor(hp, attack, attack_range, move_distance, reward){
         this.hp = hp;
-        this.atk = atk;
-        this.atk_range = atk_range;
+        this.attack = attack;
+        this.attack_range = attack_range;
         this.move_distance = move_distance;
         this.reward = reward;
     }
 }
 
-module.exports.treeMan = new enemy(250, 600, 0, 1, 2000);
-module.exports.bigTreeMan = new enemy(500, 3000, 0, 1, 10000);
+module.exports.treeMan = new enemy(250, 600, 1, 1, 2000);
+module.exports.bigTreeMan = new enemy(500, 3000, 1, 1, 10000);

@@ -112,19 +112,20 @@ function recruit(type){
 }
 
 function moveArmy(troop_type, direction){
-    if(troop_type=="archer"){
-      console.log(Env.roads[direction].army_location);
-      Env.roads[direction].army_location[0].push(army.archer);
-      Env.num_of_troop["archer"] -= 1;
-    }
-    else if(troop_type=="armor"){
-      Env.roads[direction].army_location[0].push(army.armor);
-      Env.num_of_troop["armor"] -= 1;
-    }
-    else if(troop_type=="ranger"){
-      Env.roads[direction].army_location[0].push(army.ranger);
-      Env.num_of_troop["ranger"] -= 1;
-    }
+  if(troop_type=="archer"){
+    //console.log(Env.roads[direction].army_location);
+    Env.roads[direction].army_location[0].push(army.archer);
+    Env.num_of_troop["archer"] -= 1;
+  }
+  else if(troop_type=="armor"){
+    Env.roads[direction].army_location[0].push(army.armor);
+    Env.num_of_troop["armor"] -= 1;
+  }
+  else if(troop_type=="ranger"){
+    Env.roads[direction].army_location[0].push(army.ranger);
+    Env.num_of_troop["ranger"] -= 1;
+  }
+}
 
 /*
     if(direction=='E')
@@ -136,17 +137,10 @@ function moveArmy(troop_type, direction){
     else if(direction=='N')
       this.roads["N"].army_location[0].push(troop_type);
 */
-}
+
 
 function repairWall(direction, unit){
-    if(direction=='E')
-      Env.roads["E"].wallhp = Math.min(Env.roads["E"].wallhp+unit*100, Env.maxWallhp);
-    else if(direction=='S')
-      Env.roads["S"].wallhp = Math.min(Env.roads["S"].wallhp+unit*100, Env.maxWallhp);
-    else if(direction=='W')
-      Env.roads["W"].wallhp = Math.min(Env.roads["W"].wallhp+unit*100, Env.maxWallhp);
-    else if(direction=='N')
-      Env.roads["N"].wallhp = Math.min(Env.roads["N"].wallhp+unit*100, Env.maxWallhp);
+  Env.roads[direction].wallhp = Math.min(Env.roads[direction].wallhp+unit*100, Env.maxWallhp);
 }
 
 
@@ -160,17 +154,19 @@ function newGame(){
 
 function player_movement_update(action ){
   //console.log(action);
-  switch(action.type){
-    case('recruit'): recruit(action.troop_type);
-    case('move_army'): moveArmy(action.troop_type, action.direction);
-    case('repair_wall'): repairWall(action.direction, action.unit);
-  }
+  if(action.type=='recruit')
+    recruit(action.troop_type);
+  else if(action.type=='move_army')
+    moveArmy(action.troop_type, action.direction);
+  else if(action.type=='repair_wall')
+    repairWall(action.direction, action.unit);
 }
 
 function roundCheck(){
   troopMove();
   enemyMove();
   spawnEnemy();
+  console.log(Env.roads);
 }
 
 function troopMove(){
@@ -205,7 +201,7 @@ function enemyMove(){
         var enemy_num = Env.roads[dir].enemy_location[i].length;
         for(var j=0; j<enemy_num; j++){
           var move_to = Math.max(i-Env.roads[dir].enemy_location[i][j].move_distance, 0); 
-          Env.roads[dir].army_location[move_to].push(Env.roads[dir].army_location[i][j]); 
+          Env.roads[dir].enemy_location[move_to].push(Env.roads[dir].enemy_location[i][j]); 
         }
         Env.roads[dir].enemy_location[i] = [];
       }
@@ -218,16 +214,16 @@ function spawnEnemy(){
   var spawn_direction = Math.floor(Math.random()*4);
   if(spawn){
     if(spawn_direction==0){//E
-      Env.roads["E"].enemy_location[21].push(enemy.treeMan);
+      Env.roads["E"].enemy_location[20].push(enemy.treeMan);
     }
     else if(spawn_direction==1){//W
-      Env.roads["W"].enemy_location[21].push(enemy.treeMan);
+      Env.roads["W"].enemy_location[20].push(enemy.treeMan);
     }
     else if(spawn_direction==2){//N
-      Env.roads["N"].enemy_location[21].push(enemy.treeMan);
+      Env.roads["N"].enemy_location[20].push(enemy.treeMan);
     }
     else if(spawn_direction==3){//S
-      Env.roads["S"].enemy_location[21].push(enemy.treeMan);
+      Env.roads["S"].enemy_location[20].push(enemy.treeMan);
     }
   }
 }

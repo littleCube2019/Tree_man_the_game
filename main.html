@@ -52,7 +52,9 @@
 					}
 			//message
 			var num_message = 0; 
-			var MAX_MESSAGE = 19; 
+			var MAX_MESSAGE = 19;
+			
+			//信息版
 			function addMessage(Text){
 				if(num_message>= MAX_MESSAGE){
 					$("#message div:nth-child(1)").remove();
@@ -67,6 +69,12 @@
 				num_message+=1;
 			}
 			
+			//標示
+			function Alert(Text){
+				$('#alert_pop').modal('toggle');
+				$("#alert_content").text(Text);
+			}
+
 			//選擇玩家 socket  ==============================================================================
 			socket.on("welcome",(player1HasBeenChoosen , player2HasBeenChoosen  )=>{ //when start,hide the main page to let player select charcters.
 						
@@ -82,7 +90,7 @@
 
 						$(".LEFT").hide();
 						$(".RIGHT").hide();
-
+						$(".alert").hide();
 
 						
 				})
@@ -102,16 +110,28 @@
 				})
 
 			socket.on("start_game",()=>{
+				//基礎文本
+				addMessage("\"森林之母已怒不可遏，樹木之罰將降於貪婪之人\"");
+				addMessage("神木教教徒今天也如是說道");
+				addMessage("就在你不以為然的同時");
+				addMessage("城外遠處的森林傳來了數聲巨響");
+				addMessage("接著是護城弓箭隊的回報");
+				addMessage("仿佛傳說中遠古巨人般的");
+				addMessage("眾多樹型妖怪正在逼近你的城市.....")
+				addMessage("你必須當機立斷的竭全城之力才有可能活下去!");
+				addMessage("Game Start")
+				//基礎設定
+
 				$("button").attr('disabled', true);
 				round = 1;
 				$("#choose_player").hide();
 				$(".detail_choose").hide();
 				//放入玩家名
 				if(PLAYER_ID == 1){
-					$("#player_name").text("player id:1");
+					$("#player_name").text("上半天");
 				}
 				else{
-					$("#player_name").text("player id:2");
+					$("#player_name").text("下半天");
 				}
 
 				$(".LEFT").show();
@@ -142,7 +162,20 @@
 				$("#choose_basic_action").show();
 				
 			})
-			
+
+
+			// 接受訊息
+			socket.on("player_msg" , (msg)=>{
+				addMessage(msg);
+			})
+			//========  ==============================================================================	
+
+
+
+			// 結束一回合要做的事
+			socket.on("turn_end", ()=>{
+				addMessage("今天似乎又有驚無檢的度過了...")
+			})
 			//========  ==============================================================================	
 
 			socket.on("update_state", (env)=>{  //更新狀態
@@ -261,13 +294,13 @@
 						dir_name = direct_dic[dir];
 					}
 					else{
-						addMessage("你沒有可移動的士兵");
+						Alert("你沒有可移動的士兵");
 						can_move=false;
 					}
 					
 					if(can_move){
-						addMessage("你調動了一隊"+troop_name+"隊前往"+dir_name+"方");
-						socket.emit("action_done" , PLAYER_ID , action);
+						var msg = "你調動了一隊"+troop_name+"隊前往"+dir_name+"方";
+						socket.emit("action_done" , PLAYER_ID , action,msg);
 					}
 					
 				})
@@ -301,13 +334,13 @@
 						troop_name="騎兵";
 					}
 					else{
-						addMessage("你沒有足夠的木頭招募士兵");
+						Alert("你沒有足夠的木頭招募士兵");
 						can_recruit=false;
 					}
 					
 					if(can_recruit){
-						addMessage("你招募了一隊"+troop_name+"隊!");
-						socket.emit("action_done" , PLAYER_ID , action);
+						var msg = "你招募了一隊"+troop_name+"隊!";
+						socket.emit("action_done" , PLAYER_ID , action,msg);
 					}
 					
 				})
@@ -322,7 +355,7 @@
 					// 計算可以修補的選項
 					if( Env.roads[WALL_DIR].wallhp == Env.maxWallhp){
 						
-						addMessage("此面城牆完好無損，不需要維修!")
+						Alert("此面城牆完好無損，不需要維修!")
 
 					}
 					else{
@@ -349,11 +382,13 @@
 					
 					console.log(repair_value);
 					action = new repair_wall(WALL_DIR,repair_value);
-					addMessage("維修了"+direct_dic[WALL_DIR]+"方牆"+repair_value*100+"點");
-					socket.emit("action_done" , PLAYER_ID , action);
+					var msg = "維修了"+direct_dic[WALL_DIR]+"方牆"+repair_value*100+"點"
+					
+					socket.emit("action_done" , PLAYER_ID , action,msg);
 				})
 				
 			
+
 
 				//========  ==============================================================================	
 				// skip  =================================================================================
@@ -363,7 +398,9 @@
 							this.type ='skip';
 						}
 					}
-					socket.emit("action_done" , PLAYER_ID , skip);
+					action = new skip();
+					var msg="你覺得養精蓄銳比較重要，於是這半天休息";
+					socket.emit("action_done" , PLAYER_ID , action, msg);
 				})
 				//========  ==============================================================================	 
 
@@ -394,10 +431,14 @@
 
 	
 	</div>
-
-	
 	<!-- ======================================  -->
 
+	
+	
+	<!-- alert  -->
+	
+
+	
 
 
 	<div class="LEFT">
@@ -550,7 +591,7 @@
 					<div class="modal-dialog" role="document">
 					  <div class="modal-content">
 						<div class="modal-header">
-						  <h5 class="modal-title">Modal title</h5>
+						  <h5 class="modal-title">建築工向你報告</h5>
 						  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 						  </button>
@@ -598,6 +639,23 @@
 			
 			<!-- show message above--> 
 			<!-- ==================================== -->
+
+			<!---  這是一個彈出視窗，用來警告-->
+			<div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="alert_pop">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content" id="alert_content">
+					...
+					</div>
+					<div class="modal-footer">
+						<button style="text-align:center;" type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+
+					</div>
+					
+
+				</div>
+				</div>
+	
+		<!-- ======================================  -->
 
 	</div> 
 

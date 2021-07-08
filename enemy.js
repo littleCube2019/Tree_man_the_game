@@ -31,5 +31,5 @@ class enemy{
     }
 }
 
-module.exports.treeMan = new enemy(250, 600, 1, 1, 2000);
-module.exports.bigTreeMan = new enemy(500, 3000, 1, 1, 10000);
+module.exports.treeMan = new enemy(600, 250, 1, 1, 2000);
+module.exports.bigTreeMan = new enemy(3000, 500, 1, 1, 10000);

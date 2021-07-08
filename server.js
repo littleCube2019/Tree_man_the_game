@@ -176,6 +176,7 @@ function roundCheck(){
   combat("W");
   combat("S");
   Env.round+=1
+  io.emit("turn_end"); //告知user此回合結束
   console.log(Env.roads);
 }
 
@@ -346,9 +347,9 @@ io.on('connection', (socket) => {
  
 
   //每回合結算玩家的行動並更新環境
-  socket.on("action_done", (player_id, action)=>{
+  socket.on("action_done", (player_id, action ,msg)=>{ //玩家的訊息
     
-
+    io.emit("player_msg",msg);
 
     if(player_id==1){
       player_movement_update(action);

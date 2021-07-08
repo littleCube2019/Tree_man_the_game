@@ -72,6 +72,7 @@
 			//標示
 			function Alert(Text){
 				$('#alert_pop').modal('toggle');
+
 				$("#alert_content").text(Text);
 			}
 
@@ -110,16 +111,10 @@
 				})
 
 			socket.on("start_game",()=>{
-				//基礎文本
-				addMessage("\"森林之母已怒不可遏，樹木之罰將降於貪婪之人\"");
-				addMessage("神木教教徒今天也如是說道");
-				addMessage("就在你不以為然的同時");
-				addMessage("城外遠處的森林傳來了數聲巨響");
-				addMessage("接著是護城弓箭隊的回報");
-				addMessage("仿佛傳說中遠古巨人般的");
-				addMessage("眾多樹型妖怪正在逼近你的城市.....")
-				addMessage("你必須當機立斷的竭全城之力才有可能活下去!");
-				addMessage("Game Start")
+			
+				
+				
+			
 				//基礎設定
 
 				$("button").attr('disabled', true);
@@ -136,6 +131,10 @@
 
 				$(".LEFT").show();
 				$(".RIGHT").show();
+				
+				//基礎文本
+				$("#start_game_alert").modal("toggle")
+				
 				
 				/*
 				$("#my_item_2").hide();
@@ -160,7 +159,7 @@
 			
 				$(".detail_choose").hide();
 				$("#choose_basic_action").show();
-				
+				$("#start_game_alert_ok").attr('disabled', false);
 			})
 
 
@@ -443,7 +442,8 @@
 
 	<div class="LEFT">
 	
-	
+
+
 
     <!-- our status showing below-->
 	<!-- ==================================== -->
@@ -607,7 +607,7 @@
 						</div>
 						<div class="modal-footer">
 						  <button type="button" class="btn btn-primary" data-dismiss="modal" id="submit_repair_wall">送出並結束回合</button>
-						  <button type="button" class="btn btn-secondary" data-dismiss="modal">返回</button>
+						  <button type="button" class="btn btn-secondary" data-dismiss="modal" >返回</button>
 						</div>
 					  </div>
 					</div>
@@ -654,8 +654,39 @@
 
 				</div>
 				</div>
+				
+			<!-- ======================================  -->
+			
+			<!--文本跳出視窗-->
+			<div class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" id="start_game_alert">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" >Story</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					"森林之母已怒不可遏，樹木之罰將降於貪婪之人"<br>
+					神木教教徒今天也如是說道<br>
+					就在你不以為然的同時<br>
+					城外遠處的森林傳來了數聲巨響<br>
+					接著是護城弓箭隊的回報<br>
+					仿佛傳說中遠古巨人般的<br>
+					仿佛傳說中遠古巨人般的<br>
+					仿佛傳說中遠古巨人般的<br>
+					眾多樹型妖怪正在逼近你的城市.....<br>
+					你必須當機立斷的竭全城之力才有可能活下去!<br>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal" id="start_game_alert_ok">Game Start</button>
 	
-		<!-- ======================================  -->
+				</div>
+				</div>
+			</div>
+			</div>	
+			<!-- ======================================  -->
 
 	</div> 
 

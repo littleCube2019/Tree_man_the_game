@@ -92,6 +92,8 @@ class Environment {
     this.ranger = [];   
   }
 };
+
+//=========招募部隊=================
 function recruit(type){
     if(type=='archer'){
       var archer_team = army.archer;
@@ -112,7 +114,9 @@ function recruit(type){
       Env.ranger.push(ranger_team);
     }
 }
+//===================================
 
+//========派出部隊======
 function moveArmy(troop_type, direction){
 
   if(troop_type=="archer"){
@@ -129,33 +133,26 @@ function moveArmy(troop_type, direction){
     Env.num_of_troop["ranger"] -= 1;
   }
 }
+//========================
 
-
-/*
-    if(direction=='E')
-      this.roads["E"].army_location[0].push(troop_type);
-    else if(direction=='S')
-      this.roads["S"].army_location[0].push(troop_type);
-    else if(direction=='W')
-      this.roads["W"].army_location[0].push(troop_type);
-    else if(direction=='N')
-      this.roads["N"].army_location[0].push(troop_type);
-*/
-
-
+//=========修牆===========
 function repairWall(direction, unit){
   Env.roads[direction].wallhp = Math.min(Env.roads[direction].wallhp+unit*100, Env.maxWallhp);
 }
-
+//=======================
 
  
 
 var Env = null;
 
+//============遊戲開始========
 function newGame(){
   Env = new Environment();
 }
+//============================
 
+
+//============接收玩家操作指令===============
 function player_movement_update(action ){
   //console.log(action);
   if(action.type=='recruit')
@@ -165,7 +162,9 @@ function player_movement_update(action ){
   else if(action.type=='repair_wall')
     repairWall(action.direction, action.unit);
 }
+//===========================================
 
+//==========回合結束判定======================
 function roundCheck(){
   spawnEnemy();
   troopMove();
@@ -175,11 +174,19 @@ function roundCheck(){
   combat("E");
   combat("W");
   combat("S");
-  Env.round+=1
+  Env.round+=1;
+  isGameover();
   io.emit("turn_end"); //告知user此回合結束
   console.log(Env.roads);
+  Env.wood += 500;
 }
+//=============================================
 
+
+//===================交戰系統===================
+/******當有敵方部隊進入攻擊範圍內，該部隊會停止移動並攻擊**********
+*******一回合只有最前面的部隊會受到傷害***************************
+ */
 function combat(dir){
   
   if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length && Env.roads[dir].army_location[Env.roads[dir].farest_army].length){
@@ -222,7 +229,10 @@ function combat(dir){
     console.log(enemy_damage);
   }
 }
+//===============================================================================
 
+
+//回合結束部隊自動移動=======================
 function troopMove(){
   for(var d=0; d<4; d++){
     var dir;
@@ -251,6 +261,7 @@ function troopMove(){
     }
   }
 }
+
 
 function enemyMove(){
   for(var d=0; d<4; d++){
@@ -281,7 +292,10 @@ function enemyMove(){
     }
   }
 }
+//=========================================================
 
+
+//生成敵人(隨機)==================================
 function spawnEnemy(){
   var spawn = Math.floor(Math.random()*2);
   var spawn_direction = Math.floor(Math.random()*4);
@@ -300,9 +314,13 @@ function spawnEnemy(){
     }
   }
 }
+//=============================================
 
-function gameover(){
-
+function isGameover(){
+  if(Env.roads["E"].wallhp<=0 || Env.roads["W"].wallhp<=0 || Env.roads["N"].wallhp<=0 || Env.roads["S"].wallhp<=0){
+    console.log("gameover");
+    io.emit("gameover");
+  }
 }
 
 io.on('connection', (socket) => {

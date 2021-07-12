@@ -40,5 +40,5 @@ class troop{
 }
 
 module.exports.archer = new troop(1000, 1, 100, 3, 0);
-module.exports.armor = new troop(500, 1000, 50, 1, 1);
-module.exports.ranger = new troop(2000, 500, 300, 1, 3);
+module.exports.armor = new troop(500, 1000, 50, 0, 1);
+module.exports.ranger = new troop(2000, 500, 300, 0, 3);

@@ -215,29 +215,35 @@ function combat(dir){
     }
   }
   console.log("方向:" + dir + "  部隊造成傷害:" + army_damage + "  樹人造成傷害:" + enemy_damage);
-  if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length && Env.roads[dir].army_location[Env.roads[dir].farest_army].length){
-    if(army_damage>=nearest_enemy_hp){
-      Env.wood += Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].reward;
-      Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].splice(0, 1);
-    }
-    else{
-      nearest_enemy_hp -= army_damage;
-    }
-  }
   if(Env.roads[dir].nearest_enemy==0 && Env.roads[dir].army_location[0].length==0){
     console.log("樹人到城牆下啦");
     Env.roads[dir].wallhp = Math.max(Env.roads[dir].wallhp-enemy_damage, 0);
 
   }
+
   else if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length && Env.roads[dir].army_location[Env.roads[dir].farest_army].length){
-    console.log("樹人還沒在路上");
+    
+    if(army_damage>=nearest_enemy_hp){
+      Env.wood += Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].reward;
+      Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].splice(0, 1);
+      console.log("消滅樹人");
+    }
+    else{
+      nearest_enemy_hp -= army_damage;
+      console.log("樹人血量:" + nearest_enemy_hp);
+      Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].hp = nearest_enemy_hp;
+    }
     if(enemy_damage>=farest_army_hp){
       Env.roads[dir].army_location[Env.roads[dir].farest_army].splice(0, 1);
+      console.log("部隊被殲滅");
     }
     else{
       farest_army_hp -= enemy_damage;
+      console.log("部隊血量:" + farest_army_hp);
+      Env.roads[dir].army_location[Env.roads[dir].farest_army][0].hp = farest_army_hp;
     }
   }
+
 }
 //===============================================================================
 
@@ -253,8 +259,8 @@ function troopMove(){
     for(var i=19; i>=0; i--){
       if(Env.roads[dir].army_location[i].length){
         for(var j=0; j<Env.roads[dir].army_location[i].length;){
-          var move_to = Math.min(Env.roads[dir].army_location[i][j].move_distance+i, 20); 
-          move_to = Math.min(move_to, Env.roads[dir].nearest_enemy-Env.roads[dir].army_location[i][j].attack_range);
+          var move_to = Math.min(Env.roads[dir].army_location[i][j].move_distance+i, 20, Env.roads[dir].nearest_enemy-Env.roads[dir].army_location[i][j].attack_range); 
+          move_to = Math.max(move_to, 0);
           if(move_to!=i){
             Env.roads[dir].army_location[move_to].push(Env.roads[dir].army_location[i][j]);
             Env.roads[dir].army_location[i].splice(j, 1);

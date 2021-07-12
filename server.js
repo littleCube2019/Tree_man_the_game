@@ -137,6 +137,7 @@ function moveArmy(troop_type, direction){
 
 //=========修牆===========
 function repairWall(direction, unit){
+  Env.wood -= unit*100;
   Env.roads[direction].wallhp = Math.min(Env.roads[direction].wallhp+unit*100, Env.maxWallhp);
 }
 //=======================
@@ -189,26 +190,32 @@ function roundCheck(){
  */
 function combat(dir){
   
-  if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length && Env.roads[dir].army_location[Env.roads[dir].farest_army].length){
-    var army_damage = 0;
-    var enemy_damage = 0;
-    var nearest_enemy_hp = Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].hp;
-    var farest_army_hp = Env.roads[dir].army_location[Env.roads[dir].farest_army][0].hp;
-    for(var loc=0; loc<20; loc++){
-      var troop_num = Env.roads[dir].army_location[loc].length;
-      var enemy_num = Env.roads[dir].enemy_location[loc].length;
-      for(var i=0; i<troop_num; i++){
-        if(Env.roads[dir].army_location[loc][i].attack_range + loc >= Env.roads[dir].nearest_enemy){
-          army_damage += Env.roads[dir].army_location[loc][i].attack;
-        }
-      }
-      for(var i=0; i<enemy_num; i++){
-        if(loc - Env.roads[dir].enemy_location[loc][i].attack_range <= Env.roads[dir].farest_army){
-          enemy_damage += Env.roads[dir].enemy_location[loc][i].attack;
-        }
+  var army_damage = 0;
+  var enemy_damage = 0;
+  var nearest_enemy_hp = Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length ? Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].hp : 0;
+  var farest_army_hp = Env.roads[dir].army_location[Env.roads[dir].farest_army].length ? Env.roads[dir].army_location[Env.roads[dir].farest_army][0].hp : 0;
+  var troop_num = 0;
+  var enemy_num = 0;
+  
+
+  for(var loc=0; loc<20; loc++){
+    if(Env.roads[dir].army_location[Env.roads[dir].farest_army].length)
+      troop_num = Env.roads[dir].army_location[loc].length;
+    if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length)
+      enemy_num = Env.roads[dir].enemy_location[loc].length;
+    for(var i=0; i<troop_num; i++){
+      if(Env.roads[dir].army_location[loc][i].attack_range + loc >= Env.roads[dir].nearest_enemy){
+        army_damage += Env.roads[dir].army_location[loc][i].attack;
       }
     }
-    //軍隊造成的傷害
+    for(var i=0; i<enemy_num; i++){
+      if(loc - Env.roads[dir].enemy_location[loc][i].attack_range <= Env.roads[dir].farest_army){
+        enemy_damage += Env.roads[dir].enemy_location[loc][i].attack;
+      }
+    }
+  }
+  console.log("方向:" + dir + "  部隊造成傷害:" + army_damage + "  樹人造成傷害:" + enemy_damage);
+  if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length && Env.roads[dir].army_location[Env.roads[dir].farest_army].length){
     if(army_damage>=nearest_enemy_hp){
       Env.wood += Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].reward;
       Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].splice(0, 1);
@@ -216,17 +223,20 @@ function combat(dir){
     else{
       nearest_enemy_hp -= army_damage;
     }
-    //==============
-    //樹人造成的傷害
+  }
+  if(Env.roads[dir].nearest_enemy==0 && Env.roads[dir].army_location[0].length==0){
+    console.log("樹人到城牆下啦");
+    Env.roads[dir].wallhp = Math.max(Env.roads[dir].wallhp-enemy_damage, 0);
+
+  }
+  else if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length && Env.roads[dir].army_location[Env.roads[dir].farest_army].length){
+    console.log("樹人還沒在路上");
     if(enemy_damage>=farest_army_hp){
       Env.roads[dir].army_location[Env.roads[dir].farest_army].splice(0, 1);
     }
     else{
       farest_army_hp -= enemy_damage;
     }
-    //===================
-    console.log(army_damage);
-    console.log(enemy_damage);
   }
 }
 //===============================================================================

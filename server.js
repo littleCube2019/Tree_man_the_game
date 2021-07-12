@@ -145,6 +145,7 @@ function moveArmy(troop_type, direction){
 
 function repairWall(direction, unit){
   Env.roads[direction].wallhp = Math.min(Env.roads[direction].wallhp+unit*100, Env.maxWallhp);
+  Env.wood -= unit*100;
 }
 
 
@@ -166,6 +167,16 @@ function player_movement_update(action ){
     repairWall(action.direction, action.unit);
 }
 
+// 機率決定 
+function roll_the_dice(range=100){
+  // Math.floor(Math.random() * 10) returns a random integer between 0 and 9 (both included):
+  return (Math.floor(Math.random() * range)+1);
+  
+}
+
+
+
+
 function roundCheck(){
   spawnEnemy();
   troopMove();
@@ -176,7 +187,7 @@ function roundCheck(){
   combat("W");
   combat("S");
   Env.round+=1
-  io.emit("turn_end"); //告知user此回合結束
+  io.emit("turn_end",roll_the_dice()); //告知user此回合結束，並傳一個機率結果給接收端
   console.log(Env.roads);
 }
 

@@ -50,9 +50,16 @@
 						"W" : "西",
 						"N" : "北"
 					}
+			
+			
+
+			
 			//message
 			var num_message = 0; 
 			var MAX_MESSAGE = 19;
+			
+
+
 			
 			//信息版
 			function addMessage(Text){
@@ -172,8 +179,15 @@
 
 
 			// 結束一回合要做的事
-			socket.on("turn_end", ()=>{
-				addMessage("今天似乎又有驚無檢的度過了...")
+			socket.on("turn_end", (dice_result)=>{
+				if(dice_result<=20){
+
+					addMessage("城中壓抑的紛圍越來越嚴重")
+					addMessage("你抱著忐忑的心情迎接明天")
+				}
+				else{
+					addMessage("今天似乎又有驚無檢的度過了...")
+				}
 			})
 			//========  ==============================================================================	
 
@@ -601,7 +615,7 @@
 							<div class="form-group">
 								<label for="exampleFormControlSelect1">選擇城牆修築數量</label>
 								<select class="form-control" id="repair_wall_select">
-								  
+								  <!--按下 按鈕會由jQuery 生成合法選項-->
 								</select>
 							  </div>
 						</div>

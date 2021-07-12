@@ -18,6 +18,7 @@
 
 .LEFT_TOP {
 	width: 100%; 
+	overflow: scroll;
 	float: left;
 	height:50%;
 	background-color: #F0F8FF;

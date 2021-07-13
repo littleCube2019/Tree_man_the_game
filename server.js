@@ -193,8 +193,9 @@ function roundCheck(){
   
 
   Env.round+=1;
+  io.emit("turn_end",roll_the_dice()); //告知user此回合結束，並傳一個機率結果給接收端,先於game over才不會鎖住player2的按鈕
   isGameover();
-  io.emit("turn_end",roll_the_dice()); //告知user此回合結束，並傳一個機率結果給接收端
+
 
   console.log(Env.roads);
   Env.wood += 500;

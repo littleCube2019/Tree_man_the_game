@@ -79,8 +79,8 @@
 			//標示
 			function Alert(Text){
 				$('#alert_pop').modal('toggle');
-
 				$("#alert_content").text(Text);
+			
 			}
 
 			//選擇玩家 socket  ==============================================================================
@@ -99,7 +99,7 @@
 						$(".LEFT").hide();
 						$(".RIGHT").hide();
 						$(".alert").hide();
-
+						$("#game_over").hide();
 						
 				})
 
@@ -118,7 +118,7 @@
 				})
 
 			socket.on("start_game",()=>{
-			
+				
 				
 				
 			
@@ -128,6 +128,7 @@
 				round = 1;
 				$("#choose_player").hide();
 				$(".detail_choose").hide();
+			
 				//放入玩家名
 				if(PLAYER_ID == 1){
 					$("#player_name").text("上半天");
@@ -188,9 +189,10 @@
 				else{
 					addMessage("今天似乎又有驚無檢的度過了...")
 				}
+				addMessage("趁著空檔帝國後勤會你運來了500木頭");
 			})
 			//========  ==============================================================================	
-
+			// 每一回和更新使用者的狀態
 			socket.on("update_state", (env)=>{  //更新狀態
 				Env = env;
 
@@ -226,7 +228,20 @@
 			}
 			)
 
-			// jQuery , 按鈕與互動
+
+			// game over 
+			socket.on("gameover", ()=> {
+				$("#game_over").show();
+				$(".LEFT").hide();
+				$(".RIGHT").hide();
+				$(".alert").hide();
+				var Text ="城牆應聲倒下\n 鐵銹味與尖叫聲瞬間充斥城內\n 而帝國的野心大概也會隨之落幕...\n "; 
+				Alert(Text);
+				$("#alert_button").attr('disabled',false);
+			})
+
+
+			// jQuery , 按鈕與互動  ========================================================================
 			$(document).ready(()=>{
 				//選擇玩家 按鈕 ========================
 				$("#pl1").click(()=>{
@@ -446,6 +461,15 @@
 	</div>
 	<!-- ======================================  -->
 
+
+	<!-- 結束畫面 ======================          -->
+	<div id="game_over">
+		<img src="gameover.PNG" >
+		
+	
+		
+	</div>
+		<!-- ======================================  -->
 	
 	
 	<!-- alert  -->
@@ -654,55 +678,66 @@
 			<!-- show message above--> 
 			<!-- ==================================== -->
 
-			<!---  這是一個彈出視窗，用來警告-->
-			<div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="alert_pop">
-				<div class="modal-dialog modal-sm">
-					<div class="modal-content" id="alert_content">
-					...
-					</div>
-					<div class="modal-footer">
-						<button style="text-align:center;" type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
-
-					</div>
-					
-
-				</div>
-				</div>
-				
-			<!-- ======================================  -->
+		
 			
-			<!--文本跳出視窗-->
-			<div class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" id="start_game_alert">
-			<div class="modal-dialog modal-dialog-centered" role="document">
-				<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" >Story</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					"森林之母已怒不可遏，樹木之罰將降於貪婪之人"<br>
-					神木教教徒今天也如是說道<br>
-					就在你不以為然的同時<br>
-					城外遠處的森林傳來了數聲巨響<br>
-					接著是護城弓箭隊的回報<br>
-					仿佛傳說中遠古巨人般的<br>
-					眾多樹型妖怪正在逼近你的城市.....<br>
-					你必須當機立斷的竭全城之力才有可能活下去!<br>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal" id="start_game_alert_ok">Game Start</button>
-	
-				</div>
-				</div>
-			</div>
-			</div>	
-			<!-- ======================================  -->
+			
 
 	</div> 
 
 
+		<!---  這是一個彈出視窗，用來警告-->
+	
+		
+			<div class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" id="alert_pop">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" >Alert</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body" id="alert_content">
+							...
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal" id="alert_button">OK</button>
+		
+					</div>
+					</div>
+				</div>
+				</div>	
+
+		<!-- ======================================  -->
+
+	<!--文本跳出視窗-->
+	<div class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" id="start_game_alert">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" >Story</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				"森林之母已怒不可遏，樹木之罰將降於貪婪之人"<br>
+				神木教教徒今天也如是說道<br>
+				就在你不以為然的同時<br>
+				城外遠處的森林傳來了數聲巨響<br>
+				接著是護城弓箭隊的回報<br>
+				仿佛傳說中遠古巨人般的<br>
+				眾多樹型妖怪正在逼近你的城市.....<br>
+				你必須當機立斷的竭全城之力才有可能活下去!<br>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal" id="start_game_alert_ok">Game Start</button>
+
+			</div>
+			</div>
+		</div>
+		</div>	
+		<!-- ======================================  -->
 
 </body>
 

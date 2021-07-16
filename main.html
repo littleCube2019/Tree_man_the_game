@@ -164,10 +164,11 @@
 				else{
 					$("button").attr('disabled', true);
 				}
-			
+				// white list  ,也許未來要改採""黑名單""?
 				$(".detail_choose").hide();
 				$("#choose_basic_action").show();
 				$("#start_game_alert_ok").attr('disabled', false);
+				$(".show_state").attr('disabled', false);
 			})
 
 
@@ -189,7 +190,7 @@
 				else{
 					addMessage("今天似乎又有驚無檢的度過了...")
 				}
-				addMessage("趁著空檔帝國後勤會你運來了500木頭");
+				addMessage("趁著空檔帝國後勤隊為你運來了500木頭");
 			})
 			//========  ==============================================================================	
 			// 每一回和更新使用者的狀態
@@ -282,6 +283,14 @@
     
 				})
 	            
+				$("#choose_scout").click(()=>{
+					$("#choose_basic_action").hide();
+					$("#scout").show();
+					$("#go-back").show();
+    
+				})
+
+
 				$("#go-back ").click(()=>{
 					$(".detail_choose").hide();
 					$("#choose_basic_action").show();
@@ -335,6 +344,29 @@
 
 				//========================================================================================
 
+				//  偵查 button  ================================================================================
+				$(".scout_dir ").click(function(e){
+					
+					var dir = e.target.getAttribute("Dir");;
+					class scout {
+						constructor(troop_type,dir){
+							this.type ='scout';
+							this.troop_type = troop_type ;
+							this.direction = dir
+						}
+					}
+					action = new scout(dir);
+
+					var msg = "你派出了斥侯隊前往"+direct_dic[dir]+"方，查看情況...";
+					socket.emit("action_done" , PLAYER_ID , action, msg);
+					
+					
+
+
+				})
+				//      ========================================================================================
+
+
 
 				// recruit_troop wall button ====================================================================
 				$(".recruit_troop").click(function(e){
@@ -378,7 +410,7 @@
 				// repair wall button ====================================================================
 				$(".repair_wall_dir ").click(function(e){
 					
-					WALL_DIR = e.target.id;
+					WALL_DIR = e.target.getAttribute("Dir");;
 			
 					// 計算可以修補的選項
 					if( Env.roads[WALL_DIR].wallhp == Env.maxWallhp){
@@ -431,7 +463,18 @@
 					socket.emit("action_done" , PLAYER_ID , action, msg);
 				})
 				//========  ==============================================================================	 
+				
 
+				//========================show detail state==========================================================
+				/*
+				$(".show_state").click(function(event) {     
+					target = $( event.target );
+					console.log(target.next("div"))
+					target.next("div").toggle();
+			    
+				});
+				*/
+				//========================================================================================
 				})
 		</script>
 
@@ -491,12 +534,33 @@
 			<div id="my_basic-data">
 				<!--基本數值-->
 				<div>你堅守了<span id="round"> 1 </span>天</div>
-				<div> 內政狀態</div>
-				<div>木頭: <span id="wood">500 </span> </div>
+				<div id="resource_state">  內政狀態
+					<button class="show_state">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bank" viewBox="0 0 16 16">
+						<path d="M8 .95 14.61 4h.89a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v7a.5.5 0 0 1 .485.379l.5 2A.5.5 0 0 1 15.5 17H.5a.5.5 0 0 1-.485-.621l.5-2A.5.5 0 0 1 1 14V7H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 4h.89L8 .95zM3.776 4h8.447L8 2.05 3.776 4zM2 7v7h1V7H2zm2 0v7h2.5V7H4zm3.5 0v7h1V7h-1zm2 0v7H12V7H9.5zM13 7v7h1V7h-1zm2-1V5H1v1h14zm-.39 9H1.39l-.25 1h13.72l-.25-1z"/>
+					  </svg>
+					</button>
+				
+				<div>
+				
+						<div>木頭: 
+						<span id="wood">500 </span> </div>
 
+						<br>
+				</div>
+			   </div>
 
-				<div> 城牆狀態</div>
-				<div>東: <span id="east_hp"> 1000</span> </div>
+				<div id="wall_state"> 城牆狀態 
+					<button class="show_state">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bricks" viewBox="0 0 16 16">
+							<path d="M0 .5A.5.5 0 0 1 .5 0h15a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H14v2h1.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H14v2h1.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5H2v-2H.5a.5.5 0 0 1-.5-.5v-3A.5.5 0 0 1 .5 6H2V4H.5a.5.5 0 0 1-.5-.5v-3zM3 4v2h4.5V4H3zm5.5 0v2H13V4H8.5zM3 10v2h4.5v-2H3zm5.5 0v2H13v-2H8.5zM1 1v2h3.5V1H1zm4.5 0v2h5V1h-5zm6 0v2H15V1h-3.5zM1 7v2h3.5V7H1zm4.5 0v2h5V7h-5zm6 0v2H15V7h-3.5zM1 13v2h3.5v-2H1zm4.5 0v2h5v-2h-5zm6 0v2H15v-2h-3.5z"/>
+						  </svg>
+					</button>
+				<div>
+				<div>東: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-right" viewBox="0 0 16 16">
+					<path fill-rule="evenodd" d="M6 8a.5.5 0 0 0 .5.5h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L12.293 7.5H6.5A.5.5 0 0 0 6 8zm-2.5 7a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5z"/>
+				  </svg>  
+				<span id="east_hp"> 1000</span> </div>
 
 				<div class="progress">
 					<div id="E-wall-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="70"
@@ -504,9 +568,14 @@
 					  70%
 					</div>
 				</div>
-	
+		     	
 
-				<div>南: <span id="south_hp"> 1000 </span> </div>
+				<div>南: 
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-down" viewBox="0 0 16 16">
+						<path fill-rule="evenodd" d="M1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5zM8 6a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 12.293V6.5A.5.5 0 0 1 8 6z"/>
+					</svg>
+					
+				<span id="south_hp"> 1000 </span> </div>
 				
 				<div class="progress">
 					<div id="S-wall-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="70"
@@ -517,7 +586,13 @@
 	
 
 
-				<div>西: <span id="west_hp"> 1000 </span> </div>
+				<div>西: 
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+						<path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5zM10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5z"/>
+					</svg>
+					
+				<span id="west_hp"> 1000 </span> </div>
+				
 				<div class="progress">
 					<div id="W-wall-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="70"
 					aria-valuemin="0" aria-valuemax="100" style="width:70%">
@@ -525,20 +600,34 @@
 					</div>
 				</div>
 	
-				<div>北: <span id="north_hp"> 1000 </span> </div>
+				<div>北:
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-up" viewBox="0 0 16 16">
+						<path fill-rule="evenodd" d="M8 10a.5.5 0 0 0 .5-.5V3.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 3.707V9.5a.5.5 0 0 0 .5.5zm-7 2.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"/>
+					  </svg>
+					<span id="north_hp"> 1000 </span> </div>
 				<div class="progress">
 					<div id="N-wall-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="70"
 					aria-valuemin="0" aria-valuemax="100" style="width:70%">
 					  70%
 					</div>
 				</div>
-	
+				</div>
+				</div>
 
+				<br>
 
-				<div>軍隊狀態</div>
-				<div>弓箭隊:    <span id="num_archer"> 1 </span>    隊         </div>
-				<div>重步兵隊:    <span id="num_armor"> 0 </span>   隊          </div>
-				<div>騎兵隊:    <span id="num_ranger"> 0 </span>    隊         </div>
+				<div>軍隊狀態
+					<button class="show_state">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">
+							<path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
+						  </svg>
+					</button>
+				<div>
+					<div>弓箭隊:    <span id="num_archer"> 1 </span>    隊         </div>
+					<div>重步兵隊:    <span id="num_armor"> 0 </span>   隊          </div>
+					<div>騎兵隊:    <span id="num_ranger"> 0 </span>    隊         </div>
+				</div>
+				</div>
 			</div>		
 
         </div> <!-- id=LEFT_TOP closing tag , this section ending here-->
@@ -569,7 +658,7 @@
 			<!--  基本操作  -->
 			<div id = "choose_basic_action">
 			你這回合選擇
-
+			<button class="choice_button btn btn-dark" id="choose_scout">偵查</button>
 			<button class="choice_button btn btn-dark" id="choose_troop_move">調度軍隊</button>
 			<button class="choice_button btn btn-dark" id="choose_recruit_troop">招募士兵</button>
 			<button class="choice_button btn btn-dark" id="choose_repair_wall">修築城牆</button>
@@ -577,6 +666,21 @@
 
 		    </div>
      
+
+			<!--  偵查  -->
+			<div class= "detail_choose" id = "scout"> 
+				<div>選擇偵查方向  </div>  
+				<div  > <button  class="scout_dir" Dir="E"  >東</button>  </div>
+				<div > <button class="scout_dir"  Dir="S"  >南</button> </div> 
+			    <div > <button  class="scout_dir"  Dir="W" >西</button>  </div>
+				<div > <button class="scout_dir"  Dir="N"  >北</button>  </div>
+			
+			
+			
+			</div>
+			<!--   =======================================   -->		
+
+
 		
 			<!--   =======================================   -->
 			
@@ -611,7 +715,7 @@
 			<!--   修城牆  -->
 			<div class= "detail_choose" id = "repair_wall">  
 				<div>選擇修補方向  </div>  
-				<div  > <button  class="repair_wall_dir " id="E"  >東</button>  </div>
+				<div  > <button  class="repair_wall_dir " Dir="E"  >東</button>  </div>
 				<!-- 按下去就先選擇wall direction -->
 				
 
@@ -619,9 +723,9 @@
 				
 
 
-				<div > <button class="repair_wall_dir " id="S"  >南</button> </div> 
-			    <div > <button  class="repair_wall_dir " id="W" >西</button>  </div>
-				<div > <button class="repair_wall_dir " id="N"  >北</button>  </div>
+				<div > <button class="repair_wall_dir " Dir="S"  >南</button> </div> 
+			    <div > <button  class="repair_wall_dir " Dir="W" >西</button>  </div>
+				<div > <button class="repair_wall_dir " Dir="N"  >北</button>  </div>
 
 
 				<!---  這是一個彈出視窗，可以選擇城牆數量-->

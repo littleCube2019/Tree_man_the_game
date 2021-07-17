@@ -349,10 +349,9 @@
 					
 					var dir = e.target.getAttribute("Dir");;
 					class scout {
-						constructor(troop_type,dir){
+						constructor(dir){
 							this.type ='scout';
-							this.troop_type = troop_type ;
-							this.direction = dir
+							this.scout_dir = dir
 						}
 					}
 					action = new scout(dir);

@@ -69,7 +69,11 @@ div {
 	font-size : 200%;
 }
 
-
+.recruit_troop{
+	border-style: solid;
+	border-radius: 30%;
+	border: 2px solid #ee400bb7;
+}
 
 
 

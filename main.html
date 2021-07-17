@@ -23,7 +23,8 @@
 
 		<!-- bootsrap-->
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
 		<!-- vue.js --> 
 		<!---
 		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -96,6 +97,7 @@
 							$("#pl2").text("player2 has been choosed");
 						}
 
+						// 需要改進??
 						$(".LEFT").hide();
 						$(".RIGHT").hide();
 						$(".alert").hide();
@@ -123,8 +125,10 @@
 				
 			
 				//基礎設定
-
-				$("button").attr('disabled', true);
+				if( -1 == PLAYER_ID){
+					$(".choice_button").attr('disabled', false);
+				}
+				
 				round = 1;
 				$("#choose_player").hide();
 				$(".detail_choose").hide();
@@ -158,17 +162,19 @@
 				
 			//	console.log(TURN);
 			//	console.log(PLAYER_ID)
+			// 鎖住行動button
 				if(TURN == PLAYER_ID){
-					$("button").attr('disabled', false);
+					$(".choice_button").attr('disabled', false);
 				}
 				else{
-					$("button").attr('disabled', true);
+					$(".choice_button").attr('disabled', true);
 				}
-				// white list  ,也許未來要改採""黑名單""?
+				
 				$(".detail_choose").hide();
 				$("#choose_basic_action").show();
-				$("#start_game_alert_ok").attr('disabled', false);
-				$(".show_state").attr('disabled', false);
+
+		
+	
 			})
 
 
@@ -178,7 +184,15 @@
 			})
 			//========  ==============================================================================	
 
-
+			// 接收斥侯傳送回來的報告
+			// ===================
+			/*
+			socket.on("scout_report" , (dir , location)=>{
+				var msg = "你的斥侯隊告訴你在"+direct_dic[dir]+"方向幾公里處有"
+				Alert()
+			})
+			*/
+			// ==================
 
 			// 結束一回合要做的事
 			socket.on("turn_end", (dice_result)=>{
@@ -244,6 +258,10 @@
 
 			// jQuery , 按鈕與互動  ========================================================================
 			$(document).ready(()=>{
+				//初始化tooltip 訊息
+				$(function () {
+					$('[data-toggle="tooltip"]').tooltip()
+					})
 				//選擇玩家 按鈕 ========================
 				$("#pl1").click(()=>{
 					PLAYER_ID = 1;
@@ -472,6 +490,15 @@
 				});
 				
 				//========================================================================================
+
+				//===================== battle log show =============================================================
+				//===================== battle log show =============================================================
+				$("#battle_log").click(function(event) {     
+					$("#battle_log_pop").modal('toggle');
+					$("#battle_log_content").append("第"+Env.round+"天<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>");
+				});
+				//====================================================================================================
+				
 				})
 		</script>
 
@@ -625,6 +652,14 @@
 					<div>騎兵隊:    <span id="num_ranger"> 0 </span>    隊         </div>
 				</div>
 				</div>
+				<br>
+				<div>交戰紀錄
+					<button id="battle_log">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
+							<path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2zm1 12h2V2h-2v12zm-3 0V7H7v7h2zm-5 0v-3H2v3h2z"/>
+						  </svg>
+					</button>
+				</div>
 			</div>		
 
         </div> <!-- id=LEFT_TOP closing tag , this section ending here-->
@@ -700,10 +735,22 @@
 			<!--  招募士兵  -->
 			<div class= "detail_choose" id = "recruit_troop"> 
 				<div>選擇招募兵種  </div>  
-				<div  > <button  class="recruit_troop" id="archer" >弓箭隊</button>   </div>
-				<div > <button class="recruit_troop" id="armor" >重甲步兵隊</button> </div>
-			    <div > <button  class="recruit_troop" id="ranger"> 騎兵隊 </button>  </div>
-			
+				<div  > 
+					<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" title="需要: 1000木頭 <br> 射程:遠距離 <br> 每隊攻擊力:100 <br> 移動能力:無 <br>承受傷害能力:無<br> 敘述:由平民組成的弓箭隊，準度不佳，但至少會拉弓，站在附近唯一高處的四面城牆上射擊，城牆倒下之前不會被消滅，木頭大部分用於製作木箭"   id="archer" >弓箭隊</button>   
+				   
+				
+				</div>
+				<br>
+				<div > 
+					<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" title="需要: 500木頭 <br> 射程:近戰 <br> 每隊攻擊力:50 <br> 移動能力:日行1公里<br> 承受傷害能力:1000 <br> 敘述:由平民組成的步兵隊，拿著草叉、斧頭...工具就出征了，你不相信他們能擊殺敵人，但相信他們能拖延敵人，木頭幾乎用在製作木製鎧甲" id="armor" >重甲步兵隊</button>  
+				
+				</div>
+				<br>
+			    <div > 
+					<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right"  data-html="true" title="需要: 2000木頭 <br> 射程:近戰 <br> 每隊攻擊力:300 <br> 移動能力:日行3公里<br> 承受傷害能力:500 <br> 敘述:前帝國軍隊士兵組成，至少有基本的戰鬥技巧與騎術，還有之前留下的鏽跡斑斑的武器，木頭用在他們的軍餉與馬的飼料"  id="ranger"> 騎兵隊 </button>  
+				
+				</div>
+				<br>
 			
 			
 			</div>
@@ -752,6 +799,7 @@
 					</div>
 				  </div>
 				<!-- end of pop window-->
+				
 
 
 			</div>
@@ -840,6 +888,29 @@
 		</div>	
 		<!-- ======================================  -->
 
+		<!-- 戰報跳出視窗-->
+
+		<div class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" id="battle_log_pop">
+			<div class="modal-dialog modal-dialog-scrollable" role="document">
+				<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" >交戰紀錄</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body" id="battle_log_content" style="overflow:scroll;">
+			
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal" id="battle_log_ok">OK</button>
+	
+				</div>
+				</div>
+			</div>
+			</div>	
+
+		<!-- ======================================  -->
 </body>
 
 

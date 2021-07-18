@@ -30,6 +30,7 @@ class road{
     this.direction = direction;
     this.max_distance = 21;
     this.nearest_enemy = this.max_distance-1;
+    this.hasEnemy = false;
     this.farest_army = 0;
     this.army_location = [];
     this.enemy_location = [];
@@ -90,6 +91,8 @@ class Environment {
     this.archer = [army.archer];
     this.armor = [];
     this.ranger = [];   
+
+    this.combat_report_list = [];
   }
 };
 
@@ -189,14 +192,19 @@ function roll_the_dice(range=100){
 //==========回合結束判定======================
 
 function roundCheck(){
+  /*
   spawnEnemy();
   troopMove();
   enemyMove();
+  */
 
-  combat("N");
-  combat("E");
-  combat("W");
-  combat("S");
+  var dir = ["E", "W", "N", "S"];
+  for(var d=0; d<dir.length; d++){
+    spawnEnemy(dir[d]);
+    troopMove(dir[d]);
+    enemyMove(dir[d]);
+    combat(dir[d]);
+  }
 
   
 
@@ -219,158 +227,137 @@ function combat(dir){
   
   var army_attack = 0;
   var enemy_attack = 0;
-  var nearest_enemy_hp = Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length ? Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].hp : 0;
-  var farest_army_hp = Env.roads[dir].army_location[Env.roads[dir].farest_army].length ? Env.roads[dir].army_location[Env.roads[dir].farest_army][0].hp : 0;
   var troop_num = 0;
   var enemy_num = 0;
   var isCombat = false;
   
-
-  for(var loc=0; loc<20; loc++){
-    if(Env.roads[dir].army_location[Env.roads[dir].farest_army].length)
-      troop_num = Env.roads[dir].army_location[loc].length;
-    if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length)
-      enemy_num = Env.roads[dir].enemy_location[loc].length;
-    for(var i=0; i<troop_num; i++){
-      if(Env.roads[dir].army_location[loc][i].attack_range + loc >= Env.roads[dir].nearest_enemy){
-        army_attack += Env.roads[dir].army_location[loc][i].attack;
-        isCombat = true;
+  if(Env.roads[dir].hasEnemy){
+    var nearest_enemy_hp = Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length ? Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].hp : 0;
+    var farest_army_hp = Env.roads[dir].army_location[Env.roads[dir].farest_army].length ? Env.roads[dir].army_location[Env.roads[dir].farest_army][0].hp : 0;
+    for(var loc=0; loc<20; loc++){
+      if(Env.roads[dir].army_location[Env.roads[dir].farest_army].length)
+        troop_num = Env.roads[dir].army_location[loc].length;
+      if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length)
+        enemy_num = Env.roads[dir].enemy_location[loc].length;
+      for(var i=0; i<troop_num; i++){
+        if(Env.roads[dir].army_location[loc][i].attack_range + loc >= Env.roads[dir].nearest_enemy){
+          army_attack += Env.roads[dir].army_location[loc][i].attack;
+          isCombat = true;
+        }
+      }
+      for(var i=0; i<enemy_num; i++){
+        if(loc - Env.roads[dir].enemy_location[loc][i].attack_range <= Env.roads[dir].farest_army){
+          enemy_attack += Env.roads[dir].enemy_location[loc][i].attack;
+          isCombat = true;
+        }
       }
     }
-    for(var i=0; i<enemy_num; i++){
-      if(loc - Env.roads[dir].enemy_location[loc][i].attack_range <= Env.roads[dir].farest_army){
-        enemy_attack += Env.roads[dir].enemy_location[loc][i].attack;
-        isCombat = true;
+
+    var combat_report={"day":Env.round, //交戰日期
+                      "direction":dir, //交戰方向
+                      "location":0, //交戰位置
+                      "wall_damaged":false, //城牆是否被攻擊
+                      "army_attack":army_attack, //部隊造成的傷害
+                      "enemy_attack":enemy_attack, //樹人造成的傷害
+                      "army_hp":0, //最前方部隊剩餘血量
+                      "enemy_hp":0, //最近樹人剩餘血量
+                      "reward":0}; //擊殺樹人獎勵
+      
+    if(Env.roads[dir].nearest_enemy==0 && Env.roads[dir].army_location[0].length==0){
+      console.log("樹人到城牆下啦");
+      Env.roads[dir].wallhp = Math.max(Env.roads[dir].wallhp-enemy_attack, 0);
+      combat_report["wall_damaged"] = true;
+    }
+    else if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length && Env.roads[dir].army_location[Env.roads[dir].farest_army].length){
+      nearest_enemy_hp = Math.max(0, nearest_enemy_hp -= army_attack);
+      farest_army_hp = Math.max(0, farest_army_hp -= enemy_attack);
+      combat_report["enemy_hp"] = nearest_enemy_hp;
+      combat_report["army_hp"] = farest_army_hp;
+      combat_report["location"] = Env.roads[dir].farest_army;
+      Env.roads[dir].army_location[Env.roads[dir].farest_army][0].hp = farest_army_hp;
+      Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].hp = nearest_enemy_hp;
+
+      if(nearest_enemy_hp==0){
+        var reward = Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].reward;
+        Env.wood += reward;
+        combat_report["reward"] = reward;
+        Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].splice(0, 1);
+        console.log("消滅樹人");
       }
-    }
-  }
 
-  var combat_report={"direction":dir, //交戰方向
-                    "location":0, //交戰位置
-                    "wall_damaged":false, //城牆是否被攻擊
-                    "army_attack":army_attack, //部隊造成的傷害
-                    "enemy_attack":enemy_attack, //樹人造成的傷害
-                    "army_hp":0, //最前方部隊剩餘血量
-                    "enemy_hp":0, //最近樹人剩餘血量
-                    "reward":0}; //擊殺樹人獎勵
-
-  if(Env.roads[dir].nearest_enemy==0 && Env.roads[dir].army_location[0].length==0){
-    console.log("樹人到城牆下啦");
-    Env.roads[dir].wallhp = Math.max(Env.roads[dir].wallhp-enemy_attack, 0);
-    combat_report["wall_damaged"] = true;
-  }
-
-  else if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length && Env.roads[dir].army_location[Env.roads[dir].farest_army].length){
-    nearest_enemy_hp = Math.max(0, nearest_enemy_hp -= army_attack);
-    farest_army_hp = Math.max(0, farest_army_hp -= enemy_attack);
-    combat_report["enemy_hp"] = nearest_enemy_hp;
-    combat_report["army_hp"] = farest_army_hp;
-    combat_report["location"] = Env.roads[dir].farest_army;
-    Env.roads[dir].army_location[Env.roads[dir].farest_army][0].hp = farest_army_hp;
-    Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].hp = nearest_enemy_hp;
-
-    if(nearest_enemy_hp==0){
-      var reward = Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].reward;
-      Env.wood += reward;
-      combat_report["reward"] = reward;
-      Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].splice(0, 1);
-      console.log("消滅樹人");
-    }
-
-    if(farest_army_hp==0){
-      Env.roads[dir].army_location[Env.roads[dir].farest_army].splice(0, 1);
-      console.log("部隊被殲滅");
+      if(farest_army_hp==0){
+        Env.roads[dir].army_location[Env.roads[dir].farest_army].splice(0, 1);
+        console.log("部隊被殲滅");
+      }
     }
   }
 
   if(isCombat){
     io.emit("combat_report", combat_report);
-    console.log(combat_report);
+    Env.combat_report_list.push(combat_report)
+    console.log(Env.combat_report_list);
   }
 }
 //===============================================================================
 
 
 //回合結束部隊自動移動=======================
-function troopMove(){
-  for(var d=0; d<4; d++){
-    var dir;
-    if(d==0) dir = "E";
-    else if(d==1) dir = "W";
-    else if(d==2) dir = "N";
-    else if(d==3) dir = "S";
-    for(var i=19; i>=0; i--){
-      if(Env.roads[dir].army_location[i].length){
-        for(var j=0; j<Env.roads[dir].army_location[i].length;){
-          var move_to = Math.min(Env.roads[dir].army_location[i][j].move_distance+i, 20, Env.roads[dir].nearest_enemy-Env.roads[dir].army_location[i][j].attack_range); 
-          move_to = Math.max(move_to, 0);
-          if(move_to!=i){
-            Env.roads[dir].army_location[move_to].push(Env.roads[dir].army_location[i][j]);
-            Env.roads[dir].army_location[i].splice(j, 1);
-          } 
-          else j++;
-        }
+function troopMove(dir){
+  for(var i=19; i>=0; i--){
+    if(Env.roads[dir].army_location[i].length){
+      for(var j=0; j<Env.roads[dir].army_location[i].length;){
+        var move_to = Math.min(Env.roads[dir].army_location[i][j].move_distance+i, 20, Env.roads[dir].nearest_enemy-Env.roads[dir].army_location[i][j].attack_range); 
+        move_to = Math.max(move_to, 0);
+        if(move_to!=i){
+          Env.roads[dir].army_location[move_to].push(Env.roads[dir].army_location[i][j]);
+          Env.roads[dir].army_location[i].splice(j, 1);
+        } 
+        else j++;
       }
     }
-    for(var i=20; i>=0; i--){
-      if(Env.roads[dir].army_location[i].length){
-        Env.roads[dir].farest_army = i;
-        break;
-      }
+  }
+  for(var i=20; i>=0; i--){
+    if(Env.roads[dir].army_location[i].length){
+      Env.roads[dir].farest_army = i;
+      break;
     }
   }
 }
 
 
-function enemyMove(){
-  for(var d=0; d<4; d++){
-    var dir;
-    if(d==0) dir = "E";
-    else if(d==1) dir = "W";
-    else if(d==2) dir = "N";
-    else if(d==3) dir = "S";
-    for(var i=0; i<21; i++){
-      if(Env.roads[dir].enemy_location[i].length){
-        for(var j=0; j<Env.roads[dir].enemy_location[i].length;){
-          var move_to = Math.max(i-Env.roads[dir].enemy_location[i][j].move_distance, 0);
-          move_to = Math.max(move_to, Env.roads[dir].farest_army + Env.roads[dir].enemy_location[i][j].attack_range); 
-          if(move_to!=i){
-            Env.roads[dir].enemy_location[move_to].push(Env.roads[dir].enemy_location[i][j]); 
-            Env.roads[dir].enemy_location[i].splice(j, 1);
-          }
-          else j++;
+function enemyMove(dir){
+  for(var i=0; i<21; i++){
+    if(Env.roads[dir].enemy_location[i].length){
+      for(var j=0; j<Env.roads[dir].enemy_location[i].length;){
+        var move_to = Math.max(i-Env.roads[dir].enemy_location[i][j].move_distance, 0);
+        move_to = Math.max(move_to, Env.roads[dir].farest_army + Env.roads[dir].enemy_location[i][j].attack_range); 
+        if(move_to!=i){
+          Env.roads[dir].enemy_location[move_to].push(Env.roads[dir].enemy_location[i][j]); 
+          Env.roads[dir].enemy_location[i].splice(j, 1);
         }
-
-      }
-    }
-    for(var i=0; i<21; i++){
-      if(Env.roads[dir].enemy_location[i].length){
-        Env.roads[dir].nearest_enemy = i;
-        break;
+        else j++;
       }
     }
   }
+  Env.roads[dir].hasEnemy = false;
+  for(var i=0; i<21; i++){
+    if(Env.roads[dir].enemy_location[i].length){
+      Env.roads[dir].hasEnemy = true;
+      Env.roads[dir].nearest_enemy = i;
+      break;
+    }
+  }
+
 }
 //=========================================================
 
 
 //生成敵人(隨機)==================================
-function spawnEnemy(){
-  var spawn = Math.floor(Math.random()*2);
-  var spawn_direction = Math.floor(Math.random()*4);
-  if(spawn){
-    if(spawn_direction==0){//E
-      Env.roads["E"].enemy_location[20].push(enemy.treeMan);
-    }
-    else if(spawn_direction==1){//W
-      Env.roads["W"].enemy_location[20].push(enemy.treeMan);
-    }
-    else if(spawn_direction==2){//N
-      Env.roads["N"].enemy_location[20].push(enemy.treeMan);
-    }
-    else if(spawn_direction==3){//S
-      Env.roads["S"].enemy_location[20].push(enemy.treeMan);
-    }
+function spawnEnemy(dir){
+  var spawn = Math.floor(Math.random()*4);
+  if(spawn==0){
+    Env.roads[dir].enemy_location[20].push(enemy.treeMan);
+    Env.roads[dir].hasEnemy = true;
   }
 }
 //=============================================
@@ -384,12 +371,6 @@ function isGameover(){
 
 io.on('connection', (socket) => {
 
-  
-  
-  
-  
-  
-  
   socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
 
   // 選角  =============================================
@@ -441,154 +422,6 @@ io.on('connection', (socket) => {
     }
   });
   //===================================================
-
-  /*
-
-
-   socket.on("test", ()=>{
-    console.log("test")
-    Env.roads["E"].wallhp +=100;
-    io.emit("update_state", Env);
-
-  });
-
-  socket.on("test2", ()=>{
-    console.log("test")
-    Env.roads["E"].wallhp -=100;
-    io.emit("update_state", Env);
-
-  });
-
-
-  //============================================================任務控制==============================================================
-  socket.on("mission_control", (id, type)=>{ 
-    if(id==1){
-      missionAction(type, player1, player2);
-    }else if(id==2){
-      missionAction(type, player2, player1);
-    }
-    console.log(id + " " + player1.mission + " " + player2.mission);
-  })
-    //==================================================================================================================================
-
-  //============================================================完成行動==============================================================
-
-  socket.on("choose_card_result",(playerId,cardId)=>{
-      var me ={} ;
-      var enemy={};
-      if(playerId == 1){
-        me=player1;
-        enemy=player2;
-      }
-      else if(playerId == 2){
-        me=player2;
-        enemy=player1;
-      }
-      if(cardId<20000){
-        me.mission = missionIdToIndex[cardId];
-        mission[me.mission].mission_start(me, enemy);
-        io.emit("mission_state", me, missionCard[me.mission], "start");
-        console.log(me.id + " " + cardId);
-        me.actionReady.mission = true;
-      }else if(cardId>=20000){
-        me.item = cardId-20000;
-        io.emit("item_state", me, itemCard[me.item], "get");
-      }
-      me.actionReady.mission = true;
-  })
-
-  //結算回合
-  socket.on("action_done", (playerId, basic_act, item_act, card_act)=>{
-    if(playerId==1 && !player1.actionReady.basic){
-      player1.getAction(basic_act, item_act, card_act);
-      player1.actionReady.basic = true;
-      console.log("player1 done");
-    }else if(playerId==2 && !player2.actionReady.basic){
-      player2.getAction(basic_act, item_act, card_act);
-      player2.actionReady.basic = true;
-      console.log("player2 done");
-    }
-     //================================================================================================================================
-
-    //==================================================回合結算======================================================================
-    if((player1.actionReady.basic || player1.state.stun) && (player2.actionReady.basic || player2.state.stun)){
-      var p1top2, p2top1;
-      
-    //===================================================狀態:小偷===================================================================
-    isThief(player1, player2);
-    isThief(player2, player1);
-
-      //======================================================道具結算=================================================================
-      itemAction(player1.action.item, player1, player2);
-      itemAction(player2.action.item, player2, player1);
-       //================================================================================================================================
-
-      //=======================================================行動結算 && 精靈結算====================================================
-      if(!player1.state.stun){
-        player1.totalDamage();
-        p1top2 = player1.realDamage(player2);
-        player2.takeDamage(p1top2);
-        
-      }
-      if(!player2.state.stun){
-        player2.totalDamage();
-        p2top1 = player2.realDamage(player1);
-        player1.takeDamage(p2top1);
-      }
-      //========================================================傷害結算===============================================================
-      
-     
-      //血量判定
-      io.emit("dmg", p1top2, p2top1, player1.action.basic, player2.action.basic);
-     
-
-      //=======================================================判斷輸贏================================================================
-      if(!isGameOver(player1, player2)){
-        //=====================================================任務檢查====================================================================
-        missionAction("check", player1, player2);
-        missionAction("check", player2, player1);
-        console.log("p1 mission remain: " + player1.remaining + " p2 mission remain: " + player2.remaining);
-
-        //=====================================================狀態還原====================================================
-        player1.actionReady.basic = player1.actionReady.mission = player1.state.stun = false;
-        player2.actionReady.basic = player2.actionReady.mission = player2.state.stun = false;
-
-//====================================================狀態:stun, snail, canpray======================================================================
-        playerStun(player1, player2);
-        playerStun(player2, player1);  
-        io.emit("player_state", player1.id, player1.state.stun, player1.state.sprite_snail, player1.state.canPray);
-        io.emit("player_state", player2.id, player2.state.stun, player2.state.sprite_snail, player2.state.canPray);
-        //==================================================================================================================================
-
-        //====================================================狀態:bless====================================================================
-        if(player1.action.basic=="pray"){
-          bless(player1, "start");
-        }
-        if(player2.action.basic=="pray"){
-          bless(player2, "start");
-        }
-        
-        bless(player1, "check");
-        bless(player2, "check");
-        //==================================================================================================================
-
-        //====================================================狀態:seconditem===============================================
-        if(player1.state.secondItem){
-          io.emit("second_item_show", player1.id);
-        }
-        if(player2.state.secondItem){
-          io.emit("second_item_show", player2.id);
-        }
-        //==================================================================================================================
-         io.emit("next_round", player1, player2);
-        //=====================================================狀態總結======================================================
-        console.log(player1);
-        console.log(player2);
-      }
-
-    }
-  })
-  */
 })
 
 

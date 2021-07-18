@@ -173,7 +173,7 @@ function player_movement_update(action){
   else if(action.type=='repair_wall')
     repairWall(action.direction, action.unit);
   else if(action.type=='scout')
-    scout(action.troop_type);
+    scout(action.scout_dir);
 }
 //===========================================
 

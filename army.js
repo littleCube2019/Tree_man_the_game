@@ -39,6 +39,14 @@ class troop{
     }
 }
 
-module.exports.archer = new troop(1000, 1, 100, 3, 0);
+class defence{
+    constructor(cost, attack, attack_range){
+        this.cost = cost;
+        this.attack = attack;
+        this.attack_range = attack_range;
+    }
+}
+
+module.exports.archer = new defence(1000, 100, 3);
 module.exports.armor = new troop(500, 1000, 50, 0, 1);
 module.exports.ranger = new troop(2000, 500, 300, 0, 3);

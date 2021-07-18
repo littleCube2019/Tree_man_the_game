@@ -29,9 +29,10 @@ class road{
     this.wallhp = 500;
     this.direction = direction;
     this.max_distance = 21;
-    this.nearest_enemy = this.max_distance-1;
-    this.hasEnemy = false;
-    this.farest_army = 0;
+    this.nearest_enemy = -1;
+    //this.hasEnemy = false;
+    this.farest_army = -1;
+    this.defence_troop = {"archer":0};
     this.army_location = [];
     this.enemy_location = [];
     for(var i=0; i<this.max_distance; i++){
@@ -91,30 +92,25 @@ class Environment {
     this.archer = [army.archer];
     this.armor = [];
     this.ranger = [];   
-
-    this.combat_report_list = [];
   }
 };
 
 //=========招募部隊=================
 function recruit(type){
     if(type=='archer'){
-      var archer_team = army.archer;
-      Env.wood -= archer_team.cost;
+      Env.wood -= army.archer.cost;
       Env.num_of_troop["archer"] += 1;
-      Env.archer.push(archer_team); //len
+      Env.archer.push(army.archer); //len
     }
     else if(type=='armor'){
-      var armor_team = army.armor;
-      Env.wood -= armor_team.cost;
+      Env.wood -= army.armor.cost;
       Env.num_of_troop["armor"] += 1;
-      Env.armor.push(armor_team);
+      Env.armor.push(army.armor);
     }
     else if(type=='ranger'){
-      var ranger_team = army.ranger;
-      Env.wood -= ranger_team.cost;
+      Env.wood -= army.ranger.cost;
       Env.num_of_troop["ranger"] += 1;
-      Env.ranger.push(ranger_team);
+      Env.ranger.push(army.ranger);
     }
 }
 //===================================
@@ -124,7 +120,7 @@ function moveArmy(troop_type, direction){
 
   if(troop_type=="archer"){
     //console.log(Env.roads[direction].army_location);
-    Env.roads[direction].army_location[0].push(army.archer);
+    Env.roads[direction].defence_troop["archer"] += 1;
     Env.num_of_troop["archer"] -= 1;
   }
   else if(troop_type=="armor"){
@@ -148,8 +144,8 @@ function repairWall(direction, unit){
 
 //==========偵查=========
 function scout(dir){
-  io.emit("scout_report", dir, Env.roads[dir].enemy_location);
-  console.log("偵察了" + dir + "方向的敵人" + Env.roads[dir].enemy_location);
+  io.emit("scout_report", dir, Env.roads[dir].nearest_enemy);
+  console.log("偵察了" + dir + "方向的敵人" + Env.roads[dir].nearest_enemy);
 } 
 
 
@@ -197,14 +193,17 @@ function roundCheck(){
   troopMove();
   enemyMove();
   */
-
+  var combat_report = [];
   var dir = ["E", "W", "N", "S"];
   for(var d=0; d<dir.length; d++){
     spawnEnemy(dir[d]);
     troopMove(dir[d]);
     enemyMove(dir[d]);
-    combat(dir[d]);
+    combat(dir[d], combat_report);
   }
+  io.emit("combat_report", combat_report);
+  console.log(Env.roads);
+  console.log("戰報:"+combat_report);
 
   
 
@@ -213,7 +212,7 @@ function roundCheck(){
   isGameover();
 
 
-  console.log(Env.roads);
+  
   Env.wood += 500;
 }
 //=============================================
@@ -223,80 +222,119 @@ function roundCheck(){
 /******當有敵方部隊進入攻擊範圍內，該部隊會停止移動並攻擊**********
 *******一回合只有最前面的部隊會受到傷害***************************
  */
-function combat(dir){
+function combat(dir, total_report){
   
   var army_attack = 0;
   var enemy_attack = 0;
-  var troop_num = 0;
-  var enemy_num = 0;
   var isCombat = false;
+  var farest_army = Env.roads[dir].farest_army;
+  var nearest_enemy = Env.roads[dir].nearest_enemy;
   
-  if(Env.roads[dir].hasEnemy){
-    var nearest_enemy_hp = Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length ? Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].hp : 0;
-    var farest_army_hp = Env.roads[dir].army_location[Env.roads[dir].farest_army].length ? Env.roads[dir].army_location[Env.roads[dir].farest_army][0].hp : 0;
-    for(var loc=0; loc<20; loc++){
-      if(Env.roads[dir].army_location[Env.roads[dir].farest_army].length)
-        troop_num = Env.roads[dir].army_location[loc].length;
-      if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length)
-        enemy_num = Env.roads[dir].enemy_location[loc].length;
-      for(var i=0; i<troop_num; i++){
-        if(Env.roads[dir].army_location[loc][i].attack_range + loc >= Env.roads[dir].nearest_enemy){
-          army_attack += Env.roads[dir].army_location[loc][i].attack;
-          isCombat = true;
-        }
-      }
-      for(var i=0; i<enemy_num; i++){
-        if(loc - Env.roads[dir].enemy_location[loc][i].attack_range <= Env.roads[dir].farest_army){
-          enemy_attack += Env.roads[dir].enemy_location[loc][i].attack;
-          isCombat = true;
+  if(nearest_enemy!=-1){
+    var nearest_enemy_hp = Env.roads[dir].enemy_location[nearest_enemy][0].hp;
+  }
+  if(farest_army!=-1){
+    var farest_army_hp = Env.roads[dir].army_location[farest_army][0].hp;
+  }
+
+  if(nearest_enemy!=-1){
+    for(var i=0; i<Env.roads[dir].max_distance; i++){
+      for(var j=0; j<Env.roads[dir].army_location[i].length; j++){
+        if(Env.roads[dir].army_location[i][j].attack_range + i >= nearest_enemy){
+          army_attack += Env.roads[dir].army_location[i][j].attack;
         }
       }
     }
+    if(nearest_enemy<=3){
+      army_attack += Env.roads[dir].defence_troop["archer"] * army.archer.attack;
+    }
+  }
 
-    var combat_report={"day":Env.round, //交戰日期
-                      "direction":dir, //交戰方向
-                      "location":0, //交戰位置
-                      "wall_damaged":false, //城牆是否被攻擊
-                      "army_attack":army_attack, //部隊造成的傷害
-                      "enemy_attack":enemy_attack, //樹人造成的傷害
-                      "army_hp":0, //最前方部隊剩餘血量
-                      "enemy_hp":0, //最近樹人剩餘血量
-                      "reward":0}; //擊殺樹人獎勵
-      
-    if(Env.roads[dir].nearest_enemy==0 && Env.roads[dir].army_location[0].length==0){
+  
+  for(var i=0; i<Env.roads[dir].max_distance; i++){
+    for(var j=0; j<Env.roads[dir].enemy_location[i].length; j++){
+      if(farest_army==-1 && i - Env.roads[dir].enemy_location[i][j].attack_range <= 0){ //no troop
+        enemy_attack += Env.roads[dir].enemy_location[i][j].attack;
+      }
+      else if(i - Env.roads[dir].enemy_location[i][j].attack_range <= farest_army){
+        enemy_attack += Env.roads[dir].enemy_location[i][j].attack;
+      }
+    }
+  }
+  console.log(army_attack + "  " + enemy_attack);
+  if(army_attack || enemy_attack){
+    isCombat = true;
+  }
+/*
+  if(Env.roads[dir].hasEnemy){
+    var nearest_enemy_hp = Env.roads[dir].enemy_location[nearest_enemy][0].hp;
+    if(Env.roads[dir].farest_army!=-1){
+      var farest_army_hp = Env.roads[dir].army_location[farest_army][0].hp;
+
+      for(var loc=0; loc<20; loc++){
+        if(Env.roads[dir].army_location[Env.roads[dir].farest_army].length)
+          troop_num = Env.roads[dir].army_location[loc].length;
+        for(var i=0; i<troop_num; i++){
+          if(Env.roads[dir].army_location[loc][i].attack_range + loc >= Env.roads[dir].nearest_enemy){
+            army_attack += Env.roads[dir].army_location[loc][i].attack;
+            army_attack += Env.roads[dir].army_location[loc][i].attack_damage(Env.roads[dir].nearest_enemy);
+            isCombat = true;
+        }
+
+        if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length)
+          enemy_num = Env.roads[dir].enemy_location[loc].length;
+        for(var i=0; i<enemy_num; i++){
+          if(loc - Env.roads[dir].enemy_location[loc][i].attack_range <= Env.roads[dir].farest_army){
+            enemy_attack += Env.roads[dir].enemy_location[loc][i].attack;
+            isCombat = true;
+          }
+        }
+      } 
+    army_attack += army.archer.attack_damage(Env.roads[dir].nearest_enemy) * Env.roads[dir].archer_amount;//計算弓箭手傷害
+*/
+  var combat_report={
+                    "direction":dir, //交戰方向
+                    "location":0, //交戰位置
+                    "wall_damaged":false, //城牆是否被攻擊
+                    "army_attack":army_attack, //部隊造成的傷害
+                    "enemy_attack":enemy_attack, //樹人造成的傷害
+                    "army_hp":0, //最前方部隊剩餘血量
+                    "enemy_hp":0, //最近樹人剩餘血量
+                    "reward":0}; //擊殺樹人獎勵
+  console.log(isCombat);
+  if(isCombat){
+    if(farest_army==-1 && enemy_attack!=0){
       console.log("樹人到城牆下啦");
-      Env.roads[dir].wallhp = Math.max(Env.roads[dir].wallhp-enemy_attack, 0);
+      Env.roads[dir].wallhp = Math.max(0, Env.roads[dir].wallhp-enemy_attack);
       combat_report["wall_damaged"] = true;
     }
-    else if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length && Env.roads[dir].army_location[Env.roads[dir].farest_army].length){
-      nearest_enemy_hp = Math.max(0, nearest_enemy_hp -= army_attack);
-      farest_army_hp = Math.max(0, farest_army_hp -= enemy_attack);
-      combat_report["enemy_hp"] = nearest_enemy_hp;
+    else if(farest_army!=-1){
+      farest_army_hp = Math.max(0, farest_army_hp - enemy_attack);
       combat_report["army_hp"] = farest_army_hp;
-      combat_report["location"] = Env.roads[dir].farest_army;
-      Env.roads[dir].army_location[Env.roads[dir].farest_army][0].hp = farest_army_hp;
-      Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].hp = nearest_enemy_hp;
-
-      if(nearest_enemy_hp==0){
-        var reward = Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].reward;
-        Env.wood += reward;
-        combat_report["reward"] = reward;
-        Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].splice(0, 1);
-        console.log("消滅樹人");
-      }
-
-      if(farest_army_hp==0){
-        Env.roads[dir].army_location[Env.roads[dir].farest_army].splice(0, 1);
-        console.log("部隊被殲滅");
-      }
+      combat_report["location"] = farest_army;
+      Env.roads[dir].army_location[farest_army][0].hp = farest_army_hp;
     }
-  }
+    
+    nearest_enemy_hp = Math.max(0, nearest_enemy_hp - army_attack);
+    combat_report["enemy_hp"] = nearest_enemy_hp;
+    Env.roads[dir].enemy_location[nearest_enemy][0].hp = nearest_enemy_hp;
 
-  if(isCombat){
-    io.emit("combat_report", combat_report);
-    Env.combat_report_list.push(combat_report)
-    console.log(Env.combat_report_list);
+    if(nearest_enemy_hp==0){
+      var reward = Env.roads[dir].enemy_location[nearest_enemy][0].reward;
+      Env.wood += reward;
+      combat_report["reward"] = reward;
+      Env.roads[dir].enemy_location[nearest_enemy].splice(0, 1);
+      console.log("消滅樹人");
+    }
+
+    if(farest_army_hp==0){
+      Env.roads[dir].army_location[farest_army].splice(0, 1);
+      console.log("部隊被殲滅");
+    }
+    total_report.push(combat_report);
+    console.log(combat_report);
   }
+  
 }
 //===============================================================================
 
@@ -313,9 +351,11 @@ function troopMove(dir){
           Env.roads[dir].army_location[i].splice(j, 1);
         } 
         else j++;
+
       }
     }
   }
+  Env.roads[dir].farest_army = -1;
   for(var i=20; i>=0; i--){
     if(Env.roads[dir].army_location[i].length){
       Env.roads[dir].farest_army = i;
@@ -336,13 +376,15 @@ function enemyMove(dir){
           Env.roads[dir].enemy_location[i].splice(j, 1);
         }
         else j++;
+        
       }
     }
   }
-  Env.roads[dir].hasEnemy = false;
+  //Env.roads[dir].hasEnemy = false;
+  Env.roads[dir].nearest_enemy = -1;
   for(var i=0; i<21; i++){
     if(Env.roads[dir].enemy_location[i].length){
-      Env.roads[dir].hasEnemy = true;
+      //Env.roads[dir].hasEnemy = true;
       Env.roads[dir].nearest_enemy = i;
       break;
     }
@@ -357,7 +399,6 @@ function spawnEnemy(dir){
   var spawn = Math.floor(Math.random()*4);
   if(spawn==0){
     Env.roads[dir].enemy_location[20].push(enemy.treeMan);
-    Env.roads[dir].hasEnemy = true;
   }
 }
 //=============================================

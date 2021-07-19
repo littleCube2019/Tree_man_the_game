@@ -30,7 +30,8 @@ class ranger{
 }
 */
 class troop{
-    constructor(cost, hp, attack, attack_range, move_distance){
+    constructor(type, cost, hp, attack, attack_range, move_distance){
+        this.type = type;
         this.cost = cost;
         this.hp = hp;
         this.attack = attack;
@@ -40,13 +41,14 @@ class troop{
 }
 
 class defence{
-    constructor(cost, attack, attack_range){
+    constructor(type, cost, attack, attack_range){
+        this.type = type;
         this.cost = cost;
         this.attack = attack;
         this.attack_range = attack_range;
     }
 }
 
-module.exports.archer = new defence(1000, 100, 3);
-module.exports.armor = new troop(500, 1000, 50, 0, 1);
-module.exports.ranger = new troop(2000, 500, 300, 0, 3);
+module.exports.archer = new defence("archer", 1000, 100, 3);
+module.exports.armor = new troop("armor", 500, 1000, 50, 0, 1);
+module.exports.ranger = new troop("ranger", 2000, 500, 300, 0, 3);

@@ -144,8 +144,14 @@ function repairWall(direction, unit){
 
 //==========偵查=========
 function scout(dir){
-  io.emit("scout_report", dir, Env.roads[dir].nearest_enemy);
-  console.log("偵察了" + dir + "方向的敵人" + Env.roads[dir].nearest_enemy);
+  if(Env.roads[dir].nearest_enemy!=-1){
+    io.emit("scout_report", dir, Env.roads[dir].nearest_enemy, Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].type);
+    console.log("偵察了" + dir + "方向的敵人" + Env.roads[dir].nearest_enemy + Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy][0].type);
+  }
+  else{
+    io.emit("scout_report", dir, -1);
+    console.log("方向"+dir+"沒有敵人");
+  }
 } 
 
 

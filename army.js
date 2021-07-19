@@ -49,6 +49,7 @@ class defence{
     }
 }
 
+
 module.exports.archer = new defence("archer", 1000, 100, 3);
 module.exports.armor = new troop("armor", 500, 1000, 50, 0, 1);
 module.exports.ranger = new troop("ranger", 2000, 500, 300, 0, 3);

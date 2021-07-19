@@ -219,13 +219,44 @@ function roundCheck(){
 //=============================================
 
 //==================處理戰報 ========================
+direct_dic = {
+  "E" : "東",
+  "S" : "南",
+  "W" : "西",
+  "N" : "北"
+}
+
 function combat_report_process(combat_report){
   reports = []
   for(var i =0 ; i < combat_report.length ; i++){
-     r = combat_report[i]
-     var msg =  "位於"+r["direction"]+"方向距城門"+r["location"]+"公里處發生戰爭<br>我方造成"+r["army_attack"]+"點傷害，樹人造成"+r["enemy_attack"]+"點傷害<br>先鋒部隊剩餘血量為:"+r["army_hp"]+"，該樹人剩下"+r["enemy_hp"]+"點血量<br><br>";
-     reports.push(msg);
+    r = combat_report[i]
+    var num_of_troop = Env.roads[r["direction"]].army_location[r["location"]].length;
 
+    if(r["wall_damaged"]){
+        var wall_msg = direct_dic[r["direction"]] + "方城牆正在被攻擊<br>受到"+r["enemy_attack"]+"點傷害<br>";
+        reports.push(wall_msg);
+
+        if(r["army_attack"]>0){
+          var msg = "弓箭手造成" + r["army_attack"] + "點傷害<br>該樹人剩下"+r["enemy_hp"]+"點血量"  ;  
+          reports.push(msg);
+        }
+    }
+    
+    else{
+      if(r["location"]>0){
+        var msg =  "位於"+direct_dic[r["direction"]]+"方距城門"+r["location"]+"公里處發生戰爭<br>我方造成"+r["army_attack"]+"點傷害，樹人造成"+r["enemy_attack"]+"點傷害<br>先鋒部隊剩餘血量為:"+r["army_hp"]+"，該樹人剩下"+r["enemy_hp"]+"點血量";
+        reports.push(msg);
+      }
+      else{
+        var msg =  "位於"+direct_dic[r["direction"]]+"方城門下方發生戰爭<br>我方造成"+r["army_attack"]+"點傷害，樹人造成"+r["enemy_attack"]+"點傷害<br>先鋒部隊剩餘血量為:"+r["army_hp"]+"，該樹人剩下"+r["enemy_hp"]+"點血量";
+        reports.push(msg);
+      }
+
+      var msg = "該戰場剩下士兵數:"+num_of_troop+"<br>";
+      reports.push(msg);
+
+    }
+    
 
   }
   return reports;
@@ -250,12 +281,14 @@ function combat(dir, total_report){
   }
   if(farest_army!=-1){
     var farest_army_hp = Env.roads[dir].army_location[farest_army][0].hp;
+    
   }
 
+    
   if(nearest_enemy!=-1){
     for(var i=0; i<Env.roads[dir].max_distance; i++){
       for(var j=0; j<Env.roads[dir].army_location[i].length; j++){
-        if(Env.roads[dir].army_location[i][j].attack_range + i >= nearest_enemy){
+        if(Env.roads[dir].army_location[i][j].attack_range + i >= nearesta_enemy){
           army_attack += Env.roads[dir].army_location[i][j].attack;
         }
       }

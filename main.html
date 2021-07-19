@@ -78,13 +78,21 @@
 			}
 			
 			//標示
-			function Alert(Text){
+			function Alert(text,title="通知"){
+				
 				$('#alert_pop').modal('toggle');
-				$("#alert_content").text(Text);
-			
+				$("#alert_content").text(text);
+				$('#alert_title').text(title);
 			}
 
-			//選擇玩家 socket  ==============================================================================
+			//戰報
+			function combatReportOneline(text){
+				text+="<br>"
+				$("#combat_report_content").append(text);
+			}
+
+			//socket區
+			//選擇玩家  ==============================================================================
 			socket.on("welcome",(player1HasBeenChoosen , player2HasBeenChoosen  )=>{ //when start,hide the main page to let player select charcters.
 						
 						if(player1HasBeenChoosen){
@@ -184,18 +192,28 @@
 			})
 			//========  ==============================================================================	
 
-			// 接收斥侯傳送回來的報告
-			// ===================
-			/*
+			//接收斥侯傳送回來的報告
+			
+			
 			socket.on("scout_report" , (dir , location)=>{
-				var msg = "你的斥侯隊告訴你在"+direct_dic[dir]+"方向幾公里處有"
-				Alert()
+				Title = "偵查報告"
+				if (location != -1){
+					var msg = "你的斥侯隊告訴你在"+direct_dic[dir]+"方向"+location+"公里處有敵人"
+					
+				}
+				else{
+					var msg = "此方向尚未發現任何敵人!"
+				}
+
+				Alert(text=msg,title=Title);
 			})
-			*/
+			
 			// ==================
 
 			// 結束一回合要做的事
 			socket.on("turn_end", (dice_result)=>{
+				// 戰報紀錄加上天數
+				combatReportOneline("=======================第"+(Env.round+1)+"天=======================<br>")
 				if(dice_result<=20){
 
 					addMessage("城中壓抑的紛圍越來越嚴重")
@@ -210,7 +228,7 @@
 			// 每一回和更新使用者的狀態
 			socket.on("update_state", (env)=>{  //更新狀態
 				Env = env;
-
+				
 
 				// 基本數值更新區
 				$("#round").text(env.round);
@@ -242,7 +260,27 @@
 				// ========================================================================================
 			}
 			)
+			// 戰報通知
+			socket.on("combat_report",(report)=>{
+				console.log(report.length)
+				if(report.length>0){
+					$("#combat_report").empty();
+					$("#combat_report").append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-bar-chart-line\" viewBox=\"0 0 16 16\">\
+								<path d=\"M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2z\"/>\
+					</svg>")
+				}
+				for(var i = 0 ; i< report.length ; i++)
+				{
+					
+					combatReportOneline(report[i]);
+				}
+				
 
+			})
+
+			
+
+			// ============================================================================================
 
 			// game over 
 			socket.on("gameover", ()=> {
@@ -251,10 +289,11 @@
 				$(".RIGHT").hide();
 				$(".alert").hide();
 				var Text ="城牆應聲倒下\n 鐵銹味與尖叫聲瞬間充斥城內\n 而帝國的野心大概也會隨之落幕...\n "; 
-				Alert(Text);
+				Alert(text=Text);
 				$("#alert_button").attr('disabled',false);
 			})
 
+			
 
 			// jQuery , 按鈕與互動  ========================================================================
 			$(document).ready(()=>{
@@ -349,7 +388,7 @@
 						dir_name = direct_dic[dir];
 					}
 					else{
-						Alert("你沒有可移動的士兵");
+						Alert(text="你沒有可移動的士兵");
 						can_move=false;
 					}
 					
@@ -411,7 +450,7 @@
 						troop_name="騎兵";
 					}
 					else{
-						Alert("你沒有足夠的木頭招募士兵");
+						Alert(text="你沒有足夠的木頭招募士兵");
 						can_recruit=false;
 					}
 					
@@ -432,7 +471,7 @@
 					// 計算可以修補的選項
 					if( Env.roads[WALL_DIR].wallhp == Env.maxWallhp){
 						
-						Alert("此面城牆完好無損，不需要維修!")
+						Alert(text="此面城牆完好無損，不需要維修!")
 
 					}
 					else{
@@ -493,10 +532,19 @@
 
 				//===================== battle log show =============================================================
 				//===================== battle log show =============================================================
-				$("#battle_log").click(function(event) {     
-					$("#battle_log_pop").modal('toggle');
-					$("#battle_log_content").append("第"+Env.round+"天<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>");
+				$("#combat_report").click(function(event) {     
+					$("#combat_report").empty();
+					$("#combat_report").append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-bar-chart-line\" viewBox=\"0 0 16 16\">\
+							<path d=\"M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2zm1 12h2V2h-2v12zm-3 0V7H7v7h2zm-5 0v-3H2v3h2z\"/>\
+						  </svg>")
+					$("#combat_report_pop").modal('toggle');
+					
+					
+					
+
+
 				});
+
 				//====================================================================================================
 				
 				})
@@ -653,8 +701,8 @@
 				</div>
 				</div>
 				<br>
-				<div>交戰紀錄
-					<button id="battle_log">
+				<div>交戰記錄
+					<button id="combat_report">
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
 							<path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2zm1 12h2V2h-2v12zm-3 0V7H7v7h2zm-5 0v-3H2v3h2z"/>
 						  </svg>
@@ -841,7 +889,7 @@
 				<div class="modal-dialog modal-dialog-centered" role="document">
 					<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title" >Alert</h5>
+						<h5 class="modal-title" id="alert_title">Alert</h5>
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 						</button>
@@ -890,20 +938,20 @@
 
 		<!-- 戰報跳出視窗-->
 
-		<div class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" id="battle_log_pop">
+		<div class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" id="combat_report_pop">
 			<div class="modal-dialog modal-dialog-scrollable" role="document">
 				<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" >交戰紀錄</h5>
+					<h5 class="modal-title" >交戰記錄</h5>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
-				<div class="modal-body" id="battle_log_content" style="overflow:scroll;">
-			
+				<div class="modal-body" id="combat_report_content" style="overflow:scroll;">
+					=======================第1天=======================<br>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal" id="battle_log_ok">OK</button>
+					<button type="button" class="btn btn-secondary" data-dismiss="modal" id="combat_report_ok">OK</button>
 	
 				</div>
 				</div>

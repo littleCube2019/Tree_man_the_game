@@ -207,7 +207,8 @@ function roundCheck(){
     enemyMove(dir[d]);
     combat(dir[d], combat_report);
   }
-  io.emit("combat_report", combat_report);
+  reports = combat_report_process(combat_report);
+  io.emit("combat_report", reports);
   console.log(Env.roads);
   console.log("戰報:"+combat_report);
 
@@ -223,6 +224,20 @@ function roundCheck(){
 }
 //=============================================
 
+//==================處理戰報 ========================
+function combat_report_process(combat_report){
+  reports = []
+  for(var i =0 ; i < combat_report.length ; i++){
+     r = combat_report[i]
+     var msg =  "位於"+r["direction"]+"方向距城門"+r["location"]+"公里處發生戰爭<br>我方造成"+r["army_attack"]+"點傷害，樹人造成"+r["enemy_attack"]+"點傷害<br>先鋒部隊剩餘血量為:"+r["army_hp"]+"，該樹人剩下"+r["enemy_hp"]+"點血量<br><br>";
+     reports.push(msg);
+
+
+  }
+  return reports;
+}
+
+//==================================================
 
 //===================交戰系統===================
 /******當有敵方部隊進入攻擊範圍內，該部隊會停止移動並攻擊**********

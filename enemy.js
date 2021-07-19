@@ -34,3 +34,4 @@ class enemy{
 
 module.exports.treeMan = new enemy("tree man", 600, 50, 0, 10, 2000);
 module.exports.bigTreeMan = new enemy("big tree man", 3000, 500, 0, 1, 10000);
+

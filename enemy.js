@@ -22,7 +22,8 @@ class bigTreeMan{
 }
 */
 class enemy{
-    constructor(hp, attack, attack_range, move_distance, reward){
+    constructor(type, hp, attack, attack_range, move_distance, reward){
+        this.type = type;
         this.hp = hp;
         this.attack = attack;
         this.attack_range = attack_range;
@@ -31,5 +32,6 @@ class enemy{
     }
 }
 
-module.exports.treeMan = new enemy(600, 250, 0, 20, 2000);
-module.exports.bigTreeMan = new enemy(3000, 500, 0, 1, 10000);
+module.exports.treeMan = new enemy("tree man", 600, 50, 0, 10, 2000);
+module.exports.bigTreeMan = new enemy("big tree man", 3000, 500, 0, 1, 10000);
+

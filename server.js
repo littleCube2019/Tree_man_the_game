@@ -10,8 +10,8 @@ const { env } = require('process');
 //var mission = require("./mission.js");
 //var item = require("./item.js");
 //const itemcard = require('./itemcard.js');
-var army = require('./army.js');
-var enemy = require('./enemy.js');
+//var army = require('./army.js');
+//var enemy = require('./enemy.js');
 
 
 app.get('/', function(req, res){
@@ -23,6 +23,31 @@ http.listen(process.env.PORT || 3000, function(){
 });
 
 app.use(express.static('public'));
+
+class Environment {
+  //環境變數
+  constructor(){
+    this.roads = {
+        "E":new road("E") ,  
+        "S":new road("S") ,
+        "W":new road("W") ,
+        "N":new road("N") , 
+    }
+    this.maxWallhp = 1000 ; 
+    this.round = 1 ; 
+    this.wood = 500 ;
+    this.num_of_troop = { //目前記錄城內的兵種數目
+        "archer":1 ,
+        "armor":0 , 
+        "ranger":0 ,
+    }
+    this.defence_troop_direction = {"archer":""};
+    this.archer = new defence("archer", 1000, 100, 3);
+    this.armor = new army("armor", 500, 1000, 50, 0, 1);
+    this.ranger = new army("ranger", 2000, 500, 300, 0, 3);  
+    this.tree_man = new enemy("tree man", 600, 250, 0, 1, 2000);
+  }
+};
 
 class road{
   constructor(direction){
@@ -45,6 +70,36 @@ class road{
   }
 }
 
+class army{
+  constructor(type, cost, hp, attack, attack_range, move_distance){
+      this.type = type;
+      this.cost = cost;
+      this.hp = hp;
+      this.attack = attack;
+      this.attack_range = attack_range;
+      this.move_distance = move_distance;
+  }
+}
+
+class defence{
+  constructor(type, cost, attack, attack_range){
+      this.type = type;
+      this.cost = cost;
+      this.attack = attack;
+      this.attack_range = attack_range;
+  }
+}
+
+class enemy{
+  constructor(type, hp, attack, attack_range, move_distance, reward){
+      this.type = type;
+      this.hp = hp;
+      this.attack = attack;
+      this.attack_range = attack_range;
+      this.move_distance = move_distance;
+      this.reward = reward;
+  }
+}
 
 // ======= 選角相關變數&function
 
@@ -63,90 +118,66 @@ function chooseCharacter(id)
   }
   io.emit("player_choosed", id);
 }
+// ===============================
 
 
 
 
-// ========
+//=========玩家操作=================
 
-
-
-
-class Environment {
-  //環境變數
-  constructor(){
-    this.roads = {
-        "E":new road("E") ,  
-        "S":new road("S") ,
-        "W":new road("W") ,
-        "N":new road("N") , 
-    }
-    this.maxWallhp = 1000 ; 
-    this.round = 1 ; 
-    this.wood = 500 ;
-    this.num_of_troop = { //目前記錄城內的兵種數目
-        "archer":1 ,
-        "armor":0 , 
-        "ranger":0 ,
-    }
-    this.archer = [army.archer];
-    this.armor = [];
-    this.ranger = [];   
-  }
-};
-
-//=========招募部隊=================
+//招募部隊
 function recruit(type){
     if(type=='archer'){
-      Env.wood -= army.archer.cost;
+      Env.wood -= Env.archer.cost;
       Env.num_of_troop["archer"] += 1;
-      Env.archer.push(army.archer); //len
     }
     else if(type=='armor'){
-      Env.wood -= army.armor.cost;
+      Env.wood -= Env.armor.cost;
       Env.num_of_troop["armor"] += 1;
-      Env.armor.push(army.armor);
     }
     else if(type=='ranger'){
-      Env.wood -= army.ranger.cost;
+      Env.wood -= Env.ranger.cost;
       Env.num_of_troop["ranger"] += 1;
-      Env.ranger.push(army.ranger);
     }
 }
-//===================================
 
-//========派出部隊======
-function moveArmy(troop_type, direction){
+//派出部隊
+function moveArmy(troop_type, dir){
 
   if(troop_type=="archer"){
     //console.log(Env.roads[direction].army_location);
-    Env.roads[direction].defence_troop["archer"] += 1;
-    Env.num_of_troop["archer"] -= 1;
+    Env.defence_troop_direction["archer"] = dir;
+    //Env.num_of_troop["archer"] -= 1;
   }
   else if(troop_type=="armor"){
-    Env.roads[direction].army_location[0].push(army.armor);
+    Env.roads[dir].army_location[0].push(new army("armor", 500, 1000, 50, 0, 1));
     Env.num_of_troop["armor"] -= 1;
   }
   else if(troop_type=="ranger"){
-    Env.roads[direction].army_location[0].push(army.ranger);
+    Env.roads[dir].army_location[0].push(new army("ranger", 2000, 500, 300, 0, 3));
     Env.num_of_troop["ranger"] -= 1;
   }
 }
-//========================
 
-//=========修牆===========
+//修牆
 function repairWall(direction, unit){
   Env.wood -= unit*100;
   Env.roads[direction].wallhp = Math.min(Env.roads[direction].wallhp+unit*100, Env.maxWallhp);
   Env.wood -= unit*100;
 }
-//=======================
-
-//==========偵查=========
+//偵查
 function scout(dir){
-  io.emit("scout_report", dir, Env.roads[dir].nearest_enemy);
-  console.log("偵察了" + dir + "方向的敵人" + Env.roads[dir].nearest_enemy);
+  var nearest_enemy = Env.roads[dir].nearest_enemy;
+  if(nearest_enemy!=-1){
+    io.emit("scout_report", dir, nearest_enemy, Env.roads[dir].enemy_location[nearest_enemy][0].type);
+    console.log("偵察了" + dir + "方向的敵人" + nearest_enemy + Env.roads[dir].enemy_location[nearest_enemy][0].type);
+  }
+  else{
+    io.emit("scout_report", dir, -1);
+    console.log("方向"+dir+"沒有敵人");
+  }
 } 
+//=======================================
 
 
 
@@ -188,32 +219,24 @@ function roll_the_dice(range=100){
 //==========回合結束判定======================
 
 function roundCheck(){
-  /*
-  spawnEnemy();
-  troopMove();
-  enemyMove();
-  */
   var combat_report = [];
-  var dir = ["E", "W", "N", "S"];
+  var dir = ["N", "E", "W", "S"];
   for(var d=0; d<dir.length; d++){
     spawnEnemy(dir[d]);
     troopMove(dir[d]);
     enemyMove(dir[d]);
     combat(dir[d], combat_report);
+    console.log(Env.roads[dir[d]].defence_troop["archer"]);
   }
   reports = combat_report_process(combat_report);
   io.emit("combat_report", reports);
-  console.log(Env.roads);
+  //console.log(Env.roads);
   console.log("戰報:"+combat_report);
 
-  
-
-  Env.round+=1;
   io.emit("turn_end",roll_the_dice()); //告知user此回合結束，並傳一個機率結果給接收端,先於game over才不會鎖住player2的按鈕
   isGameover();
 
-
-  
+  Env.round += 1;
   Env.wood += 500;
 }
 //=============================================
@@ -227,7 +250,8 @@ direct_dic = {
 }
 
 function combat_report_process(combat_report){
-  reports = []
+  reports = [];
+  console.log("戰報數量:" + combat_report.length);
   for(var i =0 ; i < combat_report.length ; i++){
     r = combat_report[i]
     var num_of_troop = Env.roads[r["direction"]].army_location[r["location"]].length;
@@ -275,26 +299,27 @@ function combat(dir, total_report){
   var isCombat = false;
   var farest_army = Env.roads[dir].farest_army;
   var nearest_enemy = Env.roads[dir].nearest_enemy;
-  
+  console.log(dir);
   if(nearest_enemy!=-1){
     var nearest_enemy_hp = Env.roads[dir].enemy_location[nearest_enemy][0].hp;
+    console.log("enemy hp:"+nearest_enemy_hp);
   }
   if(farest_army!=-1){
     var farest_army_hp = Env.roads[dir].army_location[farest_army][0].hp;
-    
+    console.log("army hp:"+farest_army_hp);
   }
 
     
   if(nearest_enemy!=-1){
     for(var i=0; i<Env.roads[dir].max_distance; i++){
       for(var j=0; j<Env.roads[dir].army_location[i].length; j++){
-        if(Env.roads[dir].army_location[i][j].attack_range + i >= nearesta_enemy){
+        if(Env.roads[dir].army_location[i][j].attack_range + i >= nearest_enemy){
           army_attack += Env.roads[dir].army_location[i][j].attack;
         }
       }
     }
-    if(nearest_enemy<=3){
-      army_attack += Env.roads[dir].defence_troop["archer"] * army.archer.attack;
+    if(nearest_enemy<=3 && Env.defence_troop_direction["archer"]==dir){
+      army_attack += Env.num_of_troop["archer"] * Env.archer.attack;
     }
   }
 
@@ -309,50 +334,24 @@ function combat(dir, total_report){
       }
     }
   }
-  console.log(army_attack + "  " + enemy_attack);
+  //console.log(army_attack + "  " + enemy_attack);
   if(army_attack || enemy_attack){
     isCombat = true;
   }
-/*
-  if(Env.roads[dir].hasEnemy){
-    var nearest_enemy_hp = Env.roads[dir].enemy_location[nearest_enemy][0].hp;
-    if(Env.roads[dir].farest_army!=-1){
-      var farest_army_hp = Env.roads[dir].army_location[farest_army][0].hp;
 
-      for(var loc=0; loc<20; loc++){
-        if(Env.roads[dir].army_location[Env.roads[dir].farest_army].length)
-          troop_num = Env.roads[dir].army_location[loc].length;
-        for(var i=0; i<troop_num; i++){
-          if(Env.roads[dir].army_location[loc][i].attack_range + loc >= Env.roads[dir].nearest_enemy){
-            army_attack += Env.roads[dir].army_location[loc][i].attack;
-            army_attack += Env.roads[dir].army_location[loc][i].attack_damage(Env.roads[dir].nearest_enemy);
-            isCombat = true;
-        }
-
-        if(Env.roads[dir].enemy_location[Env.roads[dir].nearest_enemy].length)
-          enemy_num = Env.roads[dir].enemy_location[loc].length;
-        for(var i=0; i<enemy_num; i++){
-          if(loc - Env.roads[dir].enemy_location[loc][i].attack_range <= Env.roads[dir].farest_army){
-            enemy_attack += Env.roads[dir].enemy_location[loc][i].attack;
-            isCombat = true;
-          }
-        }
-      } 
-    army_attack += army.archer.attack_damage(Env.roads[dir].nearest_enemy) * Env.roads[dir].archer_amount;//計算弓箭手傷害
-*/
   var combat_report={
                     "direction":dir, //交戰方向
                     "location":0, //交戰位置
                     "wall_damaged":false, //城牆是否被攻擊
                     "army_attack":army_attack, //部隊造成的傷害
                     "enemy_attack":enemy_attack, //樹人造成的傷害
-                    "army_hp":0, //最前方部隊剩餘血量
-                    "enemy_hp":0, //最近樹人剩餘血量
+                    "army_hp":farest_army_hp, //最前方部隊剩餘血量
+                    "enemy_hp": nearest_enemy_hp, //最近樹人剩餘血量
                     "reward":0}; //擊殺樹人獎勵
-  console.log(isCombat);
+  //console.log(isCombat);
   if(isCombat){
     if(farest_army==-1 && enemy_attack!=0){
-      console.log("樹人到城牆下啦");
+      //console.log("樹人到城牆下啦");
       Env.roads[dir].wallhp = Math.max(0, Env.roads[dir].wallhp-enemy_attack);
       combat_report["wall_damaged"] = true;
     }
@@ -372,12 +371,12 @@ function combat(dir, total_report){
       Env.wood += reward;
       combat_report["reward"] = reward;
       Env.roads[dir].enemy_location[nearest_enemy].splice(0, 1);
-      console.log("消滅樹人");
+      //console.log("消滅樹人");
     }
 
     if(farest_army_hp==0){
       Env.roads[dir].army_location[farest_army].splice(0, 1);
-      console.log("部隊被殲滅");
+      //console.log("部隊被殲滅");
     }
     total_report.push(combat_report);
     console.log(combat_report);
@@ -446,7 +445,7 @@ function enemyMove(dir){
 function spawnEnemy(dir){
   var spawn = Math.floor(Math.random()*4);
   if(spawn==0){
-    Env.roads[dir].enemy_location[20].push(enemy.treeMan);
+    Env.roads[dir].enemy_location[20].push(new enemy("tree man", 600, 50, 0, 10, 2000));
   }
 }
 //=============================================

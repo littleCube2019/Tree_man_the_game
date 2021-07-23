@@ -41,7 +41,7 @@ class Environment {
         "armor":0 , 
         "ranger":0 ,
     }
-    this.defence_troop_direction = {"archer":""};
+    this.defence_army_direction = {"archer":""}; //紀錄防禦部隊面朝方向
     this.archer = new defence("archer", 1000, 100, 3);
     this.armor = new army("armor", 500, 1000, 50, 0, 1);
     this.ranger = new army("ranger", 2000, 500, 300, 0, 3);  
@@ -55,18 +55,13 @@ class road{
     this.direction = direction;
     this.max_distance = 21;
     this.nearest_enemy = -1;
-    //this.hasEnemy = false;
-    this.farest_army = -1;
-    this.defence_troop = {"archer":0};
-    this.army_location = [];
+    this.farest_army = -1; 
+    this.army_location = [];  //二維陣列，紀錄各位置上有多少部隊or敵人
     this.enemy_location = [];
     for(var i=0; i<this.max_distance; i++){
       this.army_location[i] = [];
       this.enemy_location[i] = [];
     }
-  }
-  repairWall(repair_unit){
-    this.wallhp = Math.max(this.wallhp + repair_unit*100, 1000);
   }
 }
 
@@ -141,19 +136,16 @@ function recruit(type){
     }
 }
 
-//派出部隊
-function moveArmy(troop_type, dir){
-
-  if(troop_type=="archer"){
-    //console.log(Env.roads[direction].army_location);
-    Env.defence_troop_direction["archer"] = dir;
-    //Env.num_of_troop["archer"] -= 1;
+//派出部隊前往指定方向
+function deployArmy(army_type, dir){
+  if(army_type=="archer"){
+    Env.defence_army_direction["archer"] = dir;
   }
-  else if(troop_type=="armor"){
+  else if(army_type=="armor"){
     Env.roads[dir].army_location[0].push(new army("armor", 500, 1000, 50, 0, 1));
     Env.num_of_troop["armor"] -= 1;
   }
-  else if(troop_type=="ranger"){
+  else if(army_type=="ranger"){
     Env.roads[dir].army_location[0].push(new army("ranger", 2000, 500, 300, 0, 3));
     Env.num_of_troop["ranger"] -= 1;
   }
@@ -163,18 +155,17 @@ function moveArmy(troop_type, dir){
 function repairWall(direction, unit){
   Env.wood -= unit*100;
   Env.roads[direction].wallhp = Math.min(Env.roads[direction].wallhp+unit*100, Env.maxWallhp);
-  Env.wood -= unit*100;
 }
-//偵查
+//偵查該方向最接近的敵人的位置和種類
 function scout(dir){
   var nearest_enemy = Env.roads[dir].nearest_enemy;
   if(nearest_enemy!=-1){
     io.emit("scout_report", dir, nearest_enemy, Env.roads[dir].enemy_location[nearest_enemy][0].type);
-    console.log("偵察了" + dir + "方向的敵人" + nearest_enemy + Env.roads[dir].enemy_location[nearest_enemy][0].type);
+    //console.log("偵察了" + dir + "方向的敵人" + nearest_enemy + Env.roads[dir].enemy_location[nearest_enemy][0].type);
   }
   else{
     io.emit("scout_report", dir, -1);
-    console.log("方向"+dir+"沒有敵人");
+    //console.log("方向"+dir+"沒有敵人");
   }
 } 
 //=======================================
@@ -195,8 +186,9 @@ function player_movement_update(action){
   console.log(action);
   if(action.type=='recruit')
     recruit(action.troop_type);
-  else if(action.type=='move_army')
-    moveArmy(action.troop_type, action.direction);
+  else if(action.type=='move_army'){
+    deployArmy(action.troop_type, action.direction);
+  }
   else if(action.type=='repair_wall')
     repairWall(action.direction, action.unit);
   else if(action.type=='scout')
@@ -217,16 +209,15 @@ function roll_the_dice(range=100){
 
 
 //==========回合結束判定======================
-
+//回合結束會傳戰報(一天分，每條路獨立計算)
 function roundCheck(){
   var combat_report = [];
   var dir = ["N", "E", "W", "S"];
   for(var d=0; d<dir.length; d++){
     spawnEnemy(dir[d]);
-    troopMove(dir[d]);
+    armyMove(dir[d]);
     enemyMove(dir[d]);
     combat(dir[d], combat_report);
-    console.log(Env.roads[dir[d]].defence_troop["archer"]);
   }
   reports = combat_report_process(combat_report);
   io.emit("combat_report", reports);
@@ -289,8 +280,8 @@ function combat_report_process(combat_report){
 //==================================================
 
 //===================交戰系統===================
-/******當有敵方部隊進入攻擊範圍內，該部隊會停止移動並攻擊**********
-*******一回合只有最前面的部隊會受到傷害***************************
+/******當距離最近的敵方部隊進入攻擊範圍內，該部隊會開始攻擊，造成的傷害不受血量影響**********
+*******一回合只有最前線的部隊會受到傷害***************************
  */
 function combat(dir, total_report){
   
@@ -300,13 +291,12 @@ function combat(dir, total_report){
   var farest_army = Env.roads[dir].farest_army;
   var nearest_enemy = Env.roads[dir].nearest_enemy;
   console.log(dir);
+
   if(nearest_enemy!=-1){
     var nearest_enemy_hp = Env.roads[dir].enemy_location[nearest_enemy][0].hp;
-    console.log("enemy hp:"+nearest_enemy_hp);
   }
   if(farest_army!=-1){
     var farest_army_hp = Env.roads[dir].army_location[farest_army][0].hp;
-    console.log("army hp:"+farest_army_hp);
   }
 
     
@@ -318,7 +308,7 @@ function combat(dir, total_report){
         }
       }
     }
-    if(nearest_enemy<=3 && Env.defence_troop_direction["archer"]==dir){
+    if(nearest_enemy<=Env.archer.attack_range && Env.defence_army_direction["archer"]==dir){
       army_attack += Env.num_of_troop["archer"] * Env.archer.attack;
     }
   }
@@ -326,15 +316,14 @@ function combat(dir, total_report){
   
   for(var i=0; i<Env.roads[dir].max_distance; i++){
     for(var j=0; j<Env.roads[dir].enemy_location[i].length; j++){
-      if(farest_army==-1 && i - Env.roads[dir].enemy_location[i][j].attack_range <= 0){ //no troop
+      if(farest_army==-1 && i - Env.roads[dir].enemy_location[i][j].attack_range <= 0){ //no army
         enemy_attack += Env.roads[dir].enemy_location[i][j].attack;
       }
-      else if(i - Env.roads[dir].enemy_location[i][j].attack_range <= farest_army){
+      else if(farest_army!=-1 && i - Env.roads[dir].enemy_location[i][j].attack_range <= farest_army){
         enemy_attack += Env.roads[dir].enemy_location[i][j].attack;
       }
     }
   }
-  //console.log(army_attack + "  " + enemy_attack);
   if(army_attack || enemy_attack){
     isCombat = true;
   }
@@ -387,11 +376,13 @@ function combat(dir, total_report){
 
 
 //回合結束部隊自動移動=======================
-function troopMove(dir){
-  for(var i=19; i>=0; i--){
+//只會在道路內移動，若走到盡頭則會停在原地
+//若有敵人進入攻擊範圍內則不會繼續往前
+function armyMove(dir){
+  for(var i=Env.roads[dir].max_distance-1; i>=0; i--){
     if(Env.roads[dir].army_location[i].length){
       for(var j=0; j<Env.roads[dir].army_location[i].length;){
-        var move_to = Math.min(Env.roads[dir].army_location[i][j].move_distance+i, 20, Env.roads[dir].nearest_enemy-Env.roads[dir].army_location[i][j].attack_range); 
+        var move_to = Math.min(i + Env.roads[dir].army_location[i][j].move_distance, Env.roads[dir].max_distance-1, Env.roads[dir].nearest_enemy-Env.roads[dir].army_location[i][j].attack_range); 
         move_to = Math.max(move_to, 0);
         if(move_to!=i){
           Env.roads[dir].army_location[move_to].push(Env.roads[dir].army_location[i][j]);
@@ -402,8 +393,9 @@ function troopMove(dir){
       }
     }
   }
+  //get farest army
   Env.roads[dir].farest_army = -1;
-  for(var i=20; i>=0; i--){
+  for(var i=Env.roads[dir].max_distance-1; i>=0; i--){
     if(Env.roads[dir].army_location[i].length){
       Env.roads[dir].farest_army = i;
       break;
@@ -413,11 +405,10 @@ function troopMove(dir){
 
 
 function enemyMove(dir){
-  for(var i=0; i<21; i++){
+  for(var i=0; i<Env.roads[dir].max_distance; i++){
     if(Env.roads[dir].enemy_location[i].length){
       for(var j=0; j<Env.roads[dir].enemy_location[i].length;){
-        var move_to = Math.max(i-Env.roads[dir].enemy_location[i][j].move_distance, 0);
-        move_to = Math.max(move_to, Env.roads[dir].farest_army + Env.roads[dir].enemy_location[i][j].attack_range); 
+        var move_to = Math.max(0, Env.roads[dir].farest_army + Env.roads[dir].enemy_location[i][j].attack_range, i-Env.roads[dir].enemy_location[i][j].move_distance); 
         if(move_to!=i){
           Env.roads[dir].enemy_location[move_to].push(Env.roads[dir].enemy_location[i][j]); 
           Env.roads[dir].enemy_location[i].splice(j, 1);
@@ -427,11 +418,10 @@ function enemyMove(dir){
       }
     }
   }
-  //Env.roads[dir].hasEnemy = false;
+  //get nearest enemy
   Env.roads[dir].nearest_enemy = -1;
-  for(var i=0; i<21; i++){
+  for(var i=0; i<Env.roads[dir].max_distance; i++){
     if(Env.roads[dir].enemy_location[i].length){
-      //Env.roads[dir].hasEnemy = true;
       Env.roads[dir].nearest_enemy = i;
       break;
     }
@@ -443,9 +433,12 @@ function enemyMove(dir){
 
 //生成敵人(隨機)==================================
 function spawnEnemy(dir){
-  var spawn = Math.floor(Math.random()*4);
-  if(spawn==0){
-    Env.roads[dir].enemy_location[20].push(new enemy("tree man", 600, 50, 0, 10, 2000));
+  var spawn = Math.floor(Math.random()*20);
+  if(spawn<=4){ //25% tree man
+    Env.roads[dir].enemy_location[Env.roads[dir].max_distance-1].push(new enemy("tree man", 600, 50, 0, 10, 2000));
+  }
+  else if(spawn==5 && Env.round>=10){ //5% big tree man
+    Env.roads[dir].enemy_location[Env.roads[dir].max_distance-1].push(new enemy("big tree man", 3000, 500, 0, 1, 10000));
   }
 }
 //=============================================

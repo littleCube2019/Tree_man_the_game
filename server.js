@@ -508,7 +508,8 @@ function enemyMove(dir){
 function spawnEnemy(dir){
   var spawn = Math.floor(Math.random()*20);
   if(spawn<=4){ //25% tree man
-    Env.roads[dir].enemy_location[Env.roads[dir].max_distance-1].push(new enemy("tree man", 600, 50, 0, 10, 2000));
+    
+    Env.roads[dir].enemy_location[Env.roads[dir].max_distance-1].push(new enemy("tree man", 600, 50, 0, 1, 2000));
   }
   else if(spawn==5 && Env.round>=10){ //5% big tree man
     Env.roads[dir].enemy_location[Env.roads[dir].max_distance-1].push(new enemy("big tree man", 3000, 500, 0, 1, 10000));

@@ -487,9 +487,9 @@
 
 				$("#submit_repair_wall").click(()=>{
 					
-					var repair_value = parseInt(document.getElementById("repair_wall_select").value);
-					if (Env.wood < repair_value){
-						Alert(text="你沒有足夠的木頭招募士兵");
+					var repair_value = parseInt(document.getElementById("repair_wall_select").value); //repair value, 是以個位數為單位(要記得*100)
+					if (Env.wood < repair_value*100){
+						Alert(text="你沒有足夠的木頭修城牆");
 					}
 					else{
 						class repair_wall {

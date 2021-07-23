@@ -88,7 +88,7 @@
 			//戰報
 			function combatReportOneline(text){
 				text+="<br>"
-				$("#combat_report_content").append(text);
+				$("#combat_report_content").prepend(text);
 			}
 
 			//socket區
@@ -486,21 +486,27 @@
 				})
 
 				$("#submit_repair_wall").click(()=>{
-					repair_value = parseInt(document.getElementById("repair_wall_select").value);
-					class repair_wall {
-						constructor(dir,unit){
-							this.type ='repair_wall';
-							this.direction =  dir;
-							this.unit = unit ;
-						}
+					
+					var repair_value = parseInt(document.getElementById("repair_wall_select").value);
+					if (Env.wood < repair_value){
+						Alert(text="你沒有足夠的木頭招募士兵");
 					}
-					
-					
-					console.log(repair_value);
-					action = new repair_wall(WALL_DIR,repair_value);
-					var msg = "維修了"+direct_dic[WALL_DIR]+"方牆"+repair_value*100+"點"
-					
-					socket.emit("action_done" , PLAYER_ID , action,msg);
+					else{
+						class repair_wall {
+							constructor(dir,unit){
+								this.type ='repair_wall';
+								this.direction =  dir;
+								this.unit = unit ;
+							}
+						}
+						
+						
+						console.log(repair_value);
+						action = new repair_wall(WALL_DIR,repair_value);
+						var msg = "維修了"+direct_dic[WALL_DIR]+"方牆"+repair_value*100+"點"
+						
+						socket.emit("action_done" , PLAYER_ID , action,msg);
+					}
 				})
 				
 			

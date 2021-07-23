@@ -1,15 +1,11 @@
-
+// ========================== header start ========================================//
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 const e = require('express');
 var express = require('express');
 const { env } = require('process');
-//var missionCard = require("./missioncard.js");
-//var itemCard = require("./itemcard.js");
-//var mission = require("./mission.js");
-//var item = require("./item.js");
-//const itemcard = require('./itemcard.js');
+
 //var army = require('./army.js');
 //var enemy = require('./enemy.js');
 
@@ -24,6 +20,24 @@ http.listen(process.env.PORT || 3000, function(){
 
 app.use(express.static('public'));
 
+// ========================== header end ========================================// 
+
+
+
+
+// ========================== 環境 ========================================//  
+/*
+   維護所有遊戲資訊都記錄在這裡
+   roads :  object array ， 紀錄四條路線上的情況
+   maxWallhp: int , 城牆最大血量
+   round : int , 回合數 (天數)
+   wood :  int , 當前樹木量
+   num_of_troop : object ， 目前記錄 城內 的兵種數目
+   defence_army_direction: object，記錄防禦部隊面朝方向
+   
+   樣板區:  紀錄每種單位的基本數值，未來升級可以調整這裡
+
+*/
 class Environment {
   //環境變數
   constructor(){
@@ -36,24 +50,35 @@ class Environment {
     this.maxWallhp = 1000 ; 
     this.round = 1 ; 
     this.wood = 500 ;
-    this.num_of_troop = { //目前記錄城內的兵種數目
+    this.num_of_troop = { 
         "archer":1 ,
         "armor":0 , 
         "ranger":0 ,
     }
-    this.defence_army_direction = {"archer":""}; //紀錄防禦部隊面朝方向
+    this.defence_army_direction = {"archer":""}; 
+    
+    // ========== 樣板區 start =====================
     this.archer = new defence("archer", 1000, 100, 3);
     this.armor = new army("armor", 500, 1000, 50, 0, 1);
     this.ranger = new army("ranger", 2000, 500, 300, 0, 3);  
     this.tree_man = new enemy("tree man", 600, 250, 0, 1, 2000);
+    // ========== 樣板區 end =====================
+
+
+
+
+
   }
 };
+// ========================== 環境 end========================================//  
 
+
+// ========================== 路 start========================================//   
 class road{
   constructor(direction){
-    this.wallhp = 500;
-    this.direction = direction;
-    this.max_distance = 21;
+    this.wallhp = 500;  //城牆血量
+    this.direction = direction; //路的方向
+    this.max_distance = 10;
     this.nearest_enemy = -1;
     this.farest_army = -1; 
     this.army_location = [];  //二維陣列，紀錄各位置上有多少部隊or敵人
@@ -64,7 +89,9 @@ class road{
     }
   }
 }
+// ========================== 路 end========================================// 
 
+// 單位"種類"樣版區 ， 以class為單位start ========================================// 
 class army{
   constructor(type, cost, hp, attack, attack_range, move_distance){
       this.type = type;
@@ -96,8 +123,52 @@ class enemy{
   }
 }
 
-// ======= 選角相關變數&function
+// 單位"種類"樣版區 ， 以class為單位start ========================================//
 
+
+
+
+
+
+
+
+
+
+
+
+
+// =======  main 區  ~ 結束 ==============================================//
+
+/*  (0.0)
+可以代表一個流程 
+
+welcome :剛進遊戲的時候，初始化選角畫面
+
+player_choosed : 選角，回傳角色id
+start_game : 回傳遊戲開始訊號
+
+while loop
+  socket.on(action_done) : 接收回家選擇行動與其選項  
+  [
+    scout_report : 回傳偵查情報
+    combat_report : 回傳處理過後的戰報 ，為一string array
+    player_msg : 回傳"訊息"給兩位玩家
+  ]
+  player_turn: 玩家其中一位結束操作時，發出的訊號
+
+
+  turn_end : 回傳回合結束訊號， 並給一個機率值決定(每日結尾)事件
+
+  update_state: env 資訊更新到前端
+
+
+
+gameover : 回傳遊戲結束訊號， 前端自己切換結束畫面
+*/
+
+
+
+// player有沒有被選取
 var player1HasBeenChoosen = false ;
 var player2HasBeenChoosen = false; 
 
@@ -113,13 +184,12 @@ function chooseCharacter(id)
   }
   io.emit("player_choosed", id);
 }
-// ===============================
+
 
 
 
 
 //=========玩家操作=================
-
 //招募部隊
 function recruit(type){
     if(type=='archer'){
@@ -156,6 +226,8 @@ function repairWall(direction, unit){
   Env.wood -= unit*100;
   Env.roads[direction].wallhp = Math.min(Env.roads[direction].wallhp+unit*100, Env.maxWallhp);
 }
+
+
 //偵查該方向最接近的敵人的位置和種類
 function scout(dir){
   var nearest_enemy = Env.roads[dir].nearest_enemy;

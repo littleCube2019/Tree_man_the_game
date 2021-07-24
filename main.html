@@ -94,7 +94,16 @@
 			//socket區
 			//選擇玩家  ==============================================================================
 			socket.on("welcome",(player1HasBeenChoosen , player2HasBeenChoosen  )=>{ //when start,hide the main page to let player select charcters.
-						
+						// 重新初始化
+						PLAYER_ID = 0;	
+						$("#pl1").attr('disabled',false);
+						$("#pl2").attr('disabled',false);
+						$("#pl1").show();
+						$("#pl2").show();
+						$("#pl").text("");
+						$("#p2").text("");
+
+
 						if(player1HasBeenChoosen){
 							$("#pl1").attr('disabled',true);
 							$("#pl1").text("player1 has been choosed");
@@ -104,7 +113,8 @@
 							$("#pl2").attr('disabled',true);
 							$("#pl2").text("player2 has been choosed");
 						}
-
+						$("#choose_player").show();
+						
 						// 需要改進??
 						$(".LEFT").hide();
 						$(".RIGHT").hide();
@@ -198,8 +208,12 @@
 			socket.on("scout_report" , (dir , location)=>{
 				Title = "偵查報告"
 				if (location != -1){
-					var msg = "你的斥侯隊告訴你在"+direct_dic[dir]+"方向"+location+"公里處有敵人"
-					
+					if(location!=0){
+						var msg = "你的斥侯隊告訴你在"+direct_dic[dir]+"方向"+location+"公里處有敵人";
+					}
+					else{
+						var msg = "你的斥侯隊告訴你在"+direct_dic[dir]+"方向的城門下有敵人!";
+					}
 				}
 				else{
 					var msg = "此方向尚未發現任何敵人!"
@@ -536,7 +550,7 @@
 				
 				//========================================================================================
 
-				//===================== battle log show =============================================================
+			
 				//===================== battle log show =============================================================
 				$("#combat_report").click(function(event) {     
 					$("#combat_report").empty();
@@ -553,6 +567,15 @@
 
 				//====================================================================================================
 				
+
+				//================= restart_game =====================================================================
+				$("#restart").click(function() {     
+
+					socket.emit("new_game");
+					
+				});
+
+
 				})
 		</script>
 
@@ -572,8 +595,8 @@
 	<img src="title.PNG" >
 	<div style="text-align: center">
 		<p id="pl">請選擇角色</p>
-		<button class="btn btn-info" id="pl1">player1</button>
-		  <button class="btn btn-info" id="pl2">player2</button>
+		<button class="btn btn-info" id="pl1">帝國之眼</button>
+		  <button class="btn btn-info" id="pl2">帝國賢者</button>
 		</div>
 	
 
@@ -586,8 +609,9 @@
 	<!-- 結束畫面 ======================          -->
 	<div id="game_over">
 		<img src="gameover.PNG" >
-		
-	
+		<div>
+		<button class="btn btn-info" id="restart">重新開始</button>
+		</div>
 		
 	</div>
 		<!-- ======================================  -->

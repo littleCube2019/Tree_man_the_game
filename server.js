@@ -526,7 +526,12 @@ function isGameover(){
 
 io.on('connection', (socket) => {
 
-  socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
+  socket.on('new_game', ()=>{
+    player1HasBeenChoosen = false;
+    player2HasBeenChoosen = false;
+    socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
+  })
+
 
   // 選角  =============================================
   socket.on("choose_character", (id)=>{

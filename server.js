@@ -531,7 +531,9 @@ var connected_list = {}
 io.on('connection', (socket) => {
   console.log('Client connected');
   connected_list[socket.id] = socket.id;
+  
   socket.on('new_game', ()=>{
+    player_list = {}
     player1HasBeenChoosen = false;
     player2HasBeenChoosen = false;
     socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
@@ -554,6 +556,8 @@ io.on('connection', (socket) => {
     if(player1HasBeenChoosen && player2HasBeenChoosen){
 
       //把沒選角的剔掉=====
+      console.log(player_list)
+      console.log(connected_list)
       for(var sockedId in connected_list){
         if(!(sockedId in player_list)){
           console.log(sockedId);
@@ -586,14 +590,15 @@ io.on('connection', (socket) => {
   
   socket.on('disconnect', () => {
     console.log('Client disconnected')
-    delete player_list[socket.id];
-    delete connected_list[socket.id];
-    if(Object.keys(player_list).length<2){
+    if(socket.id in player_list){
+      player_list = {}
       player1HasBeenChoosen = false;
       player2HasBeenChoosen = false;
       io.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
       console.log("有人跳game")
     }
+    delete player_list[socket.id];
+    delete connected_list[socket.id];
   });
 
 

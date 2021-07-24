@@ -524,19 +524,44 @@ function isGameover(){
   }
 }
 
-io.on('connection', (socket) => {
 
+var player_list = {}
+var connected_list = {}
+
+io.on('connection', (socket) => {
+  console.log('Client connected');
+  connected_list[socket.id] = socket.id;
   socket.on('new_game', ()=>{
     player1HasBeenChoosen = false;
     player2HasBeenChoosen = false;
     socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
   })
 
+  if(Object.keys(player_list).length<2){
+    socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
+  }
+  else{
+    socket.emit("gameover")//觀戰or其他處理(暫定gameover)
+    console.log("人滿囉")
+  }
 
   // 選角  =============================================
   socket.on("choose_character", (id)=>{
+    
     chooseCharacter(id);
+
+    player_list[socket.id] = socket.id;
     if(player1HasBeenChoosen && player2HasBeenChoosen){
+
+      //把沒選角的剔掉=====
+      for(var sockedId in connected_list){
+        if(!(sockedId in player_list)){
+          console.log(sockedId);
+          io.to(sockedId).emit("gameover");//觀戰or其他處理(暫定gameover)
+        }
+      }
+      //====================
+
       newGame();
       io.emit("start_game");
       io.emit("player_turn");
@@ -558,11 +583,21 @@ io.on('connection', (socket) => {
 
 
 
-  console.log('Client connected');
-  socket.on('disconnect', () => console.log('Client disconnected'));
+  
+  socket.on('disconnect', () => {
+    console.log('Client disconnected')
+    delete player_list[socket.id];
+    delete connected_list[socket.id];
+    if(Object.keys(player_list).length<2){
+      player1HasBeenChoosen = false;
+      player2HasBeenChoosen = false;
+      io.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
+      console.log("有人跳game")
+    }
+  });
 
 
- 
+
 
   //每回合結算玩家的行動並更新環境
   socket.on("action_done", (player_id, action ,msg)=>{ //玩家的訊息

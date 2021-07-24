@@ -100,9 +100,9 @@
 						$("#pl2").attr('disabled',false);
 						$("#pl1").show();
 						$("#pl2").show();
-						$("#pl").text("");
-						$("#p2").text("");
-
+						$("#pl1").text("帝國之眼");
+						$("#pl2").text("帝國賢者");
+						$("#pl").text("請選擇角色");
 
 						if(player1HasBeenChoosen){
 							$("#pl1").attr('disabled',true);
@@ -592,7 +592,9 @@
    
 	<!-- 選角畫面 ======================          -->
 	<div id="choose_player">
+		<div style="text-align: center">
 	<img src="title.PNG" >
+			</div>
 	<div style="text-align: center">
 		<p id="pl">請選擇角色</p>
 		<button class="btn btn-info" id="pl1">帝國之眼</button>
@@ -608,8 +610,10 @@
 
 	<!-- 結束畫面 ======================          -->
 	<div id="game_over">
+		<div style="text-align: center">
 		<img src="gameover.PNG" >
-		<div>
+		</div>	
+		<div style="text-align: center">
 		<button class="btn btn-info" id="restart">重新開始</button>
 		</div>
 		

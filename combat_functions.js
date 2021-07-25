@@ -33,11 +33,11 @@ exports.combat_report_process = function(Env, combat_report){
           reports.push(msg);
         }
         else{
-          var msg =  "位於"+direct_dic[r["direction"]]+"方城門下方發生戰爭<br>我方造成"+r["army_attack"]+"點傷害，樹人造成"+r["enemy_attack"]+"點傷害<br>先鋒部隊剩餘血量為:"+r["army_hp"]+"，該樹人剩下"+r["enemy_hp"]+"點血量<br>該戰場剩下敵人數:"+num_of_enemy+"<br>"; 
+          var msg =  "位於"+direct_dic[r["direction"]]+"方城門下方發生戰爭<br>我方造成"+r["army_attack"]+"點傷害，樹人造成"+r["enemy_attack"]+"點傷害<br>先鋒部隊剩餘血量為:"+r["army_hp"]+"，該樹人剩下"+r["enemy_hp"]+"點血量<br>"; 
           reports.push(msg);
         }
   
-        var msg = "該戰場剩下士兵數:"+num_of_troop+"<br>";
+        var msg = "該戰場剩下士兵數:"+num_of_troop+"<br>該戰場剩下敵人數:"+num_of_enemy+"<br>";
         reports.push(msg);
         
   

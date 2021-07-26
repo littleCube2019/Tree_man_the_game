@@ -44,7 +44,7 @@ var wall_status = new Vue({
   },
 
   methods: {
-    update : function(roads){
+    update : function(roads){ //每回合更新 wall 資料
       console.log(roads);
       
       if(roads){ //一定一開遊戲就會呼叫，這時roads還是NLL，會出錯
@@ -66,3 +66,48 @@ var wall_status = new Vue({
 
 })
 
+
+// "回合選擇行動"按鈕
+var choose_basic = new Vue({
+  el: '#choose_basic_action',
+  
+
+  data: {
+    contents:[
+      ["choose_scout","偵查"],
+      ["choose_troop_move","調度軍隊"],
+      ["choose_recruit_troop","招募士兵"],
+      ["choose_repair_wall","修築城牆"],
+      ["skip","跳過這回合"],
+    ],
+  }
+
+})
+
+
+
+
+
+
+
+
+
+
+var app = new Vue({
+  el: '#app',
+  
+
+  data: {
+   
+     
+
+  },
+
+  methods: {
+   
+   
+  }
+
+
+
+})

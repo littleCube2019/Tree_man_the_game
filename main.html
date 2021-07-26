@@ -312,7 +312,7 @@
 					})
 				
 				
-				// id :  1 : archer , 2 : armor
+				
 				$("#choose_troop_move").click(()=>{
 					 $("#choose_basic_action").hide();
 					 $("#move_troop").show();
@@ -722,12 +722,10 @@
 			<!--  基本操作  -->
 			<div id = "choose_basic_action">
 			你這回合選擇
-			<button class="choice_button btn btn-dark" id="choose_scout">偵查</button>
-			<button class="choice_button btn btn-dark" id="choose_troop_move">調度軍隊</button>
-			<button class="choice_button btn btn-dark" id="choose_recruit_troop">招募士兵</button>
-			<button class="choice_button btn btn-dark" id="choose_repair_wall">修築城牆</button>
-			<button class="choice_button btn btn-dark" id="skip">跳過這回合</button>
-
+			<div v-for="content in contents">
+			<button class="choice_button btn btn-dark"   v-bind:id="content[0]">{{content[1]}}</button>
+			</div>
+		
 		    </div>
      
 

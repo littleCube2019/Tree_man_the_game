@@ -43,7 +43,7 @@ exports.deployArmy = function(Env, army_type, dir){
 //修牆
 exports.repairWall = function(Env, direction, unit){
     Env.wood -= unit*100;
-    Env.roads[direction].wallhp = Math.min(Env.roads[direction].wallhp+unit*100, Env.maxWallhp);
+    Env.roads[direction].wallhp = Math.min(Env.roads[direction].wallhp+unit*100, Env.roads[direction].max_wallhp);
 }
 
 //偵查該方向最接近的敵人的位置和種類

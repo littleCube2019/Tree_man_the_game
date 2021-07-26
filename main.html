@@ -12,6 +12,7 @@
 	
 
 		<!-- module below-->
+		
 		<!-- ==================================== -->
 		<!-- jquery -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -40,11 +41,14 @@
 
 
 		<script>
+			
 			var TURN = 1;  //第一次player_turn 會解鎖 button ，但有兩個人進來都會改
 			var PLAYER_ID = 0 ; 
 			let socket = io();
 			var Env = null;
 			var WALL_DIR = "Default";
+			var game_start = false ; 
+
 
 			direct_dic = {
 						"E" : "東",
@@ -145,6 +149,9 @@
 				
 			
 				//基礎設定
+
+				game_start = true;
+
 				if( -1 == PLAYER_ID){
 					$(".choice_button").attr('disabled', false);
 				}
@@ -245,14 +252,14 @@
 			socket.on("update_state", (env)=>{  //更新狀態
 				Env = env;
 				
-
+				wall_status.update(env.roads);
 				// 基本數值更新區
 				$("#round").text(env.round);
-				$("#east_hp").text(env.roads["E"].wallhp);
+				
+				
 				$("#wood").text(env.wood);
-				$("#south_hp").text(env.roads["S"].wallhp);
-				$("#west_hp").text(env.roads["W"].wallhp);
-				$("#north_hp").text(env.roads["N"].wallhp);
+
+				
 				
 
 				$("#num_archer").text(env.num_of_troop["archer"]);
@@ -260,7 +267,8 @@
 				$("#num_ranger").text(env.num_of_troop["ranger"]);
 				// ========================================================================================
 				
-				// progress bar 調整
+				/* progress bar 調整
+				
 				$("#W-wall-bar").css("width" , (env.roads["W"].wallhp*100/env.maxWallhp).toString()  + "%");
 		
 				$("#W-wall-bar").text( (env.roads["W"].wallhp*100/env.maxWallhp).toString() + "%" );
@@ -273,7 +281,7 @@
 
 				$("#S-wall-bar").css("width" , (env.roads["S"].wallhp*100/env.maxWallhp).toString()  + "%");
 				$("#S-wall-bar").text( (env.roads["S"].wallhp*100/env.maxWallhp ).toString() + "%");
-				// ========================================================================================
+				========================================================================================*/ 
 			}
 			)
 			// 戰報通知
@@ -300,6 +308,7 @@
 
 			// game over 
 			socket.on("gameover", ()=> {
+				game_start = false;
 				$("#game_over").show();
 				$(".LEFT").hide();
 				$(".RIGHT").hide();
@@ -317,24 +326,7 @@
 				$(function () {
 					$('[data-toggle="tooltip"]').tooltip()
 					})
-				//選擇玩家 按鈕 ========================
-				/*
-				$("#pl1").click(()=>{
-					PLAYER_ID = 1;
-					$("#pl1").hide();
-					$("#pl2").hide();
-					$("#pl").text("你是玩家1");
-					socket.emit("choose_character", 1);
-				});
-				$("#pl2").click(()=>{
-					PLAYER_ID = -1;
-					$("#pl1").hide();
-					$("#pl2").hide();
-					$("#pl").text("你是玩家2");
-					socket.emit("choose_character", -1);
-				});
-				*/
-				//========  ==============================================================================	
+				
 				
 				// id :  1 : archer , 2 : armor
 				$("#choose_troop_move").click(()=>{
@@ -633,14 +625,14 @@
 	
 
 
-	<div class="LEFT">
+	<div class="LEFT" >
 	
 
 
 
     <!-- our status showing below-->
 	<!-- ==================================== -->
-	<div class="LEFT_TOP">
+	<div  class="LEFT_TOP">
 		<!--屬性欄，此div為最外框-->
     	<div id="status" > <div>當前狀態 <span id="player_name"> </span> </div>   
 			<div id="my_basic-data">
@@ -662,25 +654,37 @@
 				</div>
 			   </div>
 
-				<div id="wall_state"> 城牆狀態 
+				<div id="wall_state"  > 城牆狀態 
 					<button class="show_state">
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bricks" viewBox="0 0 16 16">
 							<path d="M0 .5A.5.5 0 0 1 .5 0h15a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H14v2h1.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H14v2h1.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5H2v-2H.5a.5.5 0 0 1-.5-.5v-3A.5.5 0 0 1 .5 6H2V4H.5a.5.5 0 0 1-.5-.5v-3zM3 4v2h4.5V4H3zm5.5 0v2H13V4H8.5zM3 10v2h4.5v-2H3zm5.5 0v2H13v-2H8.5zM1 1v2h3.5V1H1zm4.5 0v2h5V1h-5zm6 0v2H15V1h-3.5zM1 7v2h3.5V7H1zm4.5 0v2h5V7h-5zm6 0v2H15V7h-3.5zM1 13v2h3.5v-2H1zm4.5 0v2h5v-2h-5zm6 0v2H15v-2h-3.5z"/>
 						  </svg>
 					</button>
-				<div>
-				<div>東: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-right" viewBox="0 0 16 16">
-					<path fill-rule="evenodd" d="M6 8a.5.5 0 0 0 .5.5h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L12.293 7.5H6.5A.5.5 0 0 0 6 8zm-2.5 7a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5z"/>
-				  </svg>  
-				<span id="east_hp"> 1000</span> </div>
 
-				<div class="progress">
-					<div id="E-wall-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="70"
-					aria-valuemin="0" aria-valuemax="100" style="width:70%">
-					  70%
+				<div >
+					<div v-for="(wall, dir) in walls"> 
+					<div>{{wall.dir}}: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-right" viewBox="0 0 16 16">
+						<path fill-rule="evenodd" d="M6 8a.5.5 0 0 0 .5.5h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L12.293 7.5H6.5A.5.5 0 0 0 6 8zm-2.5 7a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5z"/>
+					  </svg>  
+					<span > {{wall.hp}} </span> 
+				
 					</div>
-				</div>
+					
+					<div class="progress">
+						<div  class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0"
+						aria-valuemin="0" aria-valuemax="100" :style="{width: wall.progress + '%'}">
+						{{wall.progress }}%
+						</div>
+					</div>
+					
+
 		     	
+				<!--
+
+					
+				
+
+
 
 				<div>南: 
 					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-down" viewBox="0 0 16 16">
@@ -723,9 +727,13 @@
 					  70%
 					</div>
 				</div>
-				</div>
-				</div>
+				-->
 
+					</div>
+				</div>
+				
+				</div>
+				
 				<br>
 
 				<div>軍隊狀態

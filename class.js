@@ -21,7 +21,7 @@ exports.Environment = class {
           "W":new road("W") ,
           "N":new road("N") , 
       }
-      this.maxWallhp = 1000 ; 
+      
       this.round = 1 ; 
       this.wood = 500 ;
       this.num_of_troop = { 
@@ -36,6 +36,7 @@ exports.Environment = class {
 
 class road{
     constructor(direction){
+      this.max_wallhp = 1000 ; //城牆最大血量 
       this.wallhp = 500;  //城牆血量
       this.direction = direction; //路的方向
       this.max_distance = 10;

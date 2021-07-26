@@ -189,6 +189,7 @@ var player_list = {}
 var connected_list = {}
 
 io.on('connection', (socket) => {
+  
   console.log('Client connected');
   connected_list[socket.id] = socket.id;
 
@@ -230,7 +231,11 @@ io.on('connection', (socket) => {
 
       //test
       Env.wood += 5000;
-    
+
+     
+
+
+      
       io.emit("update_state", Env);
       io.emit("player_turn");
     }

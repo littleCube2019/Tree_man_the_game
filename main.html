@@ -312,7 +312,7 @@
 					})
 				
 				
-				// id :  1 : archer , 2 : armor
+				
 				$("#choose_troop_move").click(()=>{
 					 $("#choose_basic_action").hide();
 					 $("#move_troop").show();
@@ -463,7 +463,7 @@
 					WALL_DIR = e.target.getAttribute("Dir");;
 			
 					// 計算可以修補的選項
-					if( Env.roads[WALL_DIR].wallhp == Env.maxWallhp){
+					if( Env.roads[WALL_DIR].wallhp == Env.roads[WALL_DIR].max_wallhp){
 						
 						Alert(text="此面城牆完好無損，不需要維修!")
 
@@ -471,6 +471,7 @@
 					else{
 						$('#repair_wall_pop').modal('toggle');
 						$("#repair_wall_select").empty()
+						console.log(Env.roads[WALL_DIR].max_wallhp )
 						for(var i=1; i<= parseInt((Env.roads[WALL_DIR].max_wallhp-Env.roads[WALL_DIR].wallhp)/100) ; i++){
 						 	$("#repair_wall_select").append("<option value=\""+i+"\">"+i+"</option>") 
 						}
@@ -722,12 +723,10 @@
 			<!--  基本操作  -->
 			<div id = "choose_basic_action">
 			你這回合選擇
-			<button class="choice_button btn btn-dark" id="choose_scout">偵查</button>
-			<button class="choice_button btn btn-dark" id="choose_troop_move">調度軍隊</button>
-			<button class="choice_button btn btn-dark" id="choose_recruit_troop">招募士兵</button>
-			<button class="choice_button btn btn-dark" id="choose_repair_wall">修築城牆</button>
-			<button class="choice_button btn btn-dark" id="skip">跳過這回合</button>
-
+			<div v-for="content in contents">
+			<button class="choice_button btn btn-dark"   v-bind:id="content[0]">{{content[1]}}</button>
+			</div>
+		
 		    </div>
      
 

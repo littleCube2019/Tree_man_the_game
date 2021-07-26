@@ -81,7 +81,7 @@ exports.combat = function(Env, dir, total_report, defender_data){
         }
       }
       if(nearest_enemy<=defender_data["archer"]["attack_range"] && Env.defence_army_direction["archer"]==dir){
-        army_attack += Env.num_of_troop["archer"] * defender_data["archer"]["attack"];
+        army_attack += Env.troops_state["archer"]["amount"] * defender_data["archer"]["attack"];
       }
       army_attack = army_attack * Env.morale
     }

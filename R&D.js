@@ -2,7 +2,7 @@ var Env = require("./class").Environment
 
 
 exports.RD = {
-    "wall_developements":[
+    "wall_developments":[
         {
             "name":"加固木牆",
             "cost" : 1000,
@@ -33,7 +33,7 @@ exports.RD = {
         },
     ],
 
-    "armor_developements":[
+    "armor_developments":[
         {
             "name":"重型裝甲",
             "cost" : 500,
@@ -59,7 +59,7 @@ exports.RD = {
         },
     ],
 
-    "defencer_developements":[
+    "defencer_developments":[
         {
             "name":"以知用火",
             "cost" : 500,

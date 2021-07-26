@@ -60,9 +60,9 @@ exports.Environment = class {
         }
 
         this.RD = {
-            "wall_developements":{"level":0, "progress":0},
-            "armor_developements":{"level":0, "progress":0},
-            "defencer_developements":{"level":0, "progress":0},
+            "wall_developments":{"level":0, "progress":0},
+            "armor_developments":{"level":0, "progress":0},
+            "defencer_developments":{"level":0, "progress":0},
         }
 
         this.defence_army_direction = {"archer":"", "fire_archer":"", "catapult":""};

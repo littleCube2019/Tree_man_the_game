@@ -471,7 +471,7 @@
 					else{
 						$('#repair_wall_pop').modal('toggle');
 						$("#repair_wall_select").empty()
-						for(var i=1; i<= parseInt((Env.maxWallhp-Env.roads[WALL_DIR].wallhp)/100) ; i++){
+						for(var i=1; i<= parseInt((Env.roads[WALL_DIR].max_wallhp-Env.roads[WALL_DIR].wallhp)/100) ; i++){
 						 	$("#repair_wall_select").append("<option value=\""+i+"\">"+i+"</option>") 
 						}
 					}

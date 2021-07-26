@@ -83,6 +83,7 @@ exports.combat = function(Env, dir, total_report, defender_data){
       if(nearest_enemy<=defender_data["archer"]["attack_range"] && Env.defence_army_direction["archer"]==dir){
         army_attack += Env.num_of_troop["archer"] * defender_data["archer"]["attack"];
       }
+      army_attack = army_attack * Env.morale
     }
   
     
@@ -132,13 +133,16 @@ exports.combat = function(Env, dir, total_report, defender_data){
         Env.wood += reward;
         combat_report["reward"] = reward;
         Env.roads[dir].enemy_location[nearest_enemy].splice(0, 1);
+        Env.morale = Math.min(1.5, Env.morale+0.1)
         //console.log("消滅樹人");
       }
   
       if(farest_army_hp==0){
         Env.roads[dir].army_location[farest_army].splice(0, 1);
+        Env.morale = Math.max(0.5, Env.morale-0.1)
         //console.log("部隊被殲滅");
       }
+      console.log("士氣值:" + Env.morale)
       total_report.push(combat_report);
       console.log(combat_report);
     }

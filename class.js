@@ -8,6 +8,7 @@
    maxWallhp: int , 城牆最大血量
    round : int , 回合數 (天數)
    wood :  int , 當前樹木量
+   morale : float, 士氣值 部隊傷害 = 士氣值*攻擊力
    num_of_troop : object ， 目前記錄 城內 的兵種數目
    defence_army_direction: object，記錄防禦部隊面朝方向
 
@@ -24,6 +25,7 @@ exports.Environment = class {
       
       this.round = 1 ; 
       this.wood = 500 ;
+      this.morale = 1; 
       this.num_of_troop = { 
           "archer":1 ,
           "armor":0 , 

@@ -14,6 +14,7 @@ var RD = require("./R&D").RD
 exports.recruit = function(army_type){
     if(army_type=="archer" || army_type=="fire_archer" || army_type=="catapult"){
         for(var r in defender_data[army_type]["cost"]){
+            
             Env.resource[r] -= defender_data[army_type]["cost"][r];
         }
     }
@@ -38,7 +39,7 @@ exports.deployArmy = function(army_type, dir){
 
 //修牆
 exports.repairWall = function(direction, unit){
-    Env.wood -= unit*100;
+    Env.resource["wood"] -= unit*100;
     Env.roads[direction].wallhp = Math.min(Env.roads[direction].wallhp+unit*100, Env.roads[direction].max_wallhp);
 }
 

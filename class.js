@@ -24,7 +24,7 @@ exports.Environment = class {
         }
         
         this.round = 1 ; 
-        this.resource = {"wood":500} ;
+        this.resource = {"wood":5000} ;
 
         //==探索地圖=============================
         this.x = 11

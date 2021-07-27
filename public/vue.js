@@ -49,7 +49,7 @@ var wall_status = new Vue({
       
       if(roads){ //一定一開遊戲就會呼叫，這時roads還是NLL，會出錯
           
-          var dirs = ["E","S","W","N"];
+          var dirs = Object.keys(this.walls);;
           for(var i = 0; i< dirs.length; i++){
             var d = dirs[i];
             this.walls[d].hp = roads[d].wallhp;
@@ -65,6 +65,56 @@ var wall_status = new Vue({
 
 
 })
+
+
+//軍隊訊息
+var troop_status = new Vue({
+  el: '#troop_state',
+  
+
+  data: {
+    troops: {
+      "archer": {  name: '弓箭' , num:0 , valid:false} ,
+      "armor":  {  name: '重步兵' , num:0 , valid:true},
+     "ranger" : {  name: '騎兵' , num:0 , valid:true},
+     "wizard" : {  name: '法師' , num:0 , valid:false}
+    },
+
+  },
+
+  methods: {
+    update : function(troops_state){ //每回合更新 wall 資料
+    
+      
+      if(troops_state){ //一定一開遊戲就會呼叫，這時roads還是NLL，會出錯
+          
+          var dirs = Object.keys(this.troops);
+          for(var i = 0; i< dirs.length; i++){
+            var d = dirs[i];
+            this.troops[d].num = troops_state[d].amount;
+            this.troops[d].valid = troops_state[d].valid;
+           
+          }
+
+      }
+      
+    }
+  }
+
+
+
+})
+
+
+
+
+
+
+
+
+
+
+
 
 
 // "回合選擇行動"按鈕

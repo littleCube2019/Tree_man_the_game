@@ -252,7 +252,7 @@
 			socket.on("update_state", (env)=>{  //更新狀態
 				Env = env;
 				
-				
+				console.log(env.resource["wood"])
 				// 基本數值更新區
 				$("#round").text(env.round);
 				
@@ -363,18 +363,18 @@
 					}
 				
 					can_move = true;
-					if(troop_type == "archer" && Env.num_of_troop["archer"] > 0   ){
+					if(troop_type == "archer" && Env.troops_state["archer"].amount > 0   ){
 						action = new move_troop(troop_type,dir);
 						troop_name= "弓箭";
 						dir_name = direct_dic[dir];
 						
 					}
-					else if(troop_type == "armor" && Env.num_of_troop["armor"] > 0   ){
+					else if(troop_type == "armor" && Env.troops_state["armor"].amount > 0   ){
 						action = new move_troop(troop_type,dir);
 						troop_name="重甲步兵";
 						dir_name = direct_dic[dir];
 					}
-					else if(troop_type == "ranger" && Env.num_of_troop["ranger"] > 0  ){
+					else if(troop_type == "ranger" && Env.troops_state["ranger"].amount > 0  ){
 						action = new move_troop(troop_type,dir);
 						troop_name="騎兵";
 						dir_name = direct_dic[dir];

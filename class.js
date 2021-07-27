@@ -45,27 +45,42 @@ exports.Environment = class {
 
         //===========軍力&科技===================
         this.morale = 1; 
+
         this.troops_state = { 
-            "archer":{"valid":true, "amount":1},
-            "fire_archer":{"valid":false, "amount":0},
-            "catapult":{"valid":false, "amount":0},
+            
 
-            "armor":{"valid":true, "amount":0}, 
-            "heavy_armor":{"valid":false, "amount":0},
-            "archer_armor":{"valid":false, "amount":0},
+            "armor":{"valid":true, "level":0, "amount":0}, 
+            //"heavy_armor":{"valid":false, "amount":0},
+            //"archer_armor":{"valid":false, "amount":0},
 
-            "ranger":{"valid":true, "amount":0} ,
-            "heavy_ranger":{"valid":false, "amount":0},
-            "archer_ranger":{"valid":false, "amount":0}
+            "ranger":{"valid":true, "level":0, "amount":0} ,
+            //"heavy_ranger":{"valid":false, "amount":0},
+            //"archer_ranger":{"valid":false, "amount":0},
+
+            "archer":{"valid":true, "level":0, "amount":0},
+
+            "wizard":{"valid":false, "level":0, "amount":0},
         }
 
         this.RD = {
-            "wall_developments":{"level":0, "progress":0},
-            "armor_developments":{"level":0, "progress":0},
-            "defencer_developments":{"level":0, "progress":0},
+            "wall_upgrade":{
+                "N":{"level":0, "progress":0},
+                "E":{"level":0, "progress":0},
+                "W":{"level":0, "progress":0},
+                "S":{"level":0, "progress":0},
+            },
+
+            "defence_developments":{
+                "N":{"level":0, "progress":0},
+                "E":{"level":0, "progress":0},
+                "W":{"level":0, "progress":0},
+                "S":{"level":0, "progress":0},
+            },
+
+
+            "army_upgrade":{"all":{"level":0, "progress":0},},
         }
 
-        this.defence_army_direction = {"archer":"", "fire_archer":"", "catapult":""};
         //============================================
     }
 
@@ -90,6 +105,7 @@ class road{
       this.max_wallhp = 1000 ; //城牆最大血量 
       this.wallhp = 500;  //城牆血量
       this.direction = direction; //路的方向
+      this.defence = {"crossbow":true, "catapult":false}
       this.max_distance = 10;
       this.nearest_enemy = -1;
       this.farest_army = -1; 

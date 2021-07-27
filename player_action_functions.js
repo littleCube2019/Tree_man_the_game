@@ -11,30 +11,19 @@ var RD = require("./R&D").RD
 
 //招募部隊
 exports.recruit = function(Env, army_type){
-    if(army_type=="archer" || army_type=="fire_archer" || army_type=="catapult"){
-        for(var r in defender_data[army_type]["cost"]){
-            console.log(Env)
-            console.log(defender_data[army_type]["cost"][r])
-            Env.resource[r] -= defender_data[army_type]["cost"][r];
-        }
+
+    for(var r in army_data[army_type]["cost"]){
+        Env.resource[r] -= army_data[army_type]["cost"][r];
     }
-    else{
-        for(var r in army_data[army_type]["cost"]){
-            Env.resource[r] -= army_data[army_type]["cost"][r];
-        }
-    }
+
     Env.troops_state[army_type]["amount"] += 1;
 }
 
 //派出部隊前往指定方向
 exports.deployArmy = function(Env, army_type, dir){
-    if(army_type=="archer" || army_type=="fire_archer" || army_type=="catapult"){
-      Env.defence_army_direction[army_type] = dir;
-    }
-    else {
-      Env.roads[dir].army_location[0].push(new army(army_data[army_type]));
-      Env.troops_state[army_type]["amount"] -= 1;
-    }
+    var level = Env.troops_state[army_type]["level"]
+    Env.roads[dir].army_location[0].push(new army(army_data[army_type][level]));
+    Env.troops_state[army_type]["amount"] -= 1;
 }
 
 //修牆
@@ -69,16 +58,16 @@ exports.retreat = function(Env, dir, location, order){
 
 
 //研發
-exports.research = function(Env, research_type){
-	var research_speed = RD[research_type][Env.RD[research_type]["level"]].research_speed
-        var difficulty = RD[research_type][Env.RD[research_type]["level"]].difficulty
+exports.research = function(Env, research_type, dir){
+	    var research_speed = RD[research_type][Env.RD[research_type][dir]["level"]].research_speed
+        var difficulty = RD[research_type][Env.RD[research_type][dir]["progress"]].difficulty
         
-        if(Env.RD[research_type]["progress"] + research_speed >= difficulty){
-            RD[research_type][Env.RD[research_type]["level"]].research_done();
-            Env.RD[research_type]["progress"] = 0;
-            Env.RD[research_type]["level"] += 1;
+        if(Env.RD[research_type][dir]["progress"] + research_speed >= difficulty){
+            RD[research_type][Env.RD[research_type][dir]["level"]].research_done(Env, dir);
+            Env.RD[research_type][dir]["progress"] = 0;
+            Env.RD[research_type][dir]["level"] += 1;
         }
         else {
-            Env.RD[research_type]["progress"] += research_speed;
+            Env.RD[research_type][dir]["progress"] += research_speed;
         }
 }

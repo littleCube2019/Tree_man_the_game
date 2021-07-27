@@ -228,7 +228,7 @@ io.on('connection', (socket) => {
       //console.log("start game");
 
       //test
-      Env.wood += 5000;
+      Env.resource["wood"] += 5000;
 
      
 

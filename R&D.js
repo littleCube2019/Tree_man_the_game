@@ -2,7 +2,9 @@ var Env = require("./class").Environment
 
 
 exports.RD = {
-    "wall_developments":[
+
+    //強化城牆==========================
+    "wall_upgrade":[
         {
             "name":"加固木牆",
             "cost" : 1000,
@@ -10,11 +12,8 @@ exports.RD = {
             "research_speed" : Math.ceil(Math.random()*2),
 
     
-            research_done(){
-                var dir = ["W", "S", "N", "E"]
-                for(var d in dir){
-                    Env.roads[d].max_wallhp += 1000;
-                }
+            research_done(Env, dir){
+                Env.roads[dir].max_wallhp += 1000;
             }
         },
     
@@ -24,63 +23,55 @@ exports.RD = {
             "difficulty" : 5,
             "research_speed" : Math.ceil(Math.random()*2),
     
-            research_done(){
-                var dir = ["W", "S", "N", "E"]
-                for(var d in dir){
-                    Env.roads[d].max_wallhp += 2000;
-                }
+            research_done(Env, dir){
+                Env.roads[dir].max_wallhp += 2000;
             }
         },
     ],
 
-    "armor_developments":[
+    //研發防禦==================
+    "defence_developments":[
         {
-            "name":"重型裝甲",
-            "cost" : 500,
-            "difficulty" : 5,
-            "research_speed" : Math.ceil(Math.random()*3),
-
-            research_done(){
-                Env.troops_state["heavy_armor"]["valid"] = true;
-                Env.troops_state["heavy_ranger"]["valid"] = true;
-            }
-        },
-    
-        {
-            "name":"移動射擊",
+            "name":"弩炮",
             "cost" : 1000,
             "difficulty" : 10,
             "research_speed" : Math.ceil(Math.random()*3),
 
-            research_done(){
-                Env.troops_state["archer_armor"]["valid"] = true;
-                Env.troops_state["archer_ranger"]["valid"] = true;
+            research_done(Env, dir){
+                Env.roads[dir].defence["crossbow"] = true;
+            }
+        },
+
+        {
+            "name":"投石機",
+            "cost" : 1000,
+            "difficulty" : 10,
+            "research_speed" : Math.ceil(Math.random()*3),
+
+            research_done(Env, dir){
+                Env.roads[dir].defence["catapult"] = true;
             }
         },
     ],
 
-    "defencer_developments":[
+
+
+    //步兵升級=================
+    "armor_upgrade":[
         {
-            "name":"以知用火",
+            "name":"厚木裝甲",
             "cost" : 500,
             "difficulty" : 5,
             "research_speed" : Math.ceil(Math.random()*3),
 
-            research_done(){
-                Env.troops_state["fire_archer"]["valid"] = true;
+            research_done(Env, dir){
+                Env.troops_state["armor"]["level"] = 1;
             }
-        },
+        }
+    ],
 
-        {
-            "name":"重型器械",
-            "cost" : 1000,
-            "difficulty" : 10,
-            "research_speed" : Math.ceil(Math.random()*3),
-
-            research_done(){
-                Env.troops_state["fire_archer"]["valid"] = true;
-            }
-        },
-    ]
 }
+
+
+
 

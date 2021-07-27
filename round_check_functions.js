@@ -61,7 +61,14 @@ exports.enemyMove = function(Env, dir){
   
 //生成敵人(隨機)==================================
 exports.spawnEnemy = function(Env, dir, enemy, enemy_data){
-    var spawn_tree_man = Math.floor(Math.random()*100);
+    for(var enemy_type in enemy_data){
+        var spawn = Math.floor(Math.random()*100);
+		if(spawn < enemy_data[enemy_type]["spawn_prob"]*100){
+			Env.roads[dir].enemy_location[Env.roads[dir].max_distance-1].push(new enemy(enemy_data[enemy_type]));
+		}
+    }  
+	/*
+  	var spawn_tree_man = Math.floor(Math.random()*100);
     var spawn_big_tree_man = Math.floor(Math.random()*100);
     if(spawn_tree_man < enemy_data["tree_man"]["spawn_prob"]*100){ //0.2
         Env.roads[dir].enemy_location[Env.roads[dir].max_distance-1].push(new enemy(enemy_data["tree_man"]));
@@ -69,6 +76,7 @@ exports.spawnEnemy = function(Env, dir, enemy, enemy_data){
     if(spawn_big_tree_man < enemy_data["big_tree_man"]["spawn_prob"]*100 && Env.round>=10){ //0.05
         Env.roads[dir].enemy_location[Env.roads[dir].max_distance-1].push(new enemy(enemy_data["big_tree_man"]));
     }
+	*/
 }
 //=============================================
 

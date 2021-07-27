@@ -131,7 +131,7 @@ function player_action_handle(action){
     player_action_fn.retreat(Env, action.direction, action.location, action.order);
   }
   else if(action.type=="research"){
-    player_action_fn.research(Env, action.research_type);
+    player_action_fn.research(Env, action.research_type, action.direction);
   }
 }
 //===========================================

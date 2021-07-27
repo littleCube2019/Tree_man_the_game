@@ -128,11 +128,118 @@ var choose_basic = new Vue({
       ["choose_troop_move","調度軍隊"],
       ["choose_recruit_troop","招募士兵"],
       ["choose_repair_wall","修築城牆"],
+      ["choose_research","研發"],
+      ["choose_go_out","外出"],
       ["skip","跳過這回合"],
     ],
+  },
+
+  methods:{
+    choose_action: function (event) {
+      $("#choose_basic_action").hide();
+      
+     if(event.target.getAttribute("id")=="choose_troop_move"){
+        $("#move_troop").show();
+     }
+     
+     if(event.target.getAttribute("id")=="choose_recruit_troop"){
+     
+       $("#recruit_troop").show();
+     }
+     if(event.target.getAttribute("id")=="choose_repair_wall"){
+       $("#repair_wall").show();
+     }
+    
+     if(event.target.getAttribute("id")=="choose_scout"){
+       $("#scout").show();
+     }
+    
+     if(event.target.getAttribute("id")=="choose_research"){
+      $("#research").show();
+    }
+
+    if(event.target.getAttribute("id")=="choose_go_out"){
+      $("#scout").show();
+    }
+
+    $("#go-back").show();
+  }
   }
 
+
 })
+
+
+//"招募" 按鈕
+
+var recruit_troop = new Vue({
+  el: '#recruit_troop',
+  
+
+  data: {
+    troops:[
+      ["需要: 1000木頭 <br> 射程:遠距離 <br> 每隊攻擊力:100 <br> 移動能力:無 <br>承受傷害能力:無<br> 敘述:由平民組成的弓箭隊，準度不佳，\
+      但至少會拉弓，站在附近唯一高處的四面城牆上射擊，城牆倒下之前不會被消滅，木頭大部分用於製作木箭"
+      ,"archer",
+      "弓箭"],
+
+      ["需要: 500木頭 <br> 射程:近戰 <br> 每隊攻擊力:50 <br> 移動能力:日行1公里<br> 承受傷害能力:1000 <br> 敘述:由平民組成的步兵隊\
+      ，拿著草叉、斧頭...工具就出征了，你不相信他們能擊殺敵人，但相信他們能拖延敵人，木頭幾乎用在製作木製鎧甲","armor","重甲步兵"],
+      ["需要: 2000木頭 <br> 射程:近戰 <br> 每隊攻擊力:300 <br> 移動能力:日行3公里\
+      <br> 承受傷害能力:500 <br> 敘述:前帝國軍隊士兵組成，至少有基本的戰鬥技巧與騎術，還有之前留下的鏽跡斑斑的武器，木頭用在他們的軍餉與馬的飼料","ranger","騎兵"],
+
+      
+      
+    ],
+  },
+
+  methods:{
+    choose_action: function (event) {
+      $("#choose_basic_action").hide();
+      
+     if(event.target.getAttribute("id")=="choose_troop_move"){
+        $("#move_troop").show();
+     }
+     
+     if(event.target.getAttribute("id")=="choose_recruit_troop"){
+     
+       $("#recruit_troop").show();
+     }
+     if(event.target.getAttribute("id")=="choose_repair_wall"){
+       $("#repair_wall").show();
+     }
+    
+     if(event.target.getAttribute("id")=="choose_scout"){
+       $("#scout").show();
+     }
+    
+     if(event.target.getAttribute("id")=="choose_research"){
+      $("#research").show();
+    }
+
+    if(event.target.getAttribute("id")=="choose_go_out"){
+      $("#scout").show();
+    }
+
+    $("#go-back").show();
+  }
+  }
+
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // 方向選擇的 元件
@@ -141,7 +248,7 @@ Vue.component('button-direction', {
   template: '<button  :dir=item[0]>{{item[1]}}</button>'
 })
 
-
+// 對應到class要這樣寫
 var all_dir_btn = document.querySelectorAll(".dir_btn");
 var each = Array.prototype.forEach;
 each.call(all_dir_btn, (el, index) => new Vue({el,

@@ -28,6 +28,7 @@ var enemy_data = require("./troop").enemy_data
 // ========================== 環境 ========================================//  
 
 var Environment = require("./class.js").Environment
+var explore_environment = require("./class").explore_environment
 
 // ========================== 環境 end========================================//  
 
@@ -99,6 +100,7 @@ function chooseCharacter(id)
 
 //============遊戲開始========
 var Env = null;
+
 function newGame(){
   Env = new Environment();
 }
@@ -106,31 +108,31 @@ function newGame(){
 
 
 //============接收玩家操作指令===============
-var recruit = require("./player_action_functions").recruit
-var deployArmy = require("./player_action_functions").deployArmy
-var repairWall = require("./player_action_functions").repairWall
-var scout = require("./player_action_functions").scout
-var retreat = require("./player_action_functions").retreat
+var player_action_fn = require("./player_action_functions")
+
 
 function player_action_handle(action){
   console.log(action);
   if(action.type=='recruit'){
-    recruit(Env, action.troop_type);
+    player_action_fn.recruit(action.troop_type);
   }
   else if(action.type=='move_army'){
-    deployArmy(Env, action.troop_type, action.direction);
+    player_action_fn.deployArmy(action.troop_type, action.direction);
   }
   else if(action.type=='repair_wall'){
-    repairWall(Env, action.direction, action.unit);
+    player_action_fn.repairWall(action.direction, action.unit);
   }
   else if(action.type=='scout'){
     var scout_report = [];
-    scout_report = scout(Env, action.scout_dir);
+    scout_report = player_action_fn.scout(action.scout_dir);
     io.emit("scout_report", scout_report[0], scout_report[1], scout_report[2])
     console.log(scout_report)
   }
   else if(action.type=='retreat'){
-    retreat(Env, action.direction, action.location, action.order);
+    player_action_fn.retreat(action.direction, action.location, action.order);
+  }
+  else if(action.type=="research"){
+    player_action_fn.research(action.research_type);
   }
 }
 //===========================================
@@ -149,28 +151,24 @@ function roll_the_dice(range=100){
 
 //==========回合結束判定======================
 //回合結束會傳戰報(一天分，每條路獨立計算)
-var combat = require("./combat_functions").combat
-var combat_report_process = require("./combat_functions").combat_report_process
-var spawnEnemy = require("./round_check_functions").spawnEnemy
-var armyMove = require("./round_check_functions").armyMove
-var enemyMove = require("./round_check_functions").enemyMove
-var isGameover = require("./round_check_functions").isGameover
+var round_check_fn = require("./round_check_functions")
+var combat_fn = require("./combat_functions")
 function roundCheck(){
   var combat_report = [];
   var dir = ["N", "E", "W", "S"];
   for(var d=0; d<dir.length; d++){
-    spawnEnemy(Env, dir[d], enemy, enemy_data);
-    armyMove(Env, dir[d]);
-    enemyMove(Env, dir[d]);
-    combat(Env, dir[d], combat_report, defender_data);
+    round_check_fn.spawnEnemy(Env, dir[d], enemy, enemy_data);
+    round_check_fn.armyMove(Env, dir[d]);
+    round_check_fn.enemyMove(Env, dir[d]);
+    combat_fn.combat(Env, dir[d], combat_report, defender_data);
   }
-  reports = combat_report_process(Env, combat_report);
+  reports = combat_fn.combat_report_process(Env, combat_report);
   io.emit("combat_report", reports);
   //console.log(Env.roads);
   console.log("戰報:"+combat_report);
 
   io.emit("turn_end",roll_the_dice()); //告知user此回合結束，並傳一個機率結果給接收端,先於game over才不會鎖住player2的按鈕
-  if(isGameover(Env)){
+  if(round_check_fn.isGameover(Env)){
     io.emit("gameover")
     player_list = {}
     player1HasBeenChoosen = false;
@@ -178,7 +176,7 @@ function roundCheck(){
   }
 
   Env.round += 1;
-  Env.wood += 500;
+  Env.resource["wood"] += 500;
 }
 //=============================================
 

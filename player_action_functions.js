@@ -7,19 +7,19 @@ var enemy_data = require("./troop").enemy_data
 var army = require("./class.js").army
 var defender = require("./class.js").defender
 var enemy = require("./class.js").enemy
-var Env = require("./class").Environment
 var RD = require("./R&D").RD
 
 //招募部隊
-exports.recruit = function(army_type){
+exports.recruit = function(Env, army_type){
     if(army_type=="archer" || army_type=="fire_archer" || army_type=="catapult"){
         for(var r in defender_data[army_type]["cost"]){
-            
+            console.log(Env)
+            console.log(defender_data[army_type]["cost"][r])
             Env.resource[r] -= defender_data[army_type]["cost"][r];
         }
     }
     else{
-        for(var r in defender_data[army_type]["cost"]){
+        for(var r in army_data[army_type]["cost"]){
             Env.resource[r] -= army_data[army_type]["cost"][r];
         }
     }
@@ -27,7 +27,7 @@ exports.recruit = function(army_type){
 }
 
 //派出部隊前往指定方向
-exports.deployArmy = function(army_type, dir){
+exports.deployArmy = function(Env, army_type, dir){
     if(army_type=="archer" || army_type=="fire_archer" || army_type=="catapult"){
       Env.defence_army_direction[army_type] = dir;
     }
@@ -38,13 +38,13 @@ exports.deployArmy = function(army_type, dir){
 }
 
 //修牆
-exports.repairWall = function(direction, unit){
+exports.repairWall = function(Env, direction, unit){
     Env.resource["wood"] -= unit*100;
     Env.roads[direction].wallhp = Math.min(Env.roads[direction].wallhp+unit*100, Env.roads[direction].max_wallhp);
 }
 
 //偵查該方向最接近的敵人的位置和種類
-exports.scout = function(dir){
+exports.scout = function(Env, dir){
     var nearest_enemy = Env.roads[dir].nearest_enemy;
     var scout_report = []
     if(nearest_enemy!=-1){
@@ -61,7 +61,7 @@ exports.scout = function(dir){
 } 
 
 //撤退
-exports.retreat = function(dir, location, order){
+exports.retreat = function(Env, dir, location, order){
     var retreat_type = Env.roads[dir].army_location[location][order].type;
     Env.num_of_troop[retreat_type]["amount"] += 1;
     Env.roads[dir].enemy_location[location].splice(order, 1);
@@ -69,7 +69,7 @@ exports.retreat = function(dir, location, order){
 
 
 //研發
-exports.research = function(research_type){
+exports.research = function(Env, research_type){
 	var research_speed = RD[research_type][Env.RD[research_type]["level"]].research_speed
         var difficulty = RD[research_type][Env.RD[research_type]["level"]].difficulty
         

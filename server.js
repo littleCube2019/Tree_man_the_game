@@ -28,7 +28,6 @@ var enemy_data = require("./troop").enemy_data
 // ========================== 環境 ========================================//  
 
 var Environment = require("./class.js").Environment
-var explore_environment = require("./class").explore_environment
 
 // ========================== 環境 end========================================//  
 
@@ -114,25 +113,25 @@ var player_action_fn = require("./player_action_functions")
 function player_action_handle(action){
   console.log(action);
   if(action.type=='recruit'){
-    player_action_fn.recruit(action.troop_type);
+    player_action_fn.recruit(Env, action.troop_type);
   }
   else if(action.type=='move_army'){
-    player_action_fn.deployArmy(action.troop_type, action.direction);
+    player_action_fn.deployArmy(Env, action.troop_type, action.direction);
   }
   else if(action.type=='repair_wall'){
-    player_action_fn.repairWall(action.direction, action.unit);
+    player_action_fn.repairWall(Env, action.direction, action.unit);
   }
   else if(action.type=='scout'){
     var scout_report = [];
-    scout_report = player_action_fn.scout(action.scout_dir);
+    scout_report = player_action_fn.scout(Env, action.scout_dir);
     io.emit("scout_report", scout_report[0], scout_report[1], scout_report[2])
     console.log(scout_report)
   }
   else if(action.type=='retreat'){
-    player_action_fn.retreat(action.direction, action.location, action.order);
+    player_action_fn.retreat(Env, action.direction, action.location, action.order);
   }
   else if(action.type=="research"){
-    player_action_fn.research(action.research_type);
+    player_action_fn.research(Env, action.research_type);
   }
 }
 //===========================================
@@ -228,7 +227,6 @@ io.on('connection', (socket) => {
       //console.log("start game");
 
       //test
-      Env.resource["wood"] += 5000;
 
      
 

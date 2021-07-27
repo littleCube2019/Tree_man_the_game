@@ -252,7 +252,7 @@
 			socket.on("update_state", (env)=>{  //更新狀態
 				Env = env;
 				
-				
+				console.log(env.resource["wood"])
 				// 基本數值更新區
 				$("#round").text(env.round);
 				

@@ -101,7 +101,7 @@
 			socket.on("welcome",(player1HasBeenChoosen , player2HasBeenChoosen  )=>{ //when start,hide the main page to let player select charcters.
 						// 重新初始化
 						PLAYER_ID = 0;	
-						
+						$("#message div").remove()
 						$("#pl1").attr('disabled',false);
 						$("#pl2").attr('disabled',false);
 						$("#pl1").show();
@@ -460,7 +460,7 @@
 				// repair wall button ====================================================================
 				$(".repair_wall_dir ").click(function(e){
 					
-					WALL_DIR = e.target.getAttribute("Dir");;
+					WALL_DIR = e.target.getAttribute("dir");;
 			
 					// 計算可以修補的選項
 					if( Env.roads[WALL_DIR].wallhp == Env.roads[WALL_DIR].max_wallhp){
@@ -711,7 +711,7 @@
 
 	<!-- all buttons or something user interaction below-->
 	<!-- ==================================== -->
-	<div class="LEFT_BOTTOM">
+	<div class="LEFT_BOTTOM ">
 		
 			<div id="my_mission">操作</div>
 			
@@ -731,13 +731,17 @@
      
 
 			<!--  偵查  -->
-			<div class= "detail_choose" id = "scout"> 
+			<div class= "detail_choose dir_btn"   id = "scout" > 
 				<div>選擇偵查方向  </div>  
+		
+				<button-direction v-bind:item="direction" v-for="direction in directions" class="scout_dir "></button-direction>
+				
+				<!--
 				<div  > <button  class="scout_dir" Dir="E"  >東</button>  </div>
 				<div > <button class="scout_dir"  Dir="S"  >南</button> </div> 
 			    <div > <button  class="scout_dir"  Dir="W" >西</button>  </div>
 				<div > <button class="scout_dir"  Dir="N"  >北</button>  </div>
-			
+			    -->
 			
 			
 			</div>
@@ -750,13 +754,22 @@
 		
 
 			<!--  移動士兵-->
-			<div class= "detail_choose" id = "move_troop"> 
+			<div class= "detail_choose dir_btn" id = "move_troop"> 
 				<div>選擇移動兵種  </div>  
-				<div  class="troop_move_btn" v-for="item in items" :key="item.content"> 弓箭隊 <button class="troop_move" type="archer" dir="E">東 </button> <button class="troop_move" type="archer" dir="S">南 </button> <button class="troop_move" type="archer" dir="W" >西 </button> <button class="troop_move" type="archer" dir="N">北 </button></div>
-				<div  class="troop_move_btn" v-for="item in items" > 重甲步兵隊 <button class="troop_move" type="armor" dir="E">東 </button> <button class="troop_move" type="armor" dir="S">南 </button> <button class="troop_move" type="armor" dir="W"  >西 </button> <button class="troop_move" type="armor" dir="N">北 </button></div>
-			    <div  class="troop_move_btn" v-for="item in items"> 騎兵隊 <button class="troop_move" type="ranger" dir="E">東 </button> <button class="troop_move" type="ranger" dir="S">南 </button> <button class="troop_move" type="ranger" dir="W" >西 </button> <button class="troop_move" type="ranger" dir="N">北 </button></div> 
+				<div > 弓箭隊 
+					<button-direction v-bind:item="direction" v-for="direction in directions"  class="troop_move" type="archer" ></button-direction>
+					
+				</div>
+				<div class="dir_btn"   > 重甲步兵隊
+					<button-direction v-bind:item="direction" v-for="direction in directions"  class="troop_move" type="armor" ></button-direction>
+					
+				</div>
+			    <div class="dir_btn"  > 騎兵隊
+					<button-direction v-bind:item="direction" v-for="direction in directions"  class="troop_move" type="ranger" ></button-direction>
+				
+				</div>
 			</div>
-
+			
 
 
 			<!--   =======================================   -->
@@ -788,19 +801,13 @@
 			<!--   =======================================   -->			
 			
 			<!--   修城牆  -->
-			<div class= "detail_choose" id = "repair_wall">  
+			<div class= "detail_choose dir_btn" id = "repair_wall" >  
 				<div>選擇修補方向  </div>  
-				<div  > <button  class="repair_wall_dir " Dir="E"  >東</button>  </div>
-				<!-- 按下去就先選擇wall direction -->
+
+				<button-direction v-bind:item="direction" v-for="direction in directions"  class="repair_wall_dir "></button-direction>
 				
 
 
-				
-
-
-				<div > <button class="repair_wall_dir " Dir="S"  >南</button> </div> 
-			    <div > <button  class="repair_wall_dir " Dir="W" >西</button>  </div>
-				<div > <button class="repair_wall_dir " Dir="N"  >北</button>  </div>
 
 
 				<!---  這是一個彈出視窗，可以選擇城牆數量-->

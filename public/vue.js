@@ -85,14 +85,29 @@ var choose_basic = new Vue({
 })
 
 
+// 方向選擇的 元件
+Vue.component('button-direction', {
+  props:['item'] ,
+  template: '<button  :dir=item[0]>{{item[1]}}</button>'
+})
 
 
+var all_dir_btn = document.querySelectorAll(".dir_btn");
+var each = Array.prototype.forEach;
+each.call(all_dir_btn, (el, index) => new Vue({el,
+  data: {
+    directions:[
+      ["E","東"],
+      ["S","南"],
+      ["W","西"],
+      ["N","北"],
+    ]
+  }
+
+}))
 
 
-
-
-
-
+/*
 var app = new Vue({
   el: '#app',
   
@@ -111,3 +126,4 @@ var app = new Vue({
 
 
 })
+*/

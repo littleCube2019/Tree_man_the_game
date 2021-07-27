@@ -103,6 +103,7 @@ var Env = null;
 
 function newGame(){
   Env = new Environment();
+  console.log(defender_data)
 }
 //============================
 

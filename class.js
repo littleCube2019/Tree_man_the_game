@@ -8,28 +8,79 @@
    maxWallhp: int , 城牆最大血量
    round : int , 回合數 (天數)
    wood :  int , 當前樹木量
-   num_of_troop : object ， 目前記錄 城內 的兵種數目
+   morale : float, 士氣值 部隊傷害 = 士氣值*攻擊力
+   troops_state : object ， 目前記錄 城內 的兵種數目
    defence_army_direction: object，記錄防禦部隊面朝方向
 
 */
 exports.Environment = class {
     //環境變數
     constructor(){
-      this.roads = {
-          "E":new road("E") ,  
-          "S":new road("S") ,
-          "W":new road("W") ,
-          "N":new road("N") , 
-      }
-      
-      this.round = 1 ; 
-      this.wood = 500 ;
-      this.num_of_troop = { 
-          "archer":1 ,
-          "armor":0 , 
-          "ranger":0 ,
-      }
-      this.defence_army_direction = {"archer":""}; 
+        this.roads = {
+            "E":new road("E") ,  
+            "S":new road("S") ,
+            "W":new road("W") ,
+            "N":new road("N") , 
+        }
+        
+        this.round = 1 ; 
+        this.resource = {"wood":500} ;
+
+        //==探索地圖=============================
+        this.x = 11
+        this.y = 11
+        this.map = new Array(this.x)
+        for(var i=0; i<this.map.length; i++){
+            this.map[i] = new Array(this.y)
+        }
+        this.map[Math.floor(this.x/2)][Math.floor(this.y/2)] = "castle"
+
+        this.exployer_location = {"x":Math.floor(this.x/2), "y":Math.floor(this.y/2)};
+
+        this.resource_spot = {"wood":3, "shoe":1}
+        for(var resource_type in this.resource_spot){
+            this.create_resource_spot(resource_type)
+        }
+        //=======================================
+
+        //===========軍力&科技===================
+        this.morale = 1; 
+        this.troops_state = { 
+            "archer":{"valid":true, "amount":1},
+            "fire_archer":{"valid":false, "amount":0},
+            "catapult":{"valid":false, "amount":0},
+
+            "armor":{"valid":true, "amount":0}, 
+            "heavy_armor":{"valid":false, "amount":0},
+            "archer_armor":{"valid":false, "amount":0},
+
+            "ranger":{"valid":true, "amount":0} ,
+            "heavy_ranger":{"valid":false, "amount":0},
+            "archer_ranger":{"valid":false, "amount":0}
+        }
+
+        this.RD = {
+            "wall_developments":{"level":0, "progress":0},
+            "armor_developments":{"level":0, "progress":0},
+            "defencer_developments":{"level":0, "progress":0},
+        }
+
+        this.defence_army_direction = {"archer":"", "fire_archer":"", "catapult":""};
+        //============================================
+    }
+
+    create_resource_spot(resource_type){
+        for(var i=0; i<this.resource_spot[resource_type];){
+            var x = Math.floor(Math.random()*this.x)
+            var y = Math.floor(Math.random()*this.y)
+            if(this.map[x][y]==undefined && this.map[x][y]!="castle"){
+                this.map[x][y] = resource_type
+                i++
+            }
+        }
+    }
+    check(){
+        return this.map[this.exployer_location["x"]][this.exployer_location["y"]]
     }
 }
 
@@ -52,6 +103,11 @@ class road{
 }
 
 // ========================== 環境 end========================================//  
+
+
+
+
+
 
 
 // ====================單位"種類"樣版區 start =================================// 

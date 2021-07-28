@@ -95,7 +95,7 @@ exports.enemy_data = {
     "tree_man" : {
         "type" : "tree_man",
         "hp" : 600,
-        "attack" : 250,
+        "attack" : 50,
         "attack_range" : 0,
         "mobility" : 10,
         "spawn_prob" : 0.2,

@@ -222,7 +222,7 @@ io.on('connection', (socket) => {
       //====================
 
       newGame();
-      io.emit("start_game");
+      io.emit("start_game", Env, army_data, defender_data);
       io.emit("player_turn");
       //console.log("start game");
 

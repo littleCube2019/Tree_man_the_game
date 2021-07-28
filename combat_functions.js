@@ -91,7 +91,7 @@ exports.combat = function(Env, dir, total_report, defender_data){
       }
 
       for(var defence_type in Env.roads[dir].defence){
-        if(Env.roads[dir].defence[defence_type] && nearest_enemy<=defender_data[defence_type]["attack_range"]){
+        if(Env.roads[dir].defence[defence_type]["valid"] && nearest_enemy<=defender_data[defence_type]["attack_range"]){
 			defence_attack += defender_data[defence_type]["attack"];
 		}
       }

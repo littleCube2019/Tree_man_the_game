@@ -36,9 +36,10 @@ exports.RD = {
             "cost" : 1000,
             "difficulty" : 10,
             "research_speed" : Math.ceil(Math.random()*3),
+            "msg":"研發要顯示的東西",
 
             research_done(Env, dir){
-                Env.roads[dir].defence["crossbow"] = true;
+                Env.roads[dir].defence["crossbow"]["valid"] = true;
             }
         },
 
@@ -49,7 +50,7 @@ exports.RD = {
             "research_speed" : Math.ceil(Math.random()*3),
 
             research_done(Env, dir){
-                Env.roads[dir].defence["catapult"] = true;
+                Env.roads[dir].defence["catapult"]["valid"] = true;
             }
         },
     ],

@@ -248,7 +248,15 @@
 				addMessage("趁著空檔帝國後勤隊為你運來了500木頭");
 			})
 			//========  ==============================================================================	
+			
+			socket.on("update_troop_info" , (troop)=>{
+
+
+			})	
+			
+			
 			// 每一回和更新使用者的狀態
+
 			socket.on("update_state", (env)=>{  //更新狀態
 				Env = env;
 				
@@ -311,34 +319,7 @@
 				
 				
 				
-				$("#choose_troop_move").click(()=>{
-					 $("#choose_basic_action").hide();
-					 $("#move_troop").show();
-					 $("#go-back").show();
-				}
-				)
-
-				$("#choose_recruit_troop").click(()=>{
-					$("#choose_basic_action").hide();
-					$("#recruit_troop").show();
-					$("#go-back").show();
-
-				})
 				
-				$("#choose_repair_wall").click(()=>{
-					$("#choose_basic_action").hide();
-					$("#repair_wall").show();
-					$("#go-back").show();
-    
-				})
-	            
-				$("#choose_scout").click(()=>{
-					$("#choose_basic_action").hide();
-					$("#scout").show();
-					$("#go-back").show();
-    
-				})
-
 
 				$("#go-back ").click(()=>{
 					$(".detail_choose").hide();
@@ -477,7 +458,7 @@
 
 
 				})
-
+				
 				$("#submit_repair_wall").click(()=>{
 					
 					var repair_value = parseInt(document.getElementById("repair_wall_select").value); //repair value, 是以個位數為單位(要記得*100)
@@ -505,7 +486,53 @@
 			
 
 
+				
 				//========  ==============================================================================	
+				
+				// skip  =================================================================================
+				$(".research_choose ").click(function(e){
+					
+					var research_type = e.target.getAttribute("research_type");
+					var dir = e.target.getAttribute("dir");;
+					var research_name = "沒有";
+					class research {
+						constructor(research_type="None" , dir="all"){
+							this.type ='research';
+							this.research_type = research_type;
+							this.direction = dir;
+						}
+					}
+					can_research = true;
+					// 看條件
+					if(research_type == "wall_upgrade" && Env.resource["wood"] >= 1000  ){
+						action = new research(research_type,dir);
+						research_name= "城牆加固";
+						
+					}
+					else if(research_type == "defence_developments" && Env.resource["wood"] >= 500  ){
+						action = new research(research_type);
+						research_name="防禦工事";
+					}
+					else if(research_type == "armor_upgrade" && Env.resource["wood"] >= 2000 ){
+						action = new research(research_type);
+						research_name="厚木裝甲";
+					}
+					else{
+						Alert(text="木頭不足研究");
+						can_research=false;
+					}
+					
+					if(can_research){
+						var msg = "你開始研究了"+research_name+"!";
+						socket.emit("action_done" , PLAYER_ID , action,msg);
+					}
+				}
+
+
+				)
+				
+				//========  ==============================================================================	 
+				
 				// skip  =================================================================================
 				$("#skip").click(function(e){
 					class skip {
@@ -677,9 +704,9 @@
 							<path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
 						  </svg>
 					</button>
-
-				<div v-for="(troop,name) in troops">
-					<div v-if="troop.valid">{{troop.name}}隊:    <span > {{troop.num}} </span>    隊         </div>
+				
+				<div >
+					<div v-for="(troop,name) in troops" v-if="troop.valid">{{troop.name}}隊:    <span > {{troop.num}} </span>    隊         </div>
 				</div>
 
 				</div>
@@ -721,8 +748,10 @@
 			<!--  基本操作  -->
 			<div id = "choose_basic_action">
 			你這回合選擇
+			<!-- Vue : choose_basic-->
 			<div v-for="content in contents">
-			<button class="choice_button btn btn-dark"   v-bind:id="content[0]">{{content[1]}}</button>
+			
+			<button class="choice_button btn btn-dark"   v-bind:id="content[0]" v-on:click="choose_action">{{content[1]}}</button>
 			</div>
 		
 		    </div>
@@ -731,23 +760,15 @@
 			<!--  偵查  -->
 			<div class= "detail_choose dir_btn"   id = "scout" > 
 				<div>選擇偵查方向  </div>  
-		
+				<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn-->
 				<button-direction v-bind:item="direction" v-for="direction in directions" class="scout_dir "></button-direction>
-				
-				<!--
-				<div  > <button  class="scout_dir" Dir="E"  >東</button>  </div>
-				<div > <button class="scout_dir"  Dir="S"  >南</button> </div> 
-			    <div > <button  class="scout_dir"  Dir="W" >西</button>  </div>
-				<div > <button class="scout_dir"  Dir="N"  >北</button>  </div>
-			    -->
-			
-			
+
 			</div>
 			<!--   =======================================   -->		
 
-
 		
-			<!--   =======================================   -->
+		
+			
 			
 		
 
@@ -755,14 +776,17 @@
 			<div class= "detail_choose dir_btn" id = "move_troop"> 
 				<div>選擇移動兵種  </div>  
 				<div > 弓箭隊 
+					<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn-->
 					<button-direction v-bind:item="direction" v-for="direction in directions"  class="troop_move" type="archer" ></button-direction>
 					
 				</div>
 				<div class="dir_btn"   > 重甲步兵隊
+					<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn-->
 					<button-direction v-bind:item="direction" v-for="direction in directions"  class="troop_move" type="armor" ></button-direction>
 					
 				</div>
 			    <div class="dir_btn"  > 騎兵隊
+					<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn-->
 					<button-direction v-bind:item="direction" v-for="direction in directions"  class="troop_move" type="ranger" ></button-direction>
 				
 				</div>
@@ -775,34 +799,31 @@
 
 
 			<!--  招募士兵  -->
-			<div class= "detail_choose" id = "recruit_troop"> 
+			<div class= "detail_choose" id = "recruit_troop" > 
 				<div>選擇招募兵種  </div>  
+				
+				<div v-for="troop in troops">
 				<div  > 
-					<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" title="需要: 1000木頭 <br> 射程:遠距離 <br> 每隊攻擊力:100 <br> 移動能力:無 <br>承受傷害能力:無<br> 敘述:由平民組成的弓箭隊，準度不佳，但至少會拉弓，站在附近唯一高處的四面城牆上射擊，城牆倒下之前不會被消滅，木頭大部分用於製作木箭"   id="archer" >弓箭隊</button>   
-				   
-				
+				<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" :title="description(troop[0])"   :id="troop[1]" >{{troop[2]}}隊</button>   
+					   
 				</div>
 				<br>
-				<div > 
-					<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" title="需要: 500木頭 <br> 射程:近戰 <br> 每隊攻擊力:50 <br> 移動能力:日行1公里<br> 承受傷害能力:1000 <br> 敘述:由平民組成的步兵隊，拿著草叉、斧頭...工具就出征了，你不相信他們能擊殺敵人，但相信他們能拖延敵人，木頭幾乎用在製作木製鎧甲" id="armor" >重甲步兵隊</button>  
-				
 				</div>
-				<br>
-			    <div > 
-					<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right"  data-html="true" title="需要: 2000木頭 <br> 射程:近戰 <br> 每隊攻擊力:300 <br> 移動能力:日行3公里<br> 承受傷害能力:500 <br> 敘述:前帝國軍隊士兵組成，至少有基本的戰鬥技巧與騎術，還有之前留下的鏽跡斑斑的武器，木頭用在他們的軍餉與馬的飼料"  id="ranger"> 騎兵隊 </button>  
 				
-				</div>
-				<br>
-			
-			
+
+
 			</div>
+		
+			
+			
+			
 			<!--   =======================================   -->			
 			
 			<!--   修城牆  -->
 			<div class= "detail_choose dir_btn" id = "repair_wall" >  
-				<div>選擇修補方向  </div>  
-
-				<button-direction v-bind:item="direction" v-for="direction in directions"  class="repair_wall_dir "></button-direction>
+				<div >選擇修補方向  </div>  
+				<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn-->
+				<button-direction v-bind:item="direction" v-for="direction in directions"  class="repair_wall_dir"></button-direction>
 				
 
 
@@ -839,14 +860,52 @@
 
 
 			</div>
+			<!--   =======================================   -->		
+
+			<!--   研究  -->
+			<div class= "detail_choose" id="research">
 			
+			<div v-for="r in researchs" >
+				<div  v-if="r[3]==false" > 
+				<button  type="button" class="btn btn-danger research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]"  >{{r[2]}}</button>   
+						   
+				</div>
+
+				<div  v-else >
+				{{r[2]}}
+				<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn  ，如果已經被綁定了，就把directions加入data-->
+				<button-direction v-bind:item="direction" v-for="direction in directions"  class="research_choose" :research_type="r[1]" ></button-direction>
+				</div>
+			</div>
+			</div>
+			<!--   =======================================   -->	
+
+
+
+
+			<!--   外出  -->
+			<div class= "detail_choose" id="go_out">
 			
+				<div >
+					施工中
+				</div>
+			</div>
+				<!--   =======================================   -->	
+
+
+
+
+
+
+
+			
+
 			<button class="detail_choose" , id="go-back"> 返回</button>
 			<!--   =======================================   -->
 			
 
 
-
+		</div>
 	</div>
 
 	</div>

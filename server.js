@@ -111,28 +111,31 @@ var player_action_fn = require("./player_action_functions")
 
 
 function player_action_handle(action){
-  console.log(action);
-  if(action.type=='recruit'){
-    player_action_fn.recruit(Env, action.troop_type);
-  }
-  else if(action.type=='move_army'){
-    player_action_fn.deployArmy(Env, action.troop_type, action.direction);
-  }
-  else if(action.type=='repair_wall'){
-    player_action_fn.repairWall(Env, action.direction, action.unit);
-  }
-  else if(action.type=='scout'){
-    var scout_report = [];
-    scout_report = player_action_fn.scout(Env, action.scout_dir);
-    io.emit("scout_report", scout_report[0], scout_report[1], scout_report[2])
-    console.log(scout_report)
-  }
-  else if(action.type=='retreat'){
-    player_action_fn.retreat(Env, action.direction, action.location, action.order);
-  }
-  else if(action.type=="research"){
-    player_action_fn.research(Env, action.research_type, action.direction);
-  }
+	console.log(action);
+	if(action.type=='recruit'){
+		player_action_fn.recruit(Env, action.troop_type);
+	}
+	else if(action.type=='move_army'){
+		player_action_fn.deployArmy(Env, action.troop_type, action.direction);
+	}
+	else if(action.type=='repair_wall'){
+		player_action_fn.repairWall(Env, action.direction, action.unit);
+	}
+	else if(action.type=='scout'){
+		var scout_report = [];
+		scout_report = player_action_fn.scout(Env, action.scout_dir);
+		io.emit("scout_report", scout_report[0], scout_report[1], scout_report[2])
+		console.log(scout_report)
+	}
+	else if(action.type=='retreat'){
+		player_action_fn.retreat(Env, action.direction, action.location, action.order);
+	}
+	else if(action.type=="research"){
+		var report = {}
+		report = player_action_fn.research(Env, action.research_type, action.direction);
+		io.emit("research_report", report)
+		console.log(report)
+	}
 }
 //===========================================
 
@@ -159,12 +162,12 @@ function roundCheck(){
     round_check_fn.spawnEnemy(Env, dir[d], enemy, enemy_data);
     round_check_fn.armyMove(Env, dir[d]);
     round_check_fn.enemyMove(Env, dir[d]);
-    combat_fn.combat(Env, dir[d], combat_report, defender_data);
+    combat_fn.combat(Env, dir[d], combat_report, defender_data)
   }
   reports = combat_fn.combat_report_process(Env, combat_report);
   io.emit("combat_report", reports);
   //console.log(Env.roads);
-  console.log("戰報:"+combat_report);
+  //console.log("戰報:"+combat_report);
 
   io.emit("turn_end",roll_the_dice()); //告知user此回合結束，並傳一個機率結果給接收端,先於game over才不會鎖住player2的按鈕
   if(round_check_fn.isGameover(Env)){

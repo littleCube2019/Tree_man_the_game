@@ -45,7 +45,7 @@ exports.Environment = class {
 
         //===========軍力&科技===================
         this.morale = 1; 
-
+        
         this.troops_state = { 
             
 
@@ -105,9 +105,10 @@ class road{
         this.max_wallhp = 1000 ; //城牆最大血量 
         this.wallhp = 500;  //城牆血量
         this.direction = direction; //路的方向
-        this.defence = {  "crossbow":{"valid":false}, 
-                            "catapult":{"valid":false},
-                        }
+        this.defence = {    
+            "crossbow":{"valid":false}, 
+            "catapult":{"valid":false},
+        }
         this.max_distance = 10;
         this.nearest_enemy = -1;
         this.farest_army = -1; 

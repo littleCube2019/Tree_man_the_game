@@ -9,7 +9,7 @@ exports.RD = {
             "name":"加固木牆",
             "cost" : 1000,
             "difficulty" : 3,
-            "research_speed" : Math.ceil(Math.random()*2),
+            "max_research_speed" : 2,
 
     
             research_done(Env, dir){
@@ -21,7 +21,7 @@ exports.RD = {
             "name":"雙層木牆",
             "cost" : 1500,
             "difficulty" : 5,
-            "research_speed" : Math.ceil(Math.random()*2),
+            "max_research_speed" : 2,
     
             research_done(Env, dir){
                 Env.roads[dir].max_wallhp += 2000;
@@ -35,7 +35,7 @@ exports.RD = {
             "name":"弩炮",
             "cost" : 1000,
             "difficulty" : 10,
-            "research_speed" : Math.ceil(Math.random()*3),
+            "max_research_speed" : 3,
             "msg":"研發要顯示的東西",
 
             research_done(Env, dir){
@@ -47,7 +47,7 @@ exports.RD = {
             "name":"投石機",
             "cost" : 1000,
             "difficulty" : 10,
-            "research_speed" : Math.ceil(Math.random()*3),
+            "max_research_speed" : 3,
 
             research_done(Env, dir){
                 Env.roads[dir].defence["catapult"]["valid"] = true;
@@ -63,7 +63,7 @@ exports.RD = {
             "name":"厚木裝甲",
             "cost" : 500,
             "difficulty" : 5,
-            "research_speed" : Math.ceil(Math.random()*3),
+            "max_research_speed" : 3,
 
             research_done(Env, dir){
                 Env.troops_state["armor"]["level"] = 1;

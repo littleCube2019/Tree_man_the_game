@@ -78,7 +78,7 @@ exports.Environment = class {
             },
 
 
-            "army_upgrade":{"all":{"level":0, "progress":0},},
+            "armor_upgrade":{"all":{"level":0, "progress":0},},
         }
 
         //============================================

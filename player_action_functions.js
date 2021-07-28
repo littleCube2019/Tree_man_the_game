@@ -59,15 +59,14 @@ exports.retreat = function(Env, dir, location, order){
 
 //研發
 exports.research = function(Env, research_type, dir){
+        console.log(RD[research_type][Env.RD[research_type][dir]["level"]])
 	    var research_speed = RD[research_type][Env.RD[research_type][dir]["level"]].research_speed
-        var difficulty = RD[research_type][Env.RD[research_type][dir]["progress"]].difficulty
+        var difficulty = RD[research_type][Env.RD[research_type][dir]["level"]].difficulty
         
-        if(Env.RD[research_type][dir]["progress"] + research_speed >= difficulty){
+        Env.RD[research_type][dir]["progress"] += research_speed;
+        if(Env.RD[research_type][dir]["progress"] >= difficulty){
             RD[research_type][Env.RD[research_type][dir]["level"]].research_done(Env, dir);
             Env.RD[research_type][dir]["progress"] = 0;
             Env.RD[research_type][dir]["level"] += 1;
-        }
-        else {
-            Env.RD[research_type][dir]["progress"] += research_speed;
         }
 }

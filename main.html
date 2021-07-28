@@ -249,7 +249,10 @@
 			})
 			//========  ==============================================================================	
 			
-	
+			socket.on("update_troop_info" , (troop)=>{
+
+
+			})	
 			
 			
 			// 每一回和更新使用者的狀態
@@ -455,7 +458,7 @@
 
 
 				})
-
+				
 				$("#submit_repair_wall").click(()=>{
 					
 					var repair_value = parseInt(document.getElementById("repair_wall_select").value); //repair value, 是以個位數為單位(要記得*100)
@@ -483,7 +486,53 @@
 			
 
 
+				
 				//========  ==============================================================================	
+				
+				// skip  =================================================================================
+				$(".research_choose ").click(function(e){
+					
+					var research_type = e.target.getAttribute("research_type");
+					var dir = e.target.getAttribute("dir");;
+					var research_name = "沒有";
+					class research {
+						constructor(research_type="None" , dir="all"){
+							this.type ='research';
+							this.research_type = research_type;
+							this.direction = dir;
+						}
+					}
+					can_research = true;
+					// 看條件
+					if(research_type == "wall_upgrade" && Env.resource["wood"] >= 1000  ){
+						action = new research(research_type,dir);
+						research_name= "城牆加固";
+						
+					}
+					else if(research_type == "defence_developments" && Env.resource["wood"] >= 500  ){
+						action = new research(research_type);
+						research_name="防禦工事";
+					}
+					else if(research_type == "armor_upgrade" && Env.resource["wood"] >= 2000 ){
+						action = new research(research_type);
+						research_name="厚木裝甲";
+					}
+					else{
+						Alert(text="木頭不足研究");
+						can_research=false;
+					}
+					
+					if(can_research){
+						var msg = "你開始研究了"+research_name+"!";
+						socket.emit("action_done" , PLAYER_ID , action,msg);
+					}
+				}
+
+
+				)
+				
+				//========  ==============================================================================	 
+				
 				// skip  =================================================================================
 				$("#skip").click(function(e){
 					class skip {
@@ -717,7 +766,7 @@
 			</div>
 			<!--   =======================================   -->		
 
-
+		
 		
 			
 			
@@ -755,7 +804,7 @@
 				
 				<div v-for="troop in troops">
 				<div  > 
-				<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" :title="troop[0]"   :id="troop[1]" >{{troop[2]}}隊</button>   
+				<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" :title="description(troop[0])"   :id="troop[1]" >{{troop[2]}}隊</button>   
 					   
 				</div>
 				<br>
@@ -764,17 +813,17 @@
 
 
 			</div>
-			<br>
+		
 			
 			
-			</div>
+			
 			<!--   =======================================   -->			
 			
 			<!--   修城牆  -->
 			<div class= "detail_choose dir_btn" id = "repair_wall" >  
-				<div>選擇修補方向  </div>  
+				<div >選擇修補方向  </div>  
 				<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn-->
-				<button-direction v-bind:item="direction" v-for="direction in directions"  class="repair_wall_dir "></button-direction>
+				<button-direction v-bind:item="direction" v-for="direction in directions"  class="repair_wall_dir"></button-direction>
 				
 
 
@@ -811,13 +860,43 @@
 
 
 			</div>
-			<br>
+			<!--   =======================================   -->		
 
+			<!--   研究  -->
 			<div class= "detail_choose" id="research">
+			
+			<div v-for="r in researchs" >
+				<div  v-if="r[3]==false" > 
+				<button  type="button" class="btn btn-danger research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]"  >{{r[2]}}</button>   
+						   
+				</div>
 
-
+				<div  v-else >
+				{{r[2]}}
+				<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn  ，如果已經被綁定了，就把directions加入data-->
+				<button-direction v-bind:item="direction" v-for="direction in directions"  class="research_choose" :research_type="r[1]" ></button-direction>
+				</div>
 			</div>
-			<br>
+			</div>
+			<!--   =======================================   -->	
+
+
+
+
+			<!--   外出  -->
+			<div class= "detail_choose" id="go_out">
+			
+				<div >
+					施工中
+				</div>
+			</div>
+				<!--   =======================================   -->	
+
+
+
+
+
+
 
 			
 
@@ -826,7 +905,7 @@
 			
 
 
-
+		</div>
 	</div>
 
 	</div>

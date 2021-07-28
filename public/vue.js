@@ -159,7 +159,7 @@ var choose_basic = new Vue({
     }
 
     if(event.target.getAttribute("id")=="choose_go_out"){
-      $("#scout").show();
+      $("#go_out").show();
     }
 
     $("#go-back").show();
@@ -177,52 +177,56 @@ var recruit_troop = new Vue({
   
 
   data: {
+    
     troops:[
-      ["需要: 1000木頭 <br> 射程:遠距離 <br> 每隊攻擊力:100 <br> 移動能力:無 <br>承受傷害能力:無<br> 敘述:由平民組成的弓箭隊，準度不佳，\
-      但至少會拉弓，站在附近唯一高處的四面城牆上射擊，城牆倒下之前不會被消滅，木頭大部分用於製作木箭"
-      ,"archer",
-      "弓箭"],
+      [0,"archer","弓箭"],
 
-      ["需要: 500木頭 <br> 射程:近戰 <br> 每隊攻擊力:50 <br> 移動能力:日行1公里<br> 承受傷害能力:1000 <br> 敘述:由平民組成的步兵隊\
-      ，拿著草叉、斧頭...工具就出征了，你不相信他們能擊殺敵人，但相信他們能拖延敵人，木頭幾乎用在製作木製鎧甲","armor","重甲步兵"],
-      ["需要: 2000木頭 <br> 射程:近戰 <br> 每隊攻擊力:300 <br> 移動能力:日行3公里\
-      <br> 承受傷害能力:500 <br> 敘述:前帝國軍隊士兵組成，至少有基本的戰鬥技巧與騎術，還有之前留下的鏽跡斑斑的武器，木頭用在他們的軍餉與馬的飼料","ranger","騎兵"],
+      [1,"armor","重甲步兵"],
 
-      
-      
+      [2,"ranger","騎兵"],
+
     ],
+    
+    state:{
+      "archer":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
+      "armor":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
+      "ranger":{"hp":1 ,"attack":555 , "cost":3 , "move":4 ,"range":5 },
+
+    }
+    
+  },
+  computed: {
+
+
+
+  },
+  methods:{
+    
+
+  update_troop: function(troops){
+
   },
 
-  methods:{
-    choose_action: function (event) {
-      $("#choose_basic_action").hide();
-      
-     if(event.target.getAttribute("id")=="choose_troop_move"){
-        $("#move_troop").show();
-     }
-     
-     if(event.target.getAttribute("id")=="choose_recruit_troop"){
-     
-       $("#recruit_troop").show();
-     }
-     if(event.target.getAttribute("id")=="choose_repair_wall"){
-       $("#repair_wall").show();
-     }
-    
-     if(event.target.getAttribute("id")=="choose_scout"){
-       $("#scout").show();
-     }
-    
-     if(event.target.getAttribute("id")=="choose_research"){
-      $("#research").show();
+  description: function(n){
+    if(n==0){
+      return "需要: "+this.state["archer"]["cost"]+"木頭 <br> 射程:"+this.state["archer"]["range"]+"公里 <br> 每隊攻擊力:"+this.state["archer"]["attack"]+"<br> 移動能力:日行"+this.state["archer"]["move"]+"公里<br>承受傷害能力:"+this.state["archer"]["hp"]+"<br> 敘述:由平民組成的弓箭隊，準度不佳，\
+      但至少會拉弓，木頭大部分用於製作木箭"
     }
 
-    if(event.target.getAttribute("id")=="choose_go_out"){
-      $("#scout").show();
+    else if(n==1){
+      return "需要: "+this.state["armor"]["cost"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["armor"]["attack"]+" <br> 移動能力:日行"+this.state["armor"]["move"]+"公里<br> 承受傷害能力:"+this.state["armor"]["hp"]+" <br> 敘述:由平民組成的步兵隊\
+      ，拿著草叉、斧頭...工具就出征了，你不相信他們能擊殺敵人，但相信他們能拖延敵人，木頭幾乎用在製作木製鎧甲"
+      }
+    
+    else if(n==2){
+      return "需要: "+this.state["ranger"]["cost"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["ranger"]["attack"]+" <br> 移動能力:日行"+this.state["ranger"]["move"]+"公里\
+      <br> 承受傷害能力:"+this.state["ranger"]["hp"]+" <br> 敘述:前帝國軍隊士兵組成，至少有基本的戰鬥技巧與騎術，還有之前留下的鏽跡斑斑的武器，木頭用在他們的軍餉與馬的飼料"
+
     }
 
-    $("#go-back").show();
+
   }
+
   }
 
 
@@ -230,7 +234,46 @@ var recruit_troop = new Vue({
 
 
 
+//"研究" 按鈕
 
+var research = new Vue({
+  el: '#research',
+
+  data: {
+    
+    researchs:[
+      // [ number , id , name , isDir ]
+      [0,"wall_upgrade","城牆加固" , true],
+
+      [1,"defence_developments","防禦工事" , true],
+
+      [2,"armor_upgrade","厚木裝甲" , false],
+
+    ],
+    directions:[
+      ["E","東"],
+      ["S","南"],
+      ["W","西"],
+      ["N","北"],
+    ]
+    /*
+    state:{
+      "archer":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
+      "armor":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
+      "ranger":{"hp":1 ,"attack":555 , "cost":3 , "move":4 ,"range":5 },
+
+    }
+    */
+  },
+
+  methods:{
+    Click: function(event){
+
+       
+      }
+    }
+  }
+)
 
 
 
@@ -262,6 +305,9 @@ each.call(all_dir_btn, (el, index) => new Vue({el,
   }
 
 }))
+
+
+
 
 
 /*

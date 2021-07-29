@@ -242,12 +242,13 @@ var research = new Vue({
   data: {
     
     researchs:[
-      // [ number , id , name , isDir ]
+      // [ number , id , name , isDir   ]
+      // 未來會像troop一樣處理 ， name ==> level
       [0,"wall_upgrade","城牆加固" , true],
 
       [1,"defence_developments","防禦工事" , true],
 
-      [2,"armor_upgrade","厚木裝甲" , false],
+      [2,"armor_upgrade","士兵升級" , false],
 
     ],
     directions:[
@@ -255,23 +256,30 @@ var research = new Vue({
       ["S","南"],
       ["W","西"],
       ["N","北"],
-    ]
-    /*
-    state:{
-      "archer":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
-      "armor":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
-      "ranger":{"hp":1 ,"attack":555 , "cost":3 , "move":4 ,"range":5 },
+    ],
+    
+    level:{
+      "wall_upgrade":{ "E":1 , "S":1 , "W":2 ,"N":1},
+      "defence_developments":{ "E":1 , "S":2 , "W":1 ,"N":1},
+      "armor_upgrade":{"all":1},
+    },
 
+    name:{
+      "wall_upgrade" : {1:"加固木牆" , 2: "雙重木牆"},
+      "defence_developments":{1:"駐城弩隊" , 2:"守城投石機"},
+      "armor_upgrade" : {1:"厚木甲"}
     }
-    */
+   
   },
 
   methods:{
     Click: function(event){
-
-       
-      }
+          
+      },
+    Name: function(id , dir){
+      return this.name[id][this.level[id][dir]];
     }
+  }
   }
 )
 

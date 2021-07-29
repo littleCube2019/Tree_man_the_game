@@ -55,7 +55,7 @@
 						"S" : "南",
 						"W" : "西",
 						"N" : "北"
-					}
+			}
 			
 			
 
@@ -865,17 +865,23 @@
 			<!--   研究  -->
 			<div class= "detail_choose" id="research">
 			
-			<div v-for="r in researchs" >
+			<div style=" height:20%;"  v-for="r in researchs"  >
 				<div  v-if="r[3]==false" > 
-				<button  type="button" class="btn btn-danger research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]"  >{{r[2]}}</button>   
+				{{r[2]}}
+				<br>
+				<button  type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]" dir="all"  >{{Name(r[1],"all")}}</button>   
 						   
 				</div>
 
-				<div  v-else >
+				<div  v-else  >
 				{{r[2]}}
-				<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn  ，如果已經被綁定了，就把directions加入data-->
-				<button-direction v-bind:item="direction" v-for="direction in directions"  class="research_choose" :research_type="r[1]" ></button-direction>
+				<br>
+				<div class="research_dir" v-for="direction in directions">
+				{{direction[1]}}
+				<button  type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]"  :dir=direction[0] >{{Name(r[1],direction[0])}}</button>  
+				</div> 
 				</div>
+				
 			</div>
 			</div>
 			<!--   =======================================   -->	
@@ -890,7 +896,7 @@
 					施工中
 				</div>
 			</div>
-				<!--   =======================================   -->	
+			<!--   =======================================   -->	
 
 
 

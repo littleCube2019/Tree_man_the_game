@@ -232,7 +232,63 @@ var recruit_troop = new Vue({
 
 })
 
+// troop_move
+var move_troop = new Vue({
+  el: '#move_troop',
+  
 
+  data: {
+      //[id , type , name ]
+    troops:[
+      [0,"archer","弓箭"],
+
+      [1,"armor","重甲步兵"],
+
+      [2,"ranger","騎兵"],
+
+    ],
+    
+    state:{
+      "archer":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
+      "armor":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
+      "ranger":{"hp":1 ,"attack":555 , "cost":3 , "move":4 ,"range":5 },
+
+    },
+    directions:[
+      ["E","東"],
+      ["S","南"],
+      ["W","西"],
+      ["N","北"],
+    ],
+    type : 1,
+    type_name :"派出軍隊",
+  },
+  computed: {
+
+
+
+  },
+  methods:{
+    
+
+  update_troop: function(troops){
+    
+  },
+
+  updateRangeValue: function(event){
+    this.type = event.target.value;
+    if(this.type == 1){
+      this.type_name = "派出軍隊";
+    }
+    else if(this.type ==2){
+      this.type_name = "通知軍隊撤退";
+    }
+  }
+
+  }
+
+
+})
 
 //"研究" 按鈕
 

@@ -19,6 +19,7 @@ app.use(express.static('public'));
 var army_data = require("./troop").army_data
 var defender_data = require("./troop").defender_data
 var enemy_data = require("./troop").enemy_data
+var RD = require("./R&D").RD
 
 // ========================== header end ========================================// 
 
@@ -98,7 +99,7 @@ function chooseCharacter(id)
 
 
 //============遊戲開始========
-var Env = null;
+var Env = new Environment()
 
 function newGame(){
   Env = new Environment();
@@ -107,32 +108,38 @@ function newGame(){
 
 
 //============接收玩家操作指令===============
-var player_action_fn = require("./player_action_functions")
+//var player_action_fn = require("./player_action_functions")
 
 
 function player_action_handle(action){
 	console.log(action);
 	if(action.type=='recruit'){
-		player_action_fn.recruit(Env, action.troop_type);
+		Env.recruit(action.troop_type, army_data)
+		//player_action_fn.recruit(Env, action.troop_type);
 	}
 	else if(action.type=='move_army'){
-		player_action_fn.deployArmy(Env, action.troop_type, action.direction);
+		Env.deployArmy(action.direction, army, action.troop_type, army_data)
+		//player_action_fn.deployArmy(Env, action.troop_type, action.direction);
 	}
 	else if(action.type=='repair_wall'){
-		player_action_fn.repairWall(Env, action.direction, action.unit);
+		Env.repairWall(action.direction, action.unit)
+		//player_action_fn.repairWall(Env, action.direction, action.unit);
 	}
 	else if(action.type=='scout'){
 		var scout_report = [];
-		scout_report = player_action_fn.scout(Env, action.scout_dir);
+		scout_report = Env.scout(action.scout_dir)
+		//scout_report = player_action_fn.scout(Env, action.scout_dir);
 		io.emit("scout_report", scout_report[0], scout_report[1], scout_report[2])
 		console.log(scout_report)
 	}
 	else if(action.type=='retreat'){
-		player_action_fn.retreat(Env, action.direction, action.location, action.order);
+		Env.armyRetreat(action.direction)
+		//player_action_fn.retreat(Env, action.direction, action.location, action.order);
 	}
 	else if(action.type=="research"){
 		var report = {}
-		report = player_action_fn.research(Env, action.research_type, action.direction);
+		report = Env.research(RD, action.research_type, action.direction)
+		//report = player_action_fn.research(Env, action.research_type, action.direction);
 		io.emit("research_report", report)
 		console.log(report)
 	}
@@ -144,7 +151,6 @@ function player_action_handle(action){
 function roll_the_dice(range=100){
   // Math.floor(Math.random() * 10) returns a random integer between 0 and 9 (both included):
   return (Math.floor(Math.random() * range)+1);
-  
 }
 
 
@@ -153,32 +159,35 @@ function roll_the_dice(range=100){
 
 //==========回合結束判定======================
 //回合結束會傳戰報(一天分，每條路獨立計算)
-var round_check_fn = require("./round_check_functions")
+//var round_check_fn = require("./round_check_functions")
 var combat_fn = require("./combat_functions")
 function roundCheck(){
-  var combat_report = [];
-  var dir = ["N", "E", "W", "S"];
-  for(var d=0; d<dir.length; d++){
-    round_check_fn.spawnEnemy(Env, dir[d], enemy, enemy_data);
-    round_check_fn.armyMove(Env, dir[d]);
-    round_check_fn.enemyMove(Env, dir[d]);
-    combat_fn.combat(Env, dir[d], combat_report, defender_data)
-  }
-  reports = combat_fn.combat_report_process(Env, combat_report);
-  io.emit("combat_report", reports);
-  //console.log(Env.roads);
-  //console.log("戰報:"+combat_report);
+	var combat_report = [];
+	var dir = ["N", "E", "W", "S"];
+	for(var d=0; d<dir.length; d++){
+		Env.roads[dir[d]].spawnEnemy(enemy, enemy_data)
+		//round_check_fn.spawnEnemy(Env, dir[d], enemy, enemy_data);
+		Env.roads[dir[d]].armyMove()
+		//round_check_fn.armyMove(Env, dir[d]);
+		Env.roads[dir[d]].enemyMove()
+		//round_check_fn.enemyMove(Env, dir[d]);
+		combat_fn.combat(Env, dir[d], combat_report, defender_data)
+	}
+	reports = combat_fn.combat_report_process(Env, combat_report);
+	io.emit("combat_report", reports);
+	//console.log(Env.roads);
+	//console.log("戰報:"+combat_report);
 
-  io.emit("turn_end",roll_the_dice()); //告知user此回合結束，並傳一個機率結果給接收端,先於game over才不會鎖住player2的按鈕
-  if(round_check_fn.isGameover(Env)){
-    io.emit("gameover")
-    player_list = {}
-    player1HasBeenChoosen = false;
-    player2HasBeenChoosen = false;
-  }
+	io.emit("turn_end",roll_the_dice()); //告知user此回合結束，並傳一個機率結果給接收端,先於game over才不會鎖住player2的按鈕
+	if(Env.isGameover()){
+		io.emit("gameover")
+		player_list = {}
+		player1HasBeenChoosen = false;
+		player2HasBeenChoosen = false;
+	}
 
-  Env.round += 1;
-  Env.resource["wood"] += 500;
+	Env.round += 1;
+	Env.resource["wood"] += 500;
 }
 //=============================================
 

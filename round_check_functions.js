@@ -1,3 +1,4 @@
+/*
 //回合結算相關functions
 
 
@@ -8,29 +9,28 @@
 //若有敵人進入攻擊範圍內則不會繼續往前
 exports.armyMove = function(Env, dir){
     for(var i=Env.roads[dir].max_distance-1; i>=0; i--){
-      if(Env.roads[dir].army_location[i].length){
-        for(var j=0; j<Env.roads[dir].army_location[i].length;){
-          var move_to = Math.min(i + Env.roads[dir].army_location[i][j].move_distance, Env.roads[dir].max_distance-1, Env.roads[dir].nearest_enemy-Env.roads[dir].army_location[i][j].attack_range); 
-          move_to = Math.max(move_to, 0);
-          if(move_to!=i){
-            Env.roads[dir].army_location[move_to].push(Env.roads[dir].army_location[i][j]);
-            Env.roads[dir].army_location[i].splice(j, 1);
-          } 
-          else j++;
-  
-        }
-      }
+		if(Env.roads[dir].army_location[i].length){
+			for(var j=0; j<Env.roads[dir].army_location[i].length;){
+				var move_to = Math.min(i + Env.roads[dir].army_location[i][j].move_distance, Env.roads[dir].max_distance-1, Env.roads[dir].nearest_enemy-Env.roads[dir].army_location[i][j].attack_range); 
+				move_to = Math.max(move_to, 0);
+				if(move_to!=i){
+					Env.roads[dir].army_location[move_to].push(Env.roads[dir].army_location[i][j]);
+					Env.roads[dir].army_location[i].splice(j, 1);
+				} 
+				else j++;
+			}
+		}
     }
     //get farest army
     Env.roads[dir].farest_army = -1;
     for(var i=Env.roads[dir].max_distance-1; i>=0; i--){
-      if(Env.roads[dir].army_location[i].length){
-        Env.roads[dir].farest_army = i;
-        break;
-      }
+		if(Env.roads[dir].army_location[i].length){
+			Env.roads[dir].farest_army = i;
+			break;
+		}
     }
-  }
-  
+}
+
   
 exports.enemyMove = function(Env, dir){
     for(var i=0; i<Env.roads[dir].max_distance; i++){
@@ -85,3 +85,4 @@ exports.isGameover = function(Env){
     //console.log("gameover");
     //io.emit("gameover");
 }
+*/

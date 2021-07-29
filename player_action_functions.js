@@ -1,3 +1,4 @@
+/*
 //玩家操作相關functions
 
 
@@ -60,28 +61,33 @@ exports.retreat = function(Env, dir, location, order){
 
 //研發
 exports.research = function(Env, research_type, dir){
-        //console.log(RD[research_type][Env.RD[research_type][dir]["level"]])
-        var level = Env.RD[research_type][dir]["level"]
-	    var max_research_speed = RD[research_type][level].max_research_speed
-        var difficulty = RD[research_type][level].difficulty
-        
+    //console.log(RD[research_type][Env.RD[research_type][dir]["level"]])
+    var level = Env.RD[research_type][dir]["level"]
+    var max_research_speed = RD[research_type][level].max_research_speed
+    var difficulty = RD[research_type][level].difficulty
+    
 
-        Env.RD[research_type][dir]["progress"] += Math.ceil(Math.random()*max_research_speed);
-        var research_name = RD[research_type][level].name
+    Env.RD[research_type][dir]["progress"] += Math.ceil(Math.random()*max_research_speed);
+    var research_name = RD[research_type][level].name
 
-        var report = {"done":false, "progress":Env.RD[research_type][dir]["progress"]}
+    var report = {"done":false, "progress":Env.RD[research_type][dir]["progress"]}
 
-        if(Env.RD[research_type][dir]["progress"] >= difficulty){
-            RD[research_type][level].research_done(Env, dir);
-            Env.RD[research_type][dir]["progress"] = 0;
-            Env.RD[research_type][dir]["level"] += 1;
-            console.log("成功研發" + research_name)
-            report.done = true
-            report.progress = 0
-        }
-        else{
-            console.log("研發了:" + research_name + "， 進度:" + Env.RD[research_type][dir]["progress"] + "/" + difficulty)
-        }
+    if(Env.RD[research_type][dir]["progress"] >= difficulty){
+        RD[research_type][level].research_done(Env, dir);
+        Env.RD[research_type][dir]["progress"] = 0;
+        Env.RD[research_type][dir]["level"] += 1;
+        console.log("成功研發" + research_name)
+        report.done = true
+        report.progress = 0
+    }
+    else{
+        console.log("研發了:" + research_name + "， 進度:" + Env.RD[research_type][dir]["progress"] + "/" + difficulty)
+    }
 
-        return report
+    return report
 }
+
+exports.retreat = function(dir){
+    
+}
+*/

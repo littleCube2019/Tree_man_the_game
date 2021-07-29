@@ -13,7 +13,8 @@ exports.army_data = {
             "hp" : 1000,
             "attack" : 50,
             "attack_range" : 0,
-            "mobility" : 1
+            "mobility" : 1,
+            "retreat" : false,
         },
 
         {
@@ -22,7 +23,8 @@ exports.army_data = {
             "hp" : 2000,
             "attack" : 50,
             "attack_range" : 0,
-            "mobility" : 1
+            "mobility" : 1,
+            "retreat" : false,
         },
     ],
 
@@ -36,7 +38,8 @@ exports.army_data = {
             "hp" : 500,
             "attack" : 300,
             "attack_range" : 0,
-            "mobility" : 3
+            "mobility" : 3,
+            "retreat" : false,
         },
 
     ],
@@ -50,7 +53,8 @@ exports.army_data = {
             "hp" : 250,
             "attack" : 100,
             "attack_range" : 3,
-            "mobility" : 1
+            "mobility" : 1,
+            "retreat" : false,
         },
 
     ],
@@ -65,7 +69,8 @@ exports.army_data = {
             "hp" : 100,
             "attack" : 250,
             "attack_range" : 3,
-            "mobility" : 1
+            "mobility" : 1,
+            "retreat" : false,
         },
 
     ],

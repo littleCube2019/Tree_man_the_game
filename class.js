@@ -94,8 +94,63 @@ exports.Environment = class {
             }
         }
     }
-    check(){
-        return this.map[this.exployer_location["x"]][this.exployer_location["y"]]
+    
+    recruit(army_type, army_data){
+        var level = this.troops_state[army_type].level
+        for(var r in army_data[army_type][level]["cost"]){
+            this.resource[r] -= army_data[army_type][level]["cost"][r];
+        }
+        this.troops_state[army_type]["amount"] += 1;
+        console.log("招募了一對" + army_type)
+    }
+
+    deployArmy(direction, army, army_type, army_data){
+        var level = this.troops_state[army_type]["level"]
+        this.roads[direction].army_location[0].push(new army(army_data[army_type][level]));
+        this.troops_state[army_type]["amount"] -= 1;
+    }
+
+    repairWall(direction, unit){
+        this.resource["wood"] -= unit*100;
+        this.roads[direction].wallhp = Math.min(this.roads[direction].wallhp+unit*100, this.roads[direction].max_wallhp);
+    }
+
+    scout(direction){
+        return this.roads[direction].scout()
+    }
+
+    armyRetreat(direction){
+        this.roads[direction].armyRetreat()
+    }
+
+    research(RD, research_type, dir){
+        var level = this.RD[research_type][dir]["level"]
+        var max_research_speed = RD[research_type][level].max_research_speed
+        var difficulty = RD[research_type][level].difficulty
+        
+
+        this.RD[research_type][dir]["progress"] += Math.ceil(Math.random()*max_research_speed);
+        var research_name = RD[research_type][level].name
+
+        var report = {"done":false, "progress":this.RD[research_type][dir]["progress"]}
+
+        if(this.RD[research_type][dir]["progress"] >= difficulty){
+            RD[research_type][level].research_done(this, dir);
+            this.RD[research_type][dir]["progress"] = 0;
+            this.RD[research_type][dir]["level"] += 1;
+            console.log("成功研發" + research_name)
+            report.done = true
+            report.progress = 0
+        }
+        else{
+            console.log("研發了:" + research_name + "， 進度:" + this.RD[research_type][dir]["progress"] + "/" + difficulty)
+        }
+
+        return report
+    }
+
+    isGameover(){
+        return(this.roads["E"].wallhp<=0 || this.roads["W"].wallhp<=0 || this.roads["N"].wallhp<=0 || this.roads["S"].wallhp<=0)
     }
 }
 
@@ -119,6 +174,109 @@ class road{
             this.enemy_location[i] = [];
         }
     }
+
+
+    armyMove(army_state){
+        //行軍
+        console.log(this.army_location)
+        for(var i=this.max_distance-1; i>=0; i--){
+            for(var j=0; j<this.army_location[i].length; ){
+                if(!this.army_location[i][j].retreat){
+                    var move_to = Math.min(i + this.army_location[i][j].mobility, this.max_distance-1, this.nearest_enemy-this.army_location[i][j].attack_range); 
+                    move_to = Math.max(move_to, 0);
+                    if(move_to!=i){
+                        this.army_location[move_to].push(this.army_location[i][j]);
+                        this.army_location[i].splice(j, 1);
+                    } 
+                    else j++;
+                }
+                else{
+                    j++
+                }
+            }
+        }
+        //撤退
+        for(var i=0; i<this.max_distance-1; i++){
+            for(var j=0; j<this.army_location[i].length; j++){
+                if(this.army_location[i][j].retreat){
+                    var move_to = math.max(0, i - this.army_location[i][j].mobility)
+                    if(move_to==0){
+                        army_type = this.army_location[i][j].type
+                        army_state[army_type].amount += 1;
+                    }
+                    else{
+                        this.army_location[move_to].push(this.army_location[i][j])
+                    }
+                    this.army_location[i].splice(j, 1)
+                }
+            }
+        }
+        //檢查最遠部隊位置
+        this.farest_army = -1
+        for(var i=this.max_distance-1; i>=0; i--){
+            if(this.army_location[i].length>0){
+                this.farest_army = i
+                break
+            }
+        }
+    }
+
+    armyRetreat(){
+        for(var i=0; i<this.max_distance; i++){
+            for(var j=0; j<this.army_location[i].length; j++){
+                this.army_location[i][j].retreat = true;
+            }
+        }
+        console.log( this.direction + "方向的部隊開始撤退")
+    }
+
+    enemyMove(){
+        for(var i=0; i<this.max_distance; i++){
+            if(this.enemy_location[i].length){
+                for(var j=0; j<this.enemy_location[i].length;){
+                    var move_to = Math.max(0, this.farest_army + this.enemy_location[i][j].attack_range, i-this.enemy_location[i][j].mobility); 
+                    if(move_to!=i){
+                    this.enemy_location[move_to].push(this.enemy_location[i][j]); 
+                    this.enemy_location[i].splice(j, 1);
+                    }
+                    else j++;
+                    
+                }
+            }
+        }
+        //檢查最近敵人位置
+        this.nearest_enemy = -1;
+        for(var i=0; i<this.max_distance; i++){
+            if(this.enemy_location[i].length){
+                this.nearest_enemy = i;
+                break;
+            }
+        }
+    }
+
+    spawnEnemy(enemy, enemy_data){
+        for(var enemy_type in enemy_data){
+            var spawn = Math.floor(Math.random()*100);
+            if(spawn < enemy_data[enemy_type]["spawn_prob"]*100){
+                this.enemy_location[this.max_distance-1].push(new enemy(enemy_data[enemy_type]));
+            }
+        }  
+    }
+
+    scout(){
+        var scout_report = []
+        if(nearest_enemy!=-1){
+            scout_report[0] = this.direction
+            scout_report[1] = this.nearest_enemy
+            scout_report[2] = this.enemy_location[this.nearest_enemy][0].type
+        }
+        else{
+            scout_report[0] = this.direction
+            scout_report[1] = -1
+            scout_report[2] = ""
+        }
+        return scout_report
+    }
 }
 
 // ========================== 環境 end========================================//  
@@ -137,7 +295,8 @@ exports.army = class {
         this.hp = data[Object.keys(data)[2]];
         this.attack = data[Object.keys(data)[3]];
         this.attack_range = data[Object.keys(data)[4]];
-        this.move_distance = data[Object.keys(data)[5]];
+        this.mobility = data[Object.keys(data)[5]];
+        this.retreat = data[Object.keys(data)[6]];
     }
 }
 
@@ -156,7 +315,7 @@ exports.enemy = class {
         this.hp = data[Object.keys(data)[1]];
         this.attack = data[Object.keys(data)[2]];
         this.attack_range = data[Object.keys(data)[3]];
-        this.move_distance = data[Object.keys(data)[4]];
+        this.mobility = data[Object.keys(data)[4]];
         this.spawm_prob = data[Object.keys(data)[5]];
         this.reward = data[Object.keys(data)[6]];
     }

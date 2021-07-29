@@ -1,4 +1,3 @@
-var Env = require("./class").Environment
 
 
 exports.RD = {
@@ -11,7 +10,6 @@ exports.RD = {
             "difficulty" : 3,
             "max_research_speed" : 2,
 
-    
             research_done(Env, dir){
                 Env.roads[dir].max_wallhp += 1000;
             }
@@ -22,7 +20,7 @@ exports.RD = {
             "cost" : 1500,
             "difficulty" : 5,
             "max_research_speed" : 2,
-    
+
             research_done(Env, dir){
                 Env.roads[dir].max_wallhp += 2000;
             }

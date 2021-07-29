@@ -45,7 +45,7 @@ exports.Environment = class {
 
         //===========軍力&科技===================
         this.morale = 1; 
-
+        
         this.troops_state = { 
             
 
@@ -102,19 +102,22 @@ exports.Environment = class {
 
 class road{
     constructor(direction){
-      this.max_wallhp = 1000 ; //城牆最大血量 
-      this.wallhp = 500;  //城牆血量
-      this.direction = direction; //路的方向
-      this.defence = {"crossbow":true, "catapult":false}
-      this.max_distance = 10;
-      this.nearest_enemy = -1;
-      this.farest_army = -1; 
-      this.army_location = [];  //二維陣列，紀錄各位置上有多少部隊or敵人
-      this.enemy_location = [];
-      for(var i=0; i<this.max_distance; i++){
-        this.army_location[i] = [];
-        this.enemy_location[i] = [];
-      }
+        this.max_wallhp = 1000 ; //城牆最大血量 
+        this.wallhp = 500;  //城牆血量
+        this.direction = direction; //路的方向
+        this.defence = {    
+            "crossbow":{"valid":false}, 
+            "catapult":{"valid":false},
+        }
+        this.max_distance = 10;
+        this.nearest_enemy = -1;
+        this.farest_army = -1; 
+        this.army_location = [];  //二維陣列，紀錄各位置上有多少部隊or敵人
+        this.enemy_location = [];
+        for(var i=0; i<this.max_distance; i++){
+            this.army_location[i] = [];
+            this.enemy_location[i] = [];
+        }
     }
 }
 

@@ -86,7 +86,7 @@
 			function Alert(text,title="通知"){
 				
 				$('#alert_pop').modal('toggle');
-				$("#alert_content").text(text);
+				$("#alert_content").html(text);
 				$('#alert_title').text(title);
 			}
 
@@ -94,6 +94,11 @@
 			function combatReportOneline(text){
 				text+="<br>"
 				$("#combat_report_content").prepend(text);
+			}
+
+			function researchReportOneline(text){
+				text+="<br>"
+				$("#research_report_content").prepend(text);
 			}
 
 			//socket區
@@ -175,13 +180,7 @@
 				$("#start_game_alert").modal("toggle")
 				
 				
-				/*
-				$("#my_item_2").hide();
-				$("#my_item_content_2").hide();
-				$("#item_sub_accept_1").hide();
-				$("#item_sub_accept_2").hide();
-				$("#item_sub_deny").hide();
-				$("#action_pray").hide(); */
+			
 			})	
 			
 			socket.on("player_turn" , ()=>{
@@ -237,15 +236,20 @@
 			socket.on("turn_end", (dice_result)=>{
 				// 戰報紀錄加上天數
 				combatReportOneline("=======================第"+(Env.round+1)+"天=======================<br>")
+
+
+				//遊戲文本
+				var Text = ""
 				if(dice_result<=20){
 
-					addMessage("城中壓抑的紛圍越來越嚴重")
-					addMessage("你抱著忐忑的心情迎接明天")
+					Text = "城中壓抑的紛圍越來越嚴重<br>你抱著忐忑的心情迎接明天"
+					
 				}
 				else{
-					addMessage("今天似乎又有驚無險的度過了...")
+					Text="今天似乎又有驚無險的度過了..."
 				}
-				addMessage("趁著空檔帝國後勤隊為你運來了500木頭");
+				Text+="<br>趁著空檔帝國後勤隊為你運來了500木頭";
+				Alert(text=Text,title="本日觀察")
 			})
 			//========  ==============================================================================	
 			
@@ -276,7 +280,7 @@
 			)
 			// 戰報通知
 			socket.on("combat_report",(report)=>{
-				console.log(report.length)
+				
 				if(report.length>0){
 					$("#combat_report").empty();
 					$("#combat_report").append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-bar-chart-line\" viewBox=\"0 0 16 16\">\
@@ -292,7 +296,25 @@
 
 			})
 
-			
+			//研究通知
+			socket.on("research_report",(report)=>{
+				
+				
+				//if(report.length>0){
+					$("#research_report").empty();
+					$("#research_report").append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-bar-chart-line\" viewBox=\"0 0 16 16\">\
+								<path d=\"M8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z\"/>\
+					</svg>")
+				//}
+				/*
+				for(var i = 0 ; i< report.length ; i++)
+				{
+					
+					combatReportOneline(report[i]);
+				}
+				*/
+
+			})
 
 			// ============================================================================================
 
@@ -571,6 +593,20 @@
 
 				});
 
+				$("#research_report").click(function(event) {     
+					$("#research_report").empty();
+					$("#research_report").append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-book\" viewBox=\"0 0 16 16\">\
+							<path d=\"M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z\"/>\
+						  </svg>")
+					$("#research_report_pop").modal('toggle');
+					
+					
+					
+
+
+				});
+
+				
 				//====================================================================================================
 				
 
@@ -718,6 +754,26 @@
 						  </svg>
 					</button>
 				</div>
+				<br>
+				<div>研發記錄
+					<button id="research_report">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-book" viewBox="0 0 16 16">
+							<path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+						  </svg>
+					</button>
+				</div>
+
+
+
+
+
+
+
+
+
+
+
+
 			</div>		
 
         </div> <!-- id=LEFT_TOP closing tag , this section ending here-->
@@ -893,7 +949,7 @@
 			<div class= "detail_choose" id="go_out">
 			
 				<div >
-					施工中
+					Bye
 				</div>
 			</div>
 			<!--   =======================================   -->	
@@ -1005,6 +1061,30 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-dismiss="modal" id="combat_report_ok">OK</button>
+	
+				</div>
+				</div>
+			</div>
+			</div>	
+
+		<!-- ======================================  -->
+
+		<!-- 研究跳出視窗-->
+
+		<div class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" id="research_report_pop">
+			<div class="modal-dialog modal-dialog-scrollable" role="document">
+				<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" >研究報告</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body" id="research_report_content" style="overflow:scroll;">
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal" id="research_report_ok">OK</button>
 	
 				</div>
 				</div>

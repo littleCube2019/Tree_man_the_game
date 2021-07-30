@@ -148,11 +148,11 @@
 						}
 				})
 
-			socket.on("start_game",()=>{
+			socket.on("start_game",(troop)=>{
 				
 				
 				
-			
+				
 				//基礎設定
 
 				game_start = true;
@@ -179,7 +179,7 @@
 				//基礎文本
 				$("#start_game_alert").modal("toggle")
 				
-				
+				recruit_troop.update(troop);
 			
 			})	
 			
@@ -254,9 +254,10 @@
 			//========  ==============================================================================	
 			
 			socket.on("update_troop_info" , (troop)=>{
-
-
-			})	
+				recruit_troop.update(troop);
+			})
+			
+			
 			
 			
 			// 每一回和更新使用者的狀態

@@ -846,9 +846,9 @@
 			<div class= "detail_choose" id = "recruit_troop" > 
 				<div>選擇招募兵種  </div>  
 				
-				<div v-for="troop in troops">
+				<div v-for="(troop,key) in troops">
 				<div  > 
-				<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" :title="description(troop[0])"   :id="troop[1]" v-on:click="Click" >{{troop[2]}}隊</button>   
+				<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" :title="description(troop[0])"   :id="key" v-on:click="Click" >{{troop[1]}}隊</button>   
 					   
 				</div>
 				<br>

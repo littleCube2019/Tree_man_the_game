@@ -179,14 +179,14 @@ var recruit_troop = new Vue({
 
   data: {
     
-    troops:[
-      [0,"archer","弓箭"],
+    troops:{
+      "archer":[0,"弓箭"],
 
-      [1,"armor","重步兵"],
+      "armor":[1,"重步兵"],
 
-      [2,"ranger","騎兵"],
+      "ranger":[2,"騎兵"],
 
-    ],
+    },
     
     state:{
       "archer":{"hp":1 ,"attack":2 , "cost":1000, "mobility":4 ,"range":5 },

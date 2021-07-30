@@ -179,14 +179,14 @@ var recruit_troop = new Vue({
 
   data: {
     
-    troops:[
-      [0,"archer","弓箭"],
+    troops:{
+      "archer":[0,"弓箭"],
 
-      [1,"armor","重步兵"],
+      "armor":[1,"重步兵"],
 
-      [2,"ranger","騎兵"],
+      "ranger":[2,"騎兵"],
 
-    ],
+    },
     
     state:{
       "archer":{"hp":1 ,"attack":2 , "cost":1000, "mobility":4 ,"range":5 },
@@ -240,7 +240,7 @@ var recruit_troop = new Vue({
      
      for(var i =0 ;i < troop.length ; i++){
        this.state[troop[i]["type"]]= troop[i];
-       $("#"+troop[i]["type"]).attr('data-original-title',this.description([i]));
+       $("#"+troop[i]["type"]).attr('data-original-title',this.description(this.troops[troop[i]["type"]][0]));
      }
      
       
@@ -339,7 +339,7 @@ var research = new Vue({
     researchs:[
       // [ number , id , name , isDir   ]
       // 未來會像troop一樣處理 ， name ==> level
-      [0,"wall_upgrade","城牆加固" , true],
+      [0,"wall_upgrade","城牆加固" , true ],
 
       [1,"defence_developments","防禦工事" , true],
 
@@ -363,8 +363,10 @@ var research = new Vue({
       "wall_upgrade" : {1:"加固木牆" , 2: "雙重木牆"},
       "defence_developments":{1:"駐城弩隊" , 2:"守城投石機"},
       "armor_upgrade" : {1:"厚木甲"}
-    }
-   
+    } ,
+    
+    all : "all" ,
+
   },
 
   methods:{
@@ -373,7 +375,12 @@ var research = new Vue({
       },
     Name: function(id , dir){
       return this.name[id][this.level[id][dir]];
-    }
+    },
+
+    update_level : function(type, dir , levels){
+      this.level[type][dir]  = levels;
+    },
+
   }
   }
 )

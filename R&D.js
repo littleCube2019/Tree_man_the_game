@@ -6,7 +6,7 @@ exports.RD = {
     "wall_upgrade":[
         {
             "name":"加固木牆",
-            "cost" : 1000,
+            "cost" : {"wood":1000},
             "difficulty" : 3,
             "max_research_speed" : 2,
 
@@ -17,7 +17,7 @@ exports.RD = {
     
         {
             "name":"雙層木牆",
-            "cost" : 1500,
+            "cost" : {"wood":1500},
             "difficulty" : 5,
             "max_research_speed" : 2,
 
@@ -31,7 +31,7 @@ exports.RD = {
     "defence_developments":[
         {
             "name":"弩炮",
-            "cost" : 1000,
+            "cost" : {"wood":1000},
             "difficulty" : 10,
             "max_research_speed" : 3,
             "msg":"研發要顯示的東西",
@@ -43,7 +43,7 @@ exports.RD = {
 
         {
             "name":"投石機",
-            "cost" : 1000,
+            "cost" : {"wood":1000},
             "difficulty" : 10,
             "max_research_speed" : 3,
 
@@ -59,7 +59,7 @@ exports.RD = {
     "armor_upgrade":[
         {
             "name":"厚木裝甲",
-            "cost" : 500,
+            "cost" : {"wood":500},
             "difficulty" : 5,
             "max_research_speed" : 3,
 

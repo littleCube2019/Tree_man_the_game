@@ -128,6 +128,9 @@ exports.Environment = class {
         var max_research_speed = RD[research_type][level].max_research_speed
         var difficulty = RD[research_type][level].difficulty
         
+        for(var r in RD[research_type][level]["cost"]){
+            this.resource[r] -= RD[research_type][level]["cost"][r];
+        }
 
         this.RD[research_type][dir]["progress"] += Math.ceil(Math.random()*max_research_speed);
         var research_name = RD[research_type][level].name

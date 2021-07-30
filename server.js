@@ -141,6 +141,11 @@ function player_action_handle(action){
 		report = Env.research(RD, action.research_type, action.direction)
 		//report = player_action_fn.research(Env, action.research_type, action.direction);
 		io.emit("research_report", report)
+    if(report.done){
+      if(action.research_type == "armor_upgrade"){
+        io.emit("update_troop_info", Env.troops_state["armor"]["level"])
+      }
+    }
 		console.log(report)
 	}
 }
@@ -234,7 +239,7 @@ io.on('connection', (socket) => {
       //====================
 
       newGame();
-      io.emit("start_game", Env, army_data, defender_data);
+      io.emit("start_game", Env, [army_data[Env.troops_state.armor.level], army_data[Env.troops_state.archer.level], army_data[Env.troops_state.ranger.level]]);
       io.emit("player_turn");
       //console.log("start game");
 

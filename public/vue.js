@@ -188,24 +188,54 @@ var recruit_troop = new Vue({
     ],
     
     state:{
-      "archer":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
-      "armor":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
-      "ranger":{"hp":1 ,"attack":555 , "cost":3 , "move":4 ,"range":5 },
+      "archer":{"hp":1 ,"attack":2 , "cost":1000, "move":4 ,"range":5 },
+      "armor":{"hp":1 ,"attack":2 , "cost":500 , "move":4 ,"range":5 },
+      "ranger":{"hp":1 ,"attack":555 , "cost":2000 , "move":4 ,"range":5 },
 
+    },
+   
+  },
+  
+  methods:{
+    
+  Click : function(e){
+
+    troop_type = e.target.id;
+    troop_name = "沒有";
+    class recruit_troop {
+      constructor(troop_type){
+        this.type ='recruit';
+        this.troop_type = troop_type ;
+      }
+    }
+    can_recruit = true;
+    console.log(Env.resource["wood"]);
+    var action;
+    var troop = Object.keys(this.state);
+    for(var i = 0 ; i<troop.length ; i++){
+      console.log(troop[i])
+      if(troop_type == troop[i] ){
+        if(Env.resource["wood"] >= this.state[troop[i]]["cost"]){
+          action = new recruit_troop(troop_type);
+          troop_name= this.troops[i][2];
+        }
+      
+        else{
+          Alert(text="你沒有足夠的木頭招募士兵");
+          can_recruit=false;
+        }
+    }
+   }
+    
+    
+    if(can_recruit){
+      var msg = "你招募了一隊"+troop_name+"隊!";
+      socket.emit("action_done" , PLAYER_ID , action,msg);
     }
     
   },
-  computed: {
 
-
-
-  },
-  methods:{
-    
-
-  update_troop: function(troops){
-
-  },
+  
 
   description: function(n){
     if(n==0){

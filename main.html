@@ -236,7 +236,7 @@
 			socket.on("turn_end", (dice_result)=>{
 				// 戰報紀錄加上天數
 				combatReportOneline("=======================第"+(Env.round+1)+"天=======================<br>")
-
+				
 
 				//遊戲文本
 				var Text = ""
@@ -269,6 +269,7 @@
 				$("#round").text(env.round);
 				
 				wall_status.update(env.roads);
+				
 				$("#wood").text(env.resource["wood"]);
 
 				
@@ -420,42 +421,7 @@
 
 
 
-				// recruit_troop wall button ====================================================================
-				$(".recruit_troop").click(function(e){
-
-					troop_type = e.target.id;
-					troop_name = "沒有";
-					class recruit_troop {
-						constructor(troop_type){
-							this.type ='recruit';
-							this.troop_type = troop_type ;
-						}
-					}
-					can_recruit = true;
-					if(troop_type == "archer" && Env.resource["wood"] >= 1000  ){
-						action = new recruit_troop(troop_type);
-						troop_name= "弓箭";
-						
-					}
-					else if(troop_type == "armor" && Env.resource["wood"] >= 500  ){
-						action = new recruit_troop(troop_type);
-						troop_name="重甲步兵";
-					}
-					else if(troop_type == "ranger" && Env.resource["wood"] >= 2000 ){
-						action = new recruit_troop(troop_type);
-						troop_name="騎兵";
-					}
-					else{
-						Alert(text="你沒有足夠的木頭招募士兵");
-						can_recruit=false;
-					}
-					
-					if(can_recruit){
-						var msg = "你招募了一隊"+troop_name+"隊!";
-						socket.emit("action_done" , PLAYER_ID , action,msg);
-					}
-					
-				})
+				
 
 				//========  ==============================================================================	
 
@@ -881,7 +847,7 @@
 				
 				<div v-for="troop in troops">
 				<div  > 
-				<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" :title="description(troop[0])"   :id="troop[1]" >{{troop[2]}}隊</button>   
+				<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" :title="description(troop[0])"   :id="troop[1]" v-on:click="Click" >{{troop[2]}}隊</button>   
 					   
 				</div>
 				<br>

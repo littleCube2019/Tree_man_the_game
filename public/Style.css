@@ -143,3 +143,7 @@ div {
 	left: 45%;       
 }
 
+.float{
+	width:25%;
+	float:left;
+}

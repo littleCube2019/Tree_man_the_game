@@ -55,7 +55,7 @@
 						"S" : "南",
 						"W" : "西",
 						"N" : "北"
-					}
+			}
 			
 			
 
@@ -86,7 +86,7 @@
 			function Alert(text,title="通知"){
 				
 				$('#alert_pop').modal('toggle');
-				$("#alert_content").text(text);
+				$("#alert_content").html(text);
 				$('#alert_title').text(title);
 			}
 
@@ -94,6 +94,11 @@
 			function combatReportOneline(text){
 				text+="<br>"
 				$("#combat_report_content").prepend(text);
+			}
+
+			function researchReportOneline(text){
+				text+="<br>"
+				$("#research_report_content").prepend(text);
 			}
 
 			//socket區
@@ -143,11 +148,11 @@
 						}
 				})
 
-			socket.on("start_game",()=>{
+			socket.on("start_game",(troop)=>{
 				
 				
 				
-			
+				
 				//基礎設定
 
 				game_start = true;
@@ -174,14 +179,8 @@
 				//基礎文本
 				$("#start_game_alert").modal("toggle")
 				
-				
-				/*
-				$("#my_item_2").hide();
-				$("#my_item_content_2").hide();
-				$("#item_sub_accept_1").hide();
-				$("#item_sub_accept_2").hide();
-				$("#item_sub_deny").hide();
-				$("#action_pray").hide(); */
+				recruit_troop.update(troop);
+			
 			})	
 			
 			socket.on("player_turn" , ()=>{
@@ -237,22 +236,28 @@
 			socket.on("turn_end", (dice_result)=>{
 				// 戰報紀錄加上天數
 				combatReportOneline("=======================第"+(Env.round+1)+"天=======================<br>")
+				
+
+				//遊戲文本
+				var Text = ""
 				if(dice_result<=20){
 
-					addMessage("城中壓抑的紛圍越來越嚴重")
-					addMessage("你抱著忐忑的心情迎接明天")
+					Text = "城中壓抑的紛圍越來越嚴重<br>你抱著忐忑的心情迎接明天"
+					
 				}
 				else{
-					addMessage("今天似乎又有驚無險的度過了...")
+					Text="今天似乎又有驚無險的度過了..."
 				}
-				addMessage("趁著空檔帝國後勤隊為你運來了500木頭");
+				Text+="<br>趁著空檔帝國後勤隊為你運來了500木頭";
+				Alert(text=Text,title="本日觀察")
 			})
 			//========  ==============================================================================	
 			
 			socket.on("update_troop_info" , (troop)=>{
-
-
-			})	
+				recruit_troop.update(troop);
+			})
+			
+			
 			
 			
 			// 每一回和更新使用者的狀態
@@ -265,6 +270,7 @@
 				$("#round").text(env.round);
 				
 				wall_status.update(env.roads);
+				
 				$("#wood").text(env.resource["wood"]);
 
 				
@@ -276,7 +282,7 @@
 			)
 			// 戰報通知
 			socket.on("combat_report",(report)=>{
-				console.log(report.length)
+				
 				if(report.length>0){
 					$("#combat_report").empty();
 					$("#combat_report").append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-bar-chart-line\" viewBox=\"0 0 16 16\">\
@@ -292,7 +298,25 @@
 
 			})
 
-			
+			//研究通知
+			socket.on("research_report",(report)=>{
+				
+				
+				//if(report.length>0){
+					$("#research_report").empty();
+					$("#research_report").append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-bar-chart-line\" viewBox=\"0 0 16 16\">\
+								<path d=\"M8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z\"/>\
+					</svg>")
+				//}
+				/*
+				for(var i = 0 ; i< report.length ; i++)
+				{
+					
+					combatReportOneline(report[i]);
+				}
+				*/
+
+			})
 
 			// ============================================================================================
 
@@ -330,14 +354,15 @@
 				
 				$(".troop_move").click(function(e){
 					
-					troop_type = e.target.getAttribute("type");
-					dir = e.target.getAttribute("dir");
+					var troop_type = e.target.getAttribute("Type");
+					var dir = e.target.getAttribute("dir");
+					var Act = e.target.getAttribute("action");
 					troop_name = "沒有";
 					console.log(troop_type , dir)
 					dir_name = "X";
 					class move_troop {
-						constructor(troop_type,dir){
-							this.type ='move_army';
+						constructor(Act,troop_type,dir){
+							this.type = Act;
 							this.troop_type = troop_type ;
 							this.direction = dir
 						}
@@ -345,18 +370,18 @@
 				
 					can_move = true;
 					if(troop_type == "archer" && Env.troops_state["archer"].amount > 0   ){
-						action = new move_troop(troop_type,dir);
+						action = new move_troop(Act,troop_type,dir);
 						troop_name= "弓箭";
 						dir_name = direct_dic[dir];
 						
 					}
 					else if(troop_type == "armor" && Env.troops_state["armor"].amount > 0   ){
-						action = new move_troop(troop_type,dir);
+						action = new move_troop(Act,troop_type,dir);
 						troop_name="重甲步兵";
 						dir_name = direct_dic[dir];
 					}
 					else if(troop_type == "ranger" && Env.troops_state["ranger"].amount > 0  ){
-						action = new move_troop(troop_type,dir);
+						action = new move_troop(Act,troop_type,dir);
 						troop_name="騎兵";
 						dir_name = direct_dic[dir];
 					}
@@ -397,42 +422,7 @@
 
 
 
-				// recruit_troop wall button ====================================================================
-				$(".recruit_troop").click(function(e){
-
-					troop_type = e.target.id;
-					troop_name = "沒有";
-					class recruit_troop {
-						constructor(troop_type){
-							this.type ='recruit';
-							this.troop_type = troop_type ;
-						}
-					}
-					can_recruit = true;
-					if(troop_type == "archer" && Env.resource["wood"] >= 1000  ){
-						action = new recruit_troop(troop_type);
-						troop_name= "弓箭";
-						
-					}
-					else if(troop_type == "armor" && Env.resource["wood"] >= 500  ){
-						action = new recruit_troop(troop_type);
-						troop_name="重甲步兵";
-					}
-					else if(troop_type == "ranger" && Env.resource["wood"] >= 2000 ){
-						action = new recruit_troop(troop_type);
-						troop_name="騎兵";
-					}
-					else{
-						Alert(text="你沒有足夠的木頭招募士兵");
-						can_recruit=false;
-					}
-					
-					if(can_recruit){
-						var msg = "你招募了一隊"+troop_name+"隊!";
-						socket.emit("action_done" , PLAYER_ID , action,msg);
-					}
-					
-				})
+				
 
 				//========  ==============================================================================	
 
@@ -571,6 +561,20 @@
 
 				});
 
+				$("#research_report").click(function(event) {     
+					$("#research_report").empty();
+					$("#research_report").append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-book\" viewBox=\"0 0 16 16\">\
+							<path d=\"M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z\"/>\
+						  </svg>")
+					$("#research_report_pop").modal('toggle');
+					
+					
+					
+
+
+				});
+
+				
 				//====================================================================================================
 				
 
@@ -718,6 +722,26 @@
 						  </svg>
 					</button>
 				</div>
+				<br>
+				<div>研發記錄
+					<button id="research_report">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-book" viewBox="0 0 16 16">
+							<path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+						  </svg>
+					</button>
+				</div>
+
+
+
+
+
+
+
+
+
+
+
+
 			</div>		
 
         </div> <!-- id=LEFT_TOP closing tag , this section ending here-->
@@ -736,7 +760,7 @@
 
 	<!-- all buttons or something user interaction below-->
 	<!-- ==================================== -->
-	<div class="LEFT_BOTTOM ">
+	<div class="LEFT_BOTTOM " style="overflow:scroll">
 		
 			<div id="my_mission">操作</div>
 			
@@ -773,23 +797,43 @@
 		
 
 			<!--  移動士兵-->
-			<div class= "detail_choose dir_btn" id = "move_troop"> 
-				<div>選擇移動兵種  </div>  
-				<div > 弓箭隊 
-					<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn-->
-					<button-direction v-bind:item="direction" v-for="direction in directions"  class="troop_move" type="archer" ></button-direction>
+			<div class= "detail_choose" id = "move_troop"> 
+
+				<label>{{type_name}}</label>
+                <input type="range" class="custom-range" min="1" max="2" id="customRange2" @change="updateRangeValue($event)">
+				<div v-if="type==1">
+				<div>選擇派出兵種  </div>  
+				<div style="width:100% ; height:20%" v-for="troop in troops"> 
+				<div>
+				{{troop[2]}}隊
+				<br>
+				<div class="float"  style="width:5% ; height:30%"    v-for="direction in directions" > 
+					
+					<button  type="button" class="btn btn-success  troop_move" :dir="direction[0]"  :Type="troop[1]" action="move_army"  >{{direction[1]}}</button>   
 					
 				</div>
-				<div class="dir_btn"   > 重甲步兵隊
-					<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn-->
-					<button-direction v-bind:item="direction" v-for="direction in directions"  class="troop_move" type="armor" ></button-direction>
-					
 				</div>
-			    <div class="dir_btn"  > 騎兵隊
-					<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn-->
-					<button-direction v-bind:item="direction" v-for="direction in directions"  class="troop_move" type="ranger" ></button-direction>
 				
 				</div>
+				</div>
+				
+				<div v-if="type==2">
+				<div>選擇撤退兵種  </div>  
+				<div style="width:100% ; height:20%" v-for="troop in troops"> 
+				<div>
+				{{troop[2]}}隊
+				<br>
+				<div class="float"  style="width:5% ; height:30%"    v-for="direction in directions" > 
+					
+					<button  type="button" class="btn btn-success  troop_move" :dir="direction[0]"  :Type="troop[1]" action="retreat"  >{{direction[1]}}</button>   
+					
+				</div>
+				</div>
+				
+				</div>
+		
+				</div>
+
 			</div>
 			
 
@@ -804,7 +848,7 @@
 				
 				<div v-for="troop in troops">
 				<div  > 
-				<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" :title="description(troop[0])"   :id="troop[1]" >{{troop[2]}}隊</button>   
+				<button  type="button" class="btn btn-danger recruit_troop" data-toggle="tooltip" data-placement="right" data-html="true" :title="description(troop[0])"   :id="troop[1]" v-on:click="Click" >{{troop[2]}}隊</button>   
 					   
 				</div>
 				<br>
@@ -865,17 +909,23 @@
 			<!--   研究  -->
 			<div class= "detail_choose" id="research">
 			
-			<div v-for="r in researchs" >
+			<div style=" height:20%;"  v-for="r in researchs"  >
 				<div  v-if="r[3]==false" > 
-				<button  type="button" class="btn btn-danger research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]"  >{{r[2]}}</button>   
+				{{r[2]}}
+				<br>
+				<button  type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]" dir="all"  >{{Name(r[1],"all")}}</button>   
 						   
 				</div>
 
-				<div  v-else >
+				<div  v-else  >
 				{{r[2]}}
-				<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn  ，如果已經被綁定了，就把directions加入data-->
-				<button-direction v-bind:item="direction" v-for="direction in directions"  class="research_choose" :research_type="r[1]" ></button-direction>
+				<br>
+				<div class="float" v-for="direction in directions">
+				{{direction[1]}}
+				<button  type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]"  :dir=direction[0] >{{Name(r[1],direction[0])}}</button>  
+				</div> 
 				</div>
+				
 			</div>
 			</div>
 			<!--   =======================================   -->	
@@ -887,10 +937,10 @@
 			<div class= "detail_choose" id="go_out">
 			
 				<div >
-					施工中
+					Bye
 				</div>
 			</div>
-				<!--   =======================================   -->	
+			<!--   =======================================   -->	
 
 
 
@@ -999,6 +1049,30 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-dismiss="modal" id="combat_report_ok">OK</button>
+	
+				</div>
+				</div>
+			</div>
+			</div>	
+
+		<!-- ======================================  -->
+
+		<!-- 研究跳出視窗-->
+
+		<div class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" id="research_report_pop">
+			<div class="modal-dialog modal-dialog-scrollable" role="document">
+				<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" >研究報告</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body" id="research_report_content" style="overflow:scroll;">
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal" id="research_report_ok">OK</button>
 	
 				</div>
 				</div>

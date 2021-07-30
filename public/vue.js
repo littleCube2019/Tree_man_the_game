@@ -59,7 +59,8 @@ var wall_status = new Vue({
 
       }
       
-    }
+    },
+  
   }
 
 
@@ -188,38 +189,72 @@ var recruit_troop = new Vue({
     ],
     
     state:{
-      "archer":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
-      "armor":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
-      "ranger":{"hp":1 ,"attack":555 , "cost":3 , "move":4 ,"range":5 },
+      "archer":{"hp":1 ,"attack":2 , "cost":1000, "mobility":4 ,"range":5 },
+      "armor":{"hp":1 ,"attack":2 , "cost":500 , "mobility":4 ,"range":5 },
+      "ranger":{"hp":1 ,"attack":555 , "cost":2000 , "mobility":4 ,"range":5 },
 
+    },
+   
+  },
+  
+  methods:{
+    
+  Click : function(e){
+
+    troop_type = e.target.id;
+    troop_name = "沒有";
+    class recruit_troop {
+      constructor(troop_type){
+        this.type ='recruit';
+        this.troop_type = troop_type ;
+      }
+    }
+    can_recruit = true;
+    console.log(Env.resource["wood"]);
+    var action;
+    var troop = Object.keys(this.state);
+    for(var i = 0 ; i<troop.length ; i++){
+      console.log(troop[i])
+      if(troop_type == troop[i] ){
+        if(Env.resource["wood"] >= this.state[troop[i]]["cost"]){
+          action = new recruit_troop(troop_type);
+          troop_name= this.troops[i][2];
+        }
+      
+        else{
+          Alert(text="你沒有足夠的木頭招募士兵");
+          can_recruit=false;
+        }
+    }
+   }
+    
+    
+    if(can_recruit){
+      var msg = "你招募了一隊"+troop_name+"隊!";
+      socket.emit("action_done" , PLAYER_ID , action,msg);
     }
     
   },
-  computed: {
 
-
-
-  },
-  methods:{
-    
-
-  update_troop: function(troops){
-
+  update : function(troop){
+      for(var i =0 ;i < troop.length ; i++){
+         this.state[troop[i]["type"]]= troop[i];
+      }
   },
 
   description: function(n){
     if(n==0){
-      return "需要: "+this.state["archer"]["cost"]+"木頭 <br> 射程:"+this.state["archer"]["range"]+"公里 <br> 每隊攻擊力:"+this.state["archer"]["attack"]+"<br> 移動能力:日行"+this.state["archer"]["move"]+"公里<br>承受傷害能力:"+this.state["archer"]["hp"]+"<br> 敘述:由平民組成的弓箭隊，準度不佳，\
+      return "需要: "+this.state["archer"]["cost"]+"木頭 <br> 射程:"+this.state["archer"]["range"]+"公里 <br> 每隊攻擊力:"+this.state["archer"]["attack"]+"<br> 移動能力:日行"+this.state["archer"]["mobility"]+"公里<br>承受傷害能力:"+this.state["archer"]["hp"]+"<br> 敘述:由平民組成的弓箭隊，準度不佳，\
       但至少會拉弓，木頭大部分用於製作木箭"
     }
 
     else if(n==1){
-      return "需要: "+this.state["armor"]["cost"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["armor"]["attack"]+" <br> 移動能力:日行"+this.state["armor"]["move"]+"公里<br> 承受傷害能力:"+this.state["armor"]["hp"]+" <br> 敘述:由平民組成的步兵隊\
+      return "需要: "+this.state["armor"]["cost"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["armor"]["attack"]+" <br> 移動能力:日行"+this.state["armor"]["mobility"]+"公里<br> 承受傷害能力:"+this.state["armor"]["hp"]+" <br> 敘述:由平民組成的步兵隊\
       ，拿著草叉、斧頭...工具就出征了，你不相信他們能擊殺敵人，但相信他們能拖延敵人，木頭幾乎用在製作木製鎧甲"
       }
     
     else if(n==2){
-      return "需要: "+this.state["ranger"]["cost"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["ranger"]["attack"]+" <br> 移動能力:日行"+this.state["ranger"]["move"]+"公里\
+      return "需要: "+this.state["ranger"]["cost"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["ranger"]["attack"]+" <br> 移動能力:日行"+this.state["ranger"]["mobility"]+"公里\
       <br> 承受傷害能力:"+this.state["ranger"]["hp"]+" <br> 敘述:前帝國軍隊士兵組成，至少有基本的戰鬥技巧與騎術，還有之前留下的鏽跡斑斑的武器，木頭用在他們的軍餉與馬的飼料"
 
     }
@@ -232,7 +267,63 @@ var recruit_troop = new Vue({
 
 })
 
+// troop_move
+var move_troop = new Vue({
+  el: '#move_troop',
+  
 
+  data: {
+      //[id , type , name ]
+    troops:[
+      [0,"archer","弓箭"],
+
+      [1,"armor","重甲步兵"],
+
+      [2,"ranger","騎兵"],
+
+    ],
+    
+    state:{
+      "archer":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
+      "armor":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
+      "ranger":{"hp":1 ,"attack":555 , "cost":3 , "move":4 ,"range":5 },
+
+    },
+    directions:[
+      ["E","東"],
+      ["S","南"],
+      ["W","西"],
+      ["N","北"],
+    ],
+    type : 1,
+    type_name :"派出軍隊",
+  },
+  computed: {
+
+
+
+  },
+  methods:{
+    
+
+  update_troop: function(troops){
+    
+  },
+
+  updateRangeValue: function(event){
+    this.type = event.target.value;
+    if(this.type == 1){
+      this.type_name = "派出軍隊";
+    }
+    else if(this.type ==2){
+      this.type_name = "通知軍隊撤退";
+    }
+  }
+
+  }
+
+
+})
 
 //"研究" 按鈕
 
@@ -242,12 +333,13 @@ var research = new Vue({
   data: {
     
     researchs:[
-      // [ number , id , name , isDir ]
+      // [ number , id , name , isDir   ]
+      // 未來會像troop一樣處理 ， name ==> level
       [0,"wall_upgrade","城牆加固" , true],
 
       [1,"defence_developments","防禦工事" , true],
 
-      [2,"armor_upgrade","厚木裝甲" , false],
+      [2,"armor_upgrade","士兵升級" , false],
 
     ],
     directions:[
@@ -255,23 +347,30 @@ var research = new Vue({
       ["S","南"],
       ["W","西"],
       ["N","北"],
-    ]
-    /*
-    state:{
-      "archer":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
-      "armor":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
-      "ranger":{"hp":1 ,"attack":555 , "cost":3 , "move":4 ,"range":5 },
+    ],
+    
+    level:{
+      "wall_upgrade":{ "E":1 , "S":1 , "W":2 ,"N":1},
+      "defence_developments":{ "E":1 , "S":2 , "W":1 ,"N":1},
+      "armor_upgrade":{"all":1},
+    },
 
+    name:{
+      "wall_upgrade" : {1:"加固木牆" , 2: "雙重木牆"},
+      "defence_developments":{1:"駐城弩隊" , 2:"守城投石機"},
+      "armor_upgrade" : {1:"厚木甲"}
     }
-    */
+   
   },
 
   methods:{
     Click: function(event){
-
-       
-      }
+          
+      },
+    Name: function(id , dir){
+      return this.name[id][this.level[id][dir]];
     }
+  }
   }
 )
 

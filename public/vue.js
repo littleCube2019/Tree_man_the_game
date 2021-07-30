@@ -240,7 +240,7 @@ var recruit_troop = new Vue({
      
      for(var i =0 ;i < troop.length ; i++){
        this.state[troop[i]["type"]]= troop[i];
-       $("#"+troop[i]["type"]).attr('data-original-title',this.description([i]));
+       $("#"+troop[i]["type"]).attr('data-original-title',this.description(this.troops[troop[i]["type"]][0]));
      }
      
       

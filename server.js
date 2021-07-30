@@ -143,8 +143,8 @@ function player_action_handle(action){
 		io.emit("research_report", report)
     if(report.done){
       if(action.research_type == "armor_upgrade"){
-        io.emit("update_troop_info", Env.troops_state["armor"]["level"])
-        console.log(army_data["armor"][Env.troops_state["armor"]["level"]])
+        io.emit("update_troop_info", [army_data["armor"][Env.troops_state["armor"]["level"]]])
+    
       }
     }
 		console.log(report)

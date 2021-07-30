@@ -268,7 +268,7 @@ class road{
 
     scout(){
         var scout_report = []
-        if(nearest_enemy!=-1){
+        if(this.nearest_enemy!=-1){
             scout_report[0] = this.direction
             scout_report[1] = this.nearest_enemy
             scout_report[2] = this.enemy_location[this.nearest_enemy][0].type

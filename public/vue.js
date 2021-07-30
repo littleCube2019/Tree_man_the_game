@@ -218,7 +218,7 @@ var recruit_troop = new Vue({
       if(troop_type == troop[i] ){
         if(Env.resource["wood"] >= this.state[troop[i]]["cost"]["wood"]){
           action = new recruit_troop(troop_type);
-          troop_name= this.troops[i][2];
+          troop_name= this.troops[troop[i]][1];
         }
       
         else{
@@ -354,8 +354,8 @@ var research = new Vue({
     ],
     
     level:{
-      "wall_upgrade":{ "E":1 , "S":1 , "W":2 ,"N":1},
-      "defence_developments":{ "E":1 , "S":2 , "W":1 ,"N":1},
+      "wall_upgrade":{ "E":1 , "S":1 , "W":1 ,"N":1},
+      "defence_developments":{ "E":1 , "S":1 , "W":1 ,"N":1},
       "armor_upgrade":{"all":1},
     },
 

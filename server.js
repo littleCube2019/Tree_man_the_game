@@ -173,7 +173,7 @@ function roundCheck(){
 	for(var d=0; d<dir.length; d++){
 		Env.roads[dir[d]].spawnEnemy(enemy, enemy_data)
 		//round_check_fn.spawnEnemy(Env, dir[d], enemy, enemy_data);
-		Env.roads[dir[d]].armyMove()
+		Env.roads[dir[d]].armyMove(Env.troops_state)
 		//round_check_fn.armyMove(Env, dir[d]);
 		Env.roads[dir[d]].enemyMove()
 		//round_check_fn.enemyMove(Env, dir[d]);

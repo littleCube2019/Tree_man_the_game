@@ -202,9 +202,9 @@ class road{
         for(var i=0; i<this.max_distance-1; i++){
             for(var j=0; j<this.army_location[i].length; j++){
                 if(this.army_location[i][j].retreat){
-                    var move_to = math.max(0, i - this.army_location[i][j].mobility)
+                    var move_to = Math.max(0, i - this.army_location[i][j].mobility)
                     if(move_to==0){
-                        army_type = this.army_location[i][j].type
+                        var army_type = this.army_location[i][j].type
                         army_state[army_type].amount += 1;
                     }
                     else{

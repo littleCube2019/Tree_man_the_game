@@ -181,7 +181,7 @@ class road{
 
     armyMove(army_state){
         //行軍
-        console.log(this.army_location)
+        //console.log(this.army_location)
         for(var i=this.max_distance-1; i>=0; i--){
             for(var j=0; j<this.army_location[i].length; ){
                 if(!this.army_location[i][j].retreat){

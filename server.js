@@ -179,7 +179,9 @@ function roundCheck(){
 		//round_check_fn.enemyMove(Env, dir[d]);
 		combat_fn.combat(Env, dir[d], combat_report, defender_data)
 	}
+  console.log(combat_report)
 	reports = combat_fn.combat_report_process(Env, combat_report);
+  console.log(reports)
 	io.emit("combat_report", reports);
 	//console.log(Env.roads);
 	//console.log("戰報:"+combat_report);

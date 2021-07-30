@@ -53,7 +53,7 @@ exports.Environment = class {
             //"heavy_armor":{"valid":false, "amount":0},
             //"archer_armor":{"valid":false, "amount":0},
 
-            "ranger":{"valid":true, "level":0, "amount":0} ,
+            "ranger":{"valid":true, "level":0, "amount":0},
             //"heavy_ranger":{"valid":false, "amount":0},
             //"archer_ranger":{"valid":false, "amount":0},
 
@@ -132,18 +132,20 @@ exports.Environment = class {
         this.RD[research_type][dir]["progress"] += Math.ceil(Math.random()*max_research_speed);
         var research_name = RD[research_type][level].name
 
-        var report = {"done":false, "progress":this.RD[research_type][dir]["progress"]}
+        var report = {"done":false, "progress":this.RD[research_type][dir]["progress"], "total":difficulty, "msg":""}
 
         if(this.RD[research_type][dir]["progress"] >= difficulty){
             RD[research_type][level].research_done(this, dir);
             this.RD[research_type][dir]["progress"] = 0;
             this.RD[research_type][dir]["level"] += 1;
+            report.msg = "成功研發" + research_name
             console.log("成功研發" + research_name)
             report.done = true
             report.progress = 0
         }
         else{
-            console.log("研發了:" + research_name + "， 進度:" + this.RD[research_type][dir]["progress"] + "/" + difficulty)
+            report.msg = "研發了:" + research_name + "， 進度:" + this.RD[research_type][dir]["progress"] + "/" + difficulty
+            console.log(report.msg)
         }
 
         return report

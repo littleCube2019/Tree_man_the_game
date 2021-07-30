@@ -144,6 +144,7 @@ function player_action_handle(action){
     if(report.done){
       if(action.research_type == "armor_upgrade"){
         io.emit("update_troop_info", Env.troops_state["armor"]["level"])
+        console.log(army_data["armor"][Env.troops_state["armor"]["level"]])
       }
     }
 		console.log(report)
@@ -239,7 +240,8 @@ io.on('connection', (socket) => {
       //====================
 
       newGame();
-      io.emit("start_game", Env, [army_data["archer"][Env.troops_state.armor.level], army_data["armor"][Env.troops_state.archer.level], army_data["ranger"][Env.troops_state.ranger.level]]);
+      io.emit("start_game", Env, [army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]]);
+      //console.log([army_data["armor"][Env.troops_state.armor.level], army_data["archer"][Env.troops_state.archer.level], army_data["ranger"][Env.troops_state.ranger.level]])
       io.emit("player_turn");
       //console.log("start game");
 

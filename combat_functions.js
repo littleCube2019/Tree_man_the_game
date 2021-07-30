@@ -37,19 +37,18 @@ exports.combat_report_process = function(Env, combat_report){
         reports.push(msg);
 
         if(r["location"]>0){
-			var msg =  "位於"+"<b>" + direct_dic[r["direction"]] + "方</b>距城門"+r["location"]+"公里處發生戰爭<br>我方造成"+r["army_attack"]+"點傷害，樹人造成"+r["enemy_attack"]+"點傷害<br>先鋒部隊剩餘血量為:"+r["army_hp"]+"，該樹人剩下"+r["enemy_hp"]+"點血量";
-			reports.push(msg);
+			var msg =  "位於"+"<b>" + direct_dic[r["direction"]] + "方</b>距城門"+r["location"]+"公里處發生戰爭<br>"
         }
         else{
 			var msg =  "位於"+"<b>" + direct_dic[r["direction"]] + "方</b>城門下方發生戰爭<br>"
-			for(var i in r["army_attack"]){
-				if(r["army_attack"][i]){
-					msg += i+"造成"+r["army_attack"][i]+"點傷害<br>" 
-				}
-			}
-			msg += "樹人造成"+r["enemy_attack"]+"點傷害<br>先鋒部隊剩餘血量為:"+r["army_hp"]+"，該樹人剩下"+r["enemy_hp"]+"點血量<br>";
-			reports.push(msg);
         }
+		for(var i in r["army_attack"]){
+			if(r["army_attack"][i]){
+				msg += i+"造成"+r["army_attack"][i]+"點傷害<br>" 
+			}
+		}
+		msg += "樹人造成"+r["enemy_attack"]+"點傷害<br>先鋒部隊剩餘血量為:"+r["army_hp"]+"，該樹人剩下"+r["enemy_hp"]+"點血量<br>";
+		reports.push(msg);
   
       
         

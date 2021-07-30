@@ -239,7 +239,7 @@ io.on('connection', (socket) => {
       //====================
 
       newGame();
-      io.emit("start_game", Env, [army_data[Env.troops_state.armor.level], army_data[Env.troops_state.archer.level], army_data[Env.troops_state.ranger.level]]);
+      io.emit("start_game", Env, [army_data["archer"][Env.troops_state.armor.level], army_data["armor"][Env.troops_state.archer.level], army_data["ranger"][Env.troops_state.ranger.level]]);
       io.emit("player_turn");
       //console.log("start game");
 

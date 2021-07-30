@@ -148,7 +148,7 @@
 						}
 				})
 
-				socket.on("start_game",(env,troop,defender)=>{
+			socket.on("start_game",(env,troop,defender)=>{
 				
 				
 				
@@ -178,7 +178,7 @@
 				
 				//基礎文本
 				$("#start_game_alert").modal("toggle")
-				
+				console.log(env, troop , defender)
 				recruit_troop.update(troop);
 			
 			})	

@@ -182,7 +182,7 @@ var recruit_troop = new Vue({
     troops:[
       [0,"archer","弓箭"],
 
-      [1,"armor","重甲步兵"],
+      [1,"armor","重步兵"],
 
       [2,"ranger","騎兵"],
 
@@ -237,24 +237,28 @@ var recruit_troop = new Vue({
   },
 
   update : function(troop){
-      for(var i =0 ;i < troop.length ; i++){
-         this.state[troop[i]["type"]]= troop[i];
-      }
+     
+     for(var i =0 ;i < troop.length ; i++){
+       this.state[troop[i]["type"]]= troop[i];
+       $("#"+troop[i]["type"]).attr('data-original-title',this.description([i])).tooltip('show');
+     }
+     
+      
   },
 
   description: function(n){
     if(n==0){
-      return "需要: "+this.state["archer"]["cost"]+"木頭 <br> 射程:"+this.state["archer"]["range"]+"公里 <br> 每隊攻擊力:"+this.state["archer"]["attack"]+"<br> 移動能力:日行"+this.state["archer"]["mobility"]+"公里<br>承受傷害能力:"+this.state["archer"]["hp"]+"<br> 敘述:由平民組成的弓箭隊，準度不佳，\
+      return "需要: "+this.state["archer"]["cost"]["wood"]+"木頭 <br> 射程:"+this.state["archer"]["attack_range"]+"公里 <br> 每隊攻擊力:"+this.state["archer"]["attack"]+"<br> 移動能力:日行"+this.state["archer"]["mobility"]+"公里<br>承受傷害能力:"+this.state["archer"]["hp"]+"<br> 敘述:由平民組成的弓箭隊，準度不佳，\
       但至少會拉弓，木頭大部分用於製作木箭"
     }
 
     else if(n==1){
-      return "需要: "+this.state["armor"]["cost"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["armor"]["attack"]+" <br> 移動能力:日行"+this.state["armor"]["mobility"]+"公里<br> 承受傷害能力:"+this.state["armor"]["hp"]+" <br> 敘述:由平民組成的步兵隊\
+      return "需要: "+this.state["armor"]["cost"]["wood"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["armor"]["attack"]+" <br> 移動能力:日行"+this.state["armor"]["mobility"]+"公里<br> 承受傷害能力:"+this.state["armor"]["hp"]+" <br> 敘述:由平民組成的步兵隊\
       ，拿著草叉、斧頭...工具就出征了，你不相信他們能擊殺敵人，但相信他們能拖延敵人，木頭幾乎用在製作木製鎧甲"
       }
     
     else if(n==2){
-      return "需要: "+this.state["ranger"]["cost"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["ranger"]["attack"]+" <br> 移動能力:日行"+this.state["ranger"]["mobility"]+"公里\
+      return "需要: "+this.state["ranger"]["cost"]["wood"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["ranger"]["attack"]+" <br> 移動能力:日行"+this.state["ranger"]["mobility"]+"公里\
       <br> 承受傷害能力:"+this.state["ranger"]["hp"]+" <br> 敘述:前帝國軍隊士兵組成，至少有基本的戰鬥技巧與騎術，還有之前留下的鏽跡斑斑的武器，木頭用在他們的軍餉與馬的飼料"
 
     }

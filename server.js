@@ -142,12 +142,12 @@ function player_action_handle(action){
 		//report = player_action_fn.research(Env, action.research_type, action.direction);
 		io.emit("research_report", report)
     if(report.done){
+      io.emit("research_done", action.research_type, action.direction, report.level+1)
       if(action.research_type == "armor_upgrade"){
-        io.emit("update_troop_info", Env.troops_state["armor"]["level"])
+        io.emit("update_troop_info", [army_data["armor"][Env.troops_state["armor"]["level"]]])
         console.log(army_data["armor"][Env.troops_state["armor"]["level"]])
       }
     }
-		console.log(report)
 	}
 }
 //===========================================

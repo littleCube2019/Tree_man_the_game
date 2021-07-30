@@ -65,6 +65,8 @@ exports.RD = {
 
             research_done(Env, dir){
                 Env.troops_state["armor"]["level"] = 1;
+                var next_level = -1
+                return next_level
             }
         }
     ],

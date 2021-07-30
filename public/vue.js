@@ -216,7 +216,7 @@ var recruit_troop = new Vue({
     for(var i = 0 ; i<troop.length ; i++){
       console.log(troop[i])
       if(troop_type == troop[i] ){
-        if(Env.resource["wood"] >= this.state[troop[i]]["cost"]){
+        if(Env.resource["wood"] >= this.state[troop[i]]["cost"]["wood"]){
           action = new recruit_troop(troop_type);
           troop_name= this.troops[i][2];
         }

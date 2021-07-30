@@ -913,7 +913,7 @@
 				<div  v-if="r[3]==false" > 
 				{{r[2]}}
 				<br>
-				<button  type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]" dir="all"  >{{Name(r[1],"all")}}</button>   
+				<button  v-if="level[r[1]][all] != -1"    type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]" dir="all"  >{{Name(r[1],"all")}}</button>   
 						   
 				</div>
 
@@ -922,7 +922,7 @@
 				<br>
 				<div class="float" v-for="direction in directions">
 				{{direction[1]}}
-				<button  type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]"  :dir=direction[0] >{{Name(r[1],direction[0])}}</button>  
+				<button  v-if="level[r[1]][direction[0]] != -1" type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]"  :dir=direction[0] >{{Name(r[1],direction[0])}}</button>  
 				</div> 
 				</div>
 				

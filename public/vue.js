@@ -339,7 +339,7 @@ var research = new Vue({
     researchs:[
       // [ number , id , name , isDir   ]
       // 未來會像troop一樣處理 ， name ==> level
-      [0,"wall_upgrade","城牆加固" , true],
+      [0,"wall_upgrade","城牆加固" , true ],
 
       [1,"defence_developments","防禦工事" , true],
 
@@ -363,8 +363,10 @@ var research = new Vue({
       "wall_upgrade" : {1:"加固木牆" , 2: "雙重木牆"},
       "defence_developments":{1:"駐城弩隊" , 2:"守城投石機"},
       "armor_upgrade" : {1:"厚木甲"}
-    }
-   
+    } ,
+    
+    all : "all" ,
+
   },
 
   methods:{
@@ -373,7 +375,12 @@ var research = new Vue({
       },
     Name: function(id , dir){
       return this.name[id][this.level[id][dir]];
-    }
+    },
+
+    update_level : function(type, dir , levels){
+      this.level[type][dir]  = levels;
+    },
+
   }
   }
 )

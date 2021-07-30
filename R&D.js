@@ -12,6 +12,8 @@ exports.RD = {
 
             research_done(Env, dir){
                 Env.roads[dir].max_wallhp += 1000;
+                var next_level = 1
+                return next_level
             }
         },
     
@@ -23,6 +25,8 @@ exports.RD = {
 
             research_done(Env, dir){
                 Env.roads[dir].max_wallhp += 2000;
+                var next_level = -1
+                return next_level
             }
         },
     ],
@@ -38,6 +42,8 @@ exports.RD = {
 
             research_done(Env, dir){
                 Env.roads[dir].defence["crossbow"]["valid"] = true;
+                var next_level = 1
+                return next_level
             }
         },
 
@@ -49,6 +55,8 @@ exports.RD = {
 
             research_done(Env, dir){
                 Env.roads[dir].defence["catapult"]["valid"] = true;
+                var next_level = -1
+                return next_level
             }
         },
     ],

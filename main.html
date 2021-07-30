@@ -297,7 +297,11 @@
 				
 
 			})
+			//研究成功
+			socket.on("research_done",(type , dir , level)=>{
 
+				research.update_level(type , dir , level);
+			})
 			//研究通知
 			socket.on("research_report",(report)=>{
 				
@@ -680,7 +684,7 @@
 					<div>{{wall.dir}}: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-right" viewBox="0 0 16 16">
 						<path fill-rule="evenodd" d="M6 8a.5.5 0 0 0 .5.5h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L12.293 7.5H6.5A.5.5 0 0 0 6 8zm-2.5 7a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5z"/>
 					  </svg>  
-					<span > {{wall.hp}} </span> 
+					<span > {{wall.hp}}/{{wall.maxhp}} </span> 
 				
 					</div>
 					
@@ -913,7 +917,7 @@
 				<div  v-if="r[3]==false" > 
 				{{r[2]}}
 				<br>
-				<button  v-if="level[r[1]][all] != -1"    type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]" dir="all"  >{{Name(r[1],"all")}}</button>   
+				<button  v-if="level[r[1]][all] != 0"    type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]" dir="all"  >{{Name(r[1],"all")}}</button>   
 						   
 				</div>
 
@@ -922,7 +926,7 @@
 				<br>
 				<div class="float" v-for="direction in directions">
 				{{direction[1]}}
-				<button  v-if="level[r[1]][direction[0]] != -1" type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]"  :dir=direction[0] >{{Name(r[1],direction[0])}}</button>  
+				<button  v-if="level[r[1]][direction[0]] != 0" type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]"  :dir=direction[0] >{{Name(r[1],direction[0])}}</button>  
 				</div> 
 				</div>
 				

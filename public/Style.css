@@ -143,6 +143,17 @@ div {
 	left: 45%;       
 }
 
+
+#go-back-castle {
+	position: absolute; 
+	background: orange;
+	width: 50px;
+	height: 25px;
+	top: 93% ;        
+	left: 45%;       
+}
+
+
 .float{
 	width:25%;
 	float:left;

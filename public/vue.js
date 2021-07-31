@@ -2,6 +2,25 @@
 /*
 Note : 可以使用Global variable、socket 等等主檔的變數 (限function , Data 不行)
 */
+// 主畫面
+var main =  new Vue({
+  el: '#Main',
+  
+  data : {
+    mode : 0
+
+  },
+
+  methods:{
+    updateMode: function(mode){
+      this.mode = mode; 
+    }
+
+  }
+
+
+})
+
 
 
 // 選擇玩家按鈕  
@@ -160,7 +179,8 @@ var choose_basic = new Vue({
     }
 
     if(event.target.getAttribute("id")=="choose_go_out"){
-      $("#go_out").show();
+      $(".in_castle").hide();
+      $(".outside").show();
     }
 
     $("#go-back").show();

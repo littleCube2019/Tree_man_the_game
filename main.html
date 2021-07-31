@@ -131,6 +131,7 @@
 						$(".RIGHT").hide();
 						$(".alert").hide();
 						$("#game_over").hide();
+
 						
 				})
 
@@ -174,6 +175,7 @@
 				}
 
 				$(".LEFT").show();
+				$(".outside").hide();
 				$(".RIGHT").show();
 				
 				//基礎文本
@@ -348,9 +350,14 @@
 					$('[data-toggle="tooltip"]').tooltip()
 					})
 				
+					
 				
-				
-				
+				$("#go-back-castle ").click(()=>{
+					$(".in_castle").show();
+     				 $(".outside").hide();
+					  $("#choose_basic_action").show();
+					  $("#go-back").hide();
+				})
 
 				$("#go-back ").click(()=>{
 					$(".detail_choose").hide();
@@ -605,7 +612,7 @@
 
 
 
-	<body>
+	<body  >
    
 	<!-- 選角畫面 ======================          -->
 	
@@ -653,7 +660,7 @@
 
     <!-- our status showing below-->
 	<!-- ==================================== -->
-	<div  class="LEFT_TOP">
+	<div  class="LEFT_TOP in_castle" >
 		<!--屬性欄，此div為最外框-->
     	<div id="status" > <div>當前狀態 <span id="player_name"> </span> </div>   
 			<div id="my_basic-data">
@@ -762,12 +769,20 @@
 	<!-- all status showing above-->
 	<!-- ==================================== -->
 
-
+	
 	
 
 	<!-- all buttons or something user interaction below-->
 	<!-- ==================================== -->
-	<div class="LEFT_BOTTOM " style="overflow:scroll">
+
+	<div  class="LEFT_TOP outside" >
+		<div>當前狀態 <span id="player_name"> </span> </div>  
+
+	</div>	
+
+
+
+	<div class="LEFT_BOTTOM  in_castle" style="overflow:scroll">
 		
 			<div id="my_mission">操作</div>
 			
@@ -940,13 +955,7 @@
 
 
 
-			<!--   外出  -->
-			<div class= "detail_choose" id="go_out">
 			
-				<div >
-					Bye
-				</div>
-			</div>
 			<!--   =======================================   -->	
 
 
@@ -957,15 +966,31 @@
 
 			
 
-			<button class="detail_choose" , id="go-back"> 返回</button>
+			<button class="detail_choose"  id="go-back"> 返回</button>
 			<!--   =======================================   -->
 			
 
 
 		</div>
-	</div>
+
+   <!--============ in_castle -->
+    <div class="LEFT_BOTTOM  outside" style="overflow:scroll">
+		 <div id="my_mission">操作</div>
+
+	     <button   id="go-back-castle"> 回城</button>
+    </div>
+
 
 	</div>
+
+	
+
+
+	</div>
+
+	
+
+
 	<div class="RIGHT">
 	<!-- show message below--> 
 			<!-- ==================================== -->

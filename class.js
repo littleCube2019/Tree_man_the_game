@@ -25,6 +25,7 @@ exports.Environment = class {
         
         this.round = 1 ; 
         this.resource = {"wood":5000} ;
+        this.resource_gain = {"wood":500} //回合結束可獲得的資源
 
         //==探索地圖=============================
         this.x = 11
@@ -37,9 +38,9 @@ exports.Environment = class {
 
         this.exployer_location = {"x":Math.floor(this.x/2), "y":Math.floor(this.y/2)};
 
-        this.resource_spot = {"wood":3, "shoe":1}
+        this.resource_point = {"wood":3, "shoe":1}
         for(var resource_type in this.resource_spot){
-            this.create_resource_spot(resource_type)
+            this.create_resource_point(resource_type)
         }
         //=======================================
 
@@ -48,7 +49,6 @@ exports.Environment = class {
         
         this.troops_state = { 
             
-
             "armor":{"valid":true, "level":0, "amount":0}, 
             //"heavy_armor":{"valid":false, "amount":0},
             //"archer_armor":{"valid":false, "amount":0},
@@ -82,10 +82,23 @@ exports.Environment = class {
         }
 
         //============================================
+
+        this.dict = {
+            "N" : "北方的",
+            "E" : "東方的",
+            "W" : "西方的",
+            "S" : "南方的",
+            "all" : "",
+        }
+    }
+    gainResource(){
+        for(var r in this.resource_gain){
+            this.resource[r] += this.resource_gain[r]
+        }
     }
 
-    create_resource_spot(resource_type){
-        for(var i=0; i<this.resource_spot[resource_type];){
+    create_resource_point(resource_type){
+        for(var i=0; i<this.resource_point[resource_type];){
             var x = Math.floor(Math.random()*this.x)
             var y = Math.floor(Math.random()*this.y)
             if(this.map[x][y]==undefined && this.map[x][y]!="castle"){
@@ -94,6 +107,15 @@ exports.Environment = class {
             }
         }
     }
+
+    findResource(location){
+        for(var l in location){
+            if(this.map[l.x][l.y]!=undefined){
+                return this.map[l.x][l.y]
+            }
+        }
+    }
+
     
     recruit(army_type, army_data){
         var level = this.troops_state[army_type].level
@@ -140,13 +162,13 @@ exports.Environment = class {
         if(this.RD[research_type][dir]["progress"] >= difficulty){
             this.RD[research_type][dir]["level"] = RD[research_type][level].research_done(this, dir);
             this.RD[research_type][dir]["progress"] = 0;
-            report.msg = "成功研發" + research_name
+            report.msg = "成功研發" + this.dict[dir] + research_name
             report.done = true
             report.progress = 0
             report.level = this.RD[research_type][dir]["level"]
         }
         else{
-            report.msg = "研發了:" + research_name + "， 進度:" + this.RD[research_type][dir]["progress"] + "/" + difficulty
+            report.msg = "研發了:" + this.dict[dir] + research_name + "， 進度:" + this.RD[research_type][dir]["progress"] + "/" + difficulty
         }
         console.log(report)
         return report

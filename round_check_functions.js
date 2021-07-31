@@ -76,7 +76,7 @@ exports.spawnEnemy = function(Env, dir, enemy, enemy_data){
     if(spawn_big_tree_man < enemy_data["big_tree_man"]["spawn_prob"]*100 && Env.round>=10){ //0.05
         Env.roads[dir].enemy_location[Env.roads[dir].max_distance-1].push(new enemy(enemy_data["big_tree_man"]));
     }
-	*/
+	
 }
 //=============================================
 

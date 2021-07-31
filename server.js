@@ -194,6 +194,7 @@ function roundCheck(){
 		player2HasBeenChoosen = false;
 	}
 	Env.gainResource()
+	Env.explorer_data.move_left = Env.explorer_mobility
 	Env.round += 1;
 }
 	//=============================================
@@ -285,6 +286,8 @@ io.on('connection', (socket) => {
 	//每回合結算玩家的行動並更新環境
 	socket.on("action_done", (player_id, action ,msg)=>{ //玩家的訊息
 
+		var report = Env.explore("")
+		console.log(report)
 		io.emit("player_msg",msg);
 		if(player_id==1){
 			player_action_handle(action);

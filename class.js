@@ -37,11 +37,11 @@ exports.Environment = class {
         }
         this.map[Math.floor(this.x/2)][Math.floor(this.y/2)] = "castle"
 
-        this.exployer_mobility = 3
-        this.exployer_data = {
+        this.explorer_mobility = 3
+        this.explorer_data = {
             "x":Math.floor(this.x/2), 
             "y":Math.floor(this.y/2),
-            "move_left":this.exployer_mobility,
+            "move_left":this.explorer_mobility,
         };
 
         this.resource_point = {"wood":3,"shoe":1}
@@ -103,7 +103,7 @@ exports.Environment = class {
     }
 
     create_resource_point(){
-        this.map[Math.floor(this.x/2)][Math.floor(this.y/2)] = {"type":"castle","x":Math.floor(this.x/2),"y":Math.floor(this.y/2),"found":true,}
+        this.map[Math.floor(this.x/2)][Math.floor(this.y/2)] = {"type":"castle","found":true,}
         for(var resource_type in this.resource_point){
             for(var i=0; i<this.resource_point[resource_type];){
                 var x = Math.floor(Math.random()*this.x)
@@ -111,8 +111,6 @@ exports.Environment = class {
                 if(this.map[x][y]==undefined){
                     var r = {
                         "type":resource_type,
-                        "x":x,
-                        "y":y,
                         "found":false,
                     }
                     this.map[x][y] = r
@@ -123,26 +121,24 @@ exports.Environment = class {
     }
 
     explore(direction){
-        var report = {"resource":"", "move_left":--this.exployer_data.move_left}
-        if(this.exployer_data.move_left==0){
-            this.exployer_data.move_left = this.exployer_mobility
-        }
+        this.explorer_data.move_left -= 1
+        var report = {"resource":"", "explorer_data":this.explorer_data}
+        
         if(direction=="N"){
-            this.exployer_data.y += 1
+            this.explorer_data.y += 1
         }else if(direction=="S"){
-            this.exployer_data.y -= 1
+            this.explorer_data.y -= 1
         }else if(direction=="E"){
-            this.exployer_data.x += 1
+            this.explorer_data.x += 1
         }else if(direction=="W"){
-            this.exployer_data.x -= 1
+            this.explorer_data.x -= 1
         }
-        console.log(this.map[this.exployer_data.x][this.exployer_data.y])
-        if(this.map[this.exployer_data.x][this.exployer_data.y]!=undefined && !this.map[this.exployer_data.x][this.exployer_data.y].found){
-            report["resource"] = this.map[this.exployer_data.x][this.exployer_data.y].type
-            console.log(explore_reward)
-            console.log(this.map[this.exployer_data.x][this.exployer_data.y].type)
-            explore_reward[this.map[this.exployer_data.x][this.exployer_data.y].type].reward(this)
-            this.map[this.exployer_data.x][this.exployer_data.y].found = true
+        if(this.map[this.explorer_data.x][this.explorer_data.y]!=undefined){
+            report["resource"] = this.map[this.explorer_data.x][this.explorer_data.y].type
+            if(!this.map[this.explorer_data.x][this.explorer_data.y].found){
+                explore_reward[this.map[this.explorer_data.x][this.explorer_data.y].type].reward(this)
+                this.map[this.explorer_data.x][this.explorer_data.y].found = true
+            }
         }
         return report
     }

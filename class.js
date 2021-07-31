@@ -13,6 +13,7 @@
    defence_army_direction: object，記錄防禦部隊面朝方向
 
 */
+var explore_reward = require("./explore_reward").explore_reward
 exports.Environment = class {
     //環境變數
     constructor(){
@@ -36,12 +37,16 @@ exports.Environment = class {
         }
         this.map[Math.floor(this.x/2)][Math.floor(this.y/2)] = "castle"
 
-        this.exployer_location = {"x":Math.floor(this.x/2), "y":Math.floor(this.y/2)};
+        this.explorer_mobility = 3
+        this.explorer_data = {
+            "x":Math.floor(this.x/2), 
+            "y":Math.floor(this.y/2),
+            "move_left":this.explorer_mobility,
+        };
 
-        this.resource_point = {"wood":3, "shoe":1}
-        for(var resource_type in this.resource_spot){
-            this.create_resource_point(resource_type)
-        }
+        this.resource_point = {"wood":3,"shoe":1}
+
+        this.create_resource_point()
         //=======================================
 
         //===========軍力&科技===================
@@ -97,23 +102,45 @@ exports.Environment = class {
         }
     }
 
-    create_resource_point(resource_type){
-        for(var i=0; i<this.resource_point[resource_type];){
-            var x = Math.floor(Math.random()*this.x)
-            var y = Math.floor(Math.random()*this.y)
-            if(this.map[x][y]==undefined && this.map[x][y]!="castle"){
-                this.map[x][y] = resource_type
-                i++
+    create_resource_point(){
+        this.map[Math.floor(this.x/2)][Math.floor(this.y/2)] = {"type":"castle","found":true,}
+        for(var resource_type in this.resource_point){
+            for(var i=0; i<this.resource_point[resource_type];){
+                var x = Math.floor(Math.random()*this.x)
+                var y = Math.floor(Math.random()*this.y)
+                if(this.map[x][y]==undefined){
+                    var r = {
+                        "type":resource_type,
+                        "found":false,
+                    }
+                    this.map[x][y] = r
+                    i++
+                }
             }
         }
     }
 
-    findResource(location){
-        for(var l in location){
-            if(this.map[l.x][l.y]!=undefined){
-                return this.map[l.x][l.y]
+    explore(direction){
+        this.explorer_data.move_left -= 1
+        var report = {"resource":"", "explorer_data":this.explorer_data}
+        
+        if(direction=="N"){
+            this.explorer_data.y += 1
+        }else if(direction=="S"){
+            this.explorer_data.y -= 1
+        }else if(direction=="E"){
+            this.explorer_data.x += 1
+        }else if(direction=="W"){
+            this.explorer_data.x -= 1
+        }
+        if(this.map[this.explorer_data.x][this.explorer_data.y]!=undefined){
+            report["resource"] = this.map[this.explorer_data.x][this.explorer_data.y].type
+            if(!this.map[this.explorer_data.x][this.explorer_data.y].found){
+                explore_reward[this.map[this.explorer_data.x][this.explorer_data.y].type].reward(this)
+                this.map[this.explorer_data.x][this.explorer_data.y].found = true
             }
         }
+        return report
     }
 
     

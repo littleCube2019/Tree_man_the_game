@@ -149,9 +149,6 @@ function player_action_handle(action){
 			}
 		}
 	}
-	else if(action.type=="explore"){
-
-	}
 }
 //===========================================
 
@@ -197,6 +194,7 @@ function roundCheck(){
 		player2HasBeenChoosen = false;
 	}
 	Env.gainResource()
+	Env.explorer_data.move_left = Env.explorer_mobility
 	Env.round += 1;
 }
 	//=============================================
@@ -227,38 +225,38 @@ io.on('connection', (socket) => {
 	// 選角  =============================================
 	socket.on("choose_character", (id)=>{
 
-	chooseCharacter(id);
+		chooseCharacter(id);
 
-	player_list[socket.id] = socket.id;
-	if(player1HasBeenChoosen && player2HasBeenChoosen){
+		player_list[socket.id] = socket.id;
+		if(player1HasBeenChoosen && player2HasBeenChoosen){
 
-		//把沒選角的剔掉=====
-		console.log(player_list)
-		console.log(connected_list)
-		for(var sockedId in connected_list){
-			if(!(sockedId in player_list)){
-				console.log(sockedId);
-				io.to(sockedId).emit("gameover");//觀戰or其他處理(暫定gameover)
+			//把沒選角的剔掉=====
+			console.log(player_list)
+			console.log(connected_list)
+			for(var sockedId in connected_list){
+				if(!(sockedId in player_list)){
+					console.log(sockedId);
+					io.to(sockedId).emit("gameover");//觀戰or其他處理(暫定gameover)
+				}
 			}
+			//====================
+
+			newGame();
+			io.emit("start_game", Env, [army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]]);
+			//console.log([army_data["armor"][Env.troops_state.armor.level], army_data["archer"][Env.troops_state.archer.level], army_data["ranger"][Env.troops_state.ranger.level]])
+			io.emit("player_turn");
+			//console.log("start game");
+
+			//test
+
+			
+
+
+			
+			io.emit("update_state", Env);
+			io.emit("player_turn");
 		}
-		//====================
-
-		newGame();
-		io.emit("start_game", Env, [army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]]);
-		//console.log([army_data["armor"][Env.troops_state.armor.level], army_data["archer"][Env.troops_state.archer.level], army_data["ranger"][Env.troops_state.ranger.level]])
-		io.emit("player_turn");
-		//console.log("start game");
-
-		//test
-
-		
-
-
-		
-		io.emit("update_state", Env);
-		io.emit("player_turn");
-	}
-});
+	});
 	//  =================================================
 
 
@@ -269,17 +267,17 @@ io.on('connection', (socket) => {
 
 
 
-socket.on('disconnect', () => {
-	console.log('Client disconnected')
-	if(socket.id in player_list){
-		player_list = {}
-		player1HasBeenChoosen = false;
-		player2HasBeenChoosen = false;
-		io.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
-		console.log("有人跳game")
-	}
-	delete player_list[socket.id];
-	delete connected_list[socket.id];
+	socket.on('disconnect', () => {
+		console.log('Client disconnected')
+		if(socket.id in player_list){
+			player_list = {}
+			player1HasBeenChoosen = false;
+			player2HasBeenChoosen = false;
+			io.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
+			console.log("有人跳game")
+		}
+		delete player_list[socket.id];
+		delete connected_list[socket.id];
 	});
 
 
@@ -288,20 +286,26 @@ socket.on('disconnect', () => {
 	//每回合結算玩家的行動並更新環境
 	socket.on("action_done", (player_id, action ,msg)=>{ //玩家的訊息
 
-	io.emit("player_msg",msg);
-
-	if(player_id==1){
-		player_action_handle(action);
-		io.emit("update_state", Env);
-		io.emit("player_turn");
-	}
-	else if(player_id==-1){
-		player_action_handle(action);
-		roundCheck();
-		io.emit("update_state", Env);
-		io.emit("player_turn");
-	}
+		var report = Env.explore("")
+		console.log(report)
+		io.emit("player_msg",msg);
+		if(player_id==1){
+			player_action_handle(action);
+			io.emit("update_state", Env);
+			io.emit("player_turn");
+		}
+		else if(player_id==-1){
+			player_action_handle(action);
+			roundCheck();
+			io.emit("update_state", Env);
+			io.emit("player_turn");
+		}
 	});
+
+	socket.on("explore", (direction)=>{
+		var report = Env.explore(direction)
+		io.emit("explore_report", report)
+	})
 	//===================================================
 })
 

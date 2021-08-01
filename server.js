@@ -6,11 +6,11 @@ const e = require('express');
 var express = require('express');
 const { env } = require('process');
 app.get('/', function(req, res){
-  res.sendFile(__dirname + '/main.html');
+res.sendFile(__dirname + '/main.html');
 });
 
 http.listen(process.env.PORT || 3000, function(){
-  console.log('listening on *:3000');
+console.log('listening on *:3000');
 });
 
 app.use(express.static('public'));
@@ -56,18 +56,18 @@ player_choosed : 選角，回傳角色id
 start_game : 回傳遊戲開始訊號
 
 while loop
-  socket.on(action_done) : 接收回家選擇行動與其選項  
-  [
-    scout_report : 回傳偵查情報
-    combat_report : 回傳處理過後的戰報 ，為一string array
-    player_msg : 回傳"訊息"給兩位玩家
-  ]
-  player_turn: 玩家其中一位結束操作時，發出的訊號
+socket.on(action_done) : 接收回家選擇行動與其選項  
+[
+scout_report : 回傳偵查情報
+combat_report : 回傳處理過後的戰報 ，為一string array
+player_msg : 回傳"訊息"給兩位玩家
+]
+player_turn: 玩家其中一位結束操作時，發出的訊號
 
 
-  turn_end : 回傳回合結束訊號， 並給一個機率值決定(每日結尾)事件
+turn_end : 回傳回合結束訊號， 並給一個機率值決定(每日結尾)事件
 
-  update_state: env 資訊更新到前端
+update_state: env 資訊更新到前端
 
 
 
@@ -83,14 +83,14 @@ var player2HasBeenChoosen = false;
 
 function chooseCharacter(id)
 {
-  if(id==1){
-    console.log("player1 has been choosed");
-    player1HasBeenChoosen = true;
-  }else if(id==-1){
-    console.log("player2 has been choosed");
-    player2HasBeenChoosen = true;
-  }
-  io.emit("player_choosed", id);
+	if(id==1){
+		console.log("player1 has been choosed");
+		player1HasBeenChoosen = true;
+	}else if(id==-1){
+		console.log("player2 has been choosed");
+		player2HasBeenChoosen = true;
+	}
+	io.emit("player_choosed", id);
 }
 
 
@@ -102,7 +102,7 @@ function chooseCharacter(id)
 var Env = new Environment()
 
 function newGame(){
-  Env = new Environment();
+	Env = new Environment();
 }
 //============================
 
@@ -141,13 +141,13 @@ function player_action_handle(action){
 		report = Env.research(RD, action.research_type, action.direction)
 		//report = player_action_fn.research(Env, action.research_type, action.direction);
 		io.emit("research_report", report)
-    if(report.done){
-      io.emit("research_done", action.research_type, action.direction, report.level+1)
-      if(action.research_type == "armor_upgrade"){
-        io.emit("update_troop_info", [army_data["armor"][Env.troops_state["armor"]["level"]]])
-        console.log(army_data["armor"][Env.troops_state["armor"]["level"]])
-      }
-    }
+	if(report.done){
+		io.emit("research_done", action.research_type, action.direction, report.level+1)
+			if(action.research_type == "armor_upgrade"){
+			io.emit("update_troop_info", [army_data["armor"][Env.troops_state["armor"]["level"]]])
+			console.log(army_data["armor"][Env.troops_state["armor"]["level"]])
+			}
+		}
 	}
 }
 //===========================================
@@ -155,8 +155,8 @@ function player_action_handle(action){
 
 // 機率決定 
 function roll_the_dice(range=100){
-  // Math.floor(Math.random() * 10) returns a random integer between 0 and 9 (both included):
-  return (Math.floor(Math.random() * range)+1);
+	// Math.floor(Math.random() * 10) returns a random integer between 0 and 9 (both included):
+	return (Math.floor(Math.random() * range)+1);
 }
 
 
@@ -179,9 +179,9 @@ function roundCheck(){
 		//round_check_fn.enemyMove(Env, dir[d]);
 		combat_fn.combat(Env, dir[d], combat_report, defender_data)
 	}
-  console.log(combat_report)
+	console.log(combat_report)
 	reports = combat_fn.combat_report_process(Env, combat_report);
-  console.log(reports)
+	console.log(reports)
 	io.emit("combat_report", reports);
 	//console.log(Env.roads);
 	//console.log("戰報:"+combat_report);
@@ -193,114 +193,120 @@ function roundCheck(){
 		player1HasBeenChoosen = false;
 		player2HasBeenChoosen = false;
 	}
-
+	Env.gainResource()
+	Env.explorer_data.move_left = Env.explorer_mobility
 	Env.round += 1;
-	Env.resource["wood"] += 500;
 }
-//=============================================
+	//=============================================
 
 
 
 
-var player_list = {}
-var connected_list = {}
+	var player_list = {}
+	var connected_list = {}
 
 io.on('connection', (socket) => {
-  
-  console.log('Client connected');
-  connected_list[socket.id] = socket.id;
 
-  socket.on('new_game', ()=>{
-    socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
-  })
+	console.log('Client connected');
+	connected_list[socket.id] = socket.id;
 
-  if(Object.keys(player_list).length<2){
-    socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
-  }
-  else{
-    socket.emit("gameover")//觀戰or其他處理(暫定gameover)
-    console.log("人滿囉")
-  }
+	socket.on('new_game', ()=>{
+		socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
+	})
 
-  // 選角  =============================================
-  socket.on("choose_character", (id)=>{
+	if(Object.keys(player_list).length<2){
+		socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
+	}
+	else{
+		socket.emit("gameover")//觀戰or其他處理(暫定gameover)
+		console.log("人滿囉")
+	}
 
-    chooseCharacter(id);
+	// 選角  =============================================
+	socket.on("choose_character", (id)=>{
 
-    player_list[socket.id] = socket.id;
-    if(player1HasBeenChoosen && player2HasBeenChoosen){
+		chooseCharacter(id);
 
-      //把沒選角的剔掉=====
-      console.log(player_list)
-      console.log(connected_list)
-      for(var sockedId in connected_list){
-        if(!(sockedId in player_list)){
-          console.log(sockedId);
-          io.to(sockedId).emit("gameover");//觀戰or其他處理(暫定gameover)
-        }
-      }
-      //====================
+		player_list[socket.id] = socket.id;
+		if(player1HasBeenChoosen && player2HasBeenChoosen){
 
-      newGame();
-      io.emit("start_game", Env, [army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]]);
-      //console.log([army_data["armor"][Env.troops_state.armor.level], army_data["archer"][Env.troops_state.archer.level], army_data["ranger"][Env.troops_state.ranger.level]])
-      io.emit("player_turn");
-      //console.log("start game");
+			//把沒選角的剔掉=====
+			console.log(player_list)
+			console.log(connected_list)
+			for(var sockedId in connected_list){
+				if(!(sockedId in player_list)){
+					console.log(sockedId);
+					io.to(sockedId).emit("gameover");//觀戰or其他處理(暫定gameover)
+				}
+			}
+			//====================
 
-      //test
+			newGame();
+			io.emit("start_game", Env, [army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]]);
+			//console.log([army_data["armor"][Env.troops_state.armor.level], army_data["archer"][Env.troops_state.archer.level], army_data["ranger"][Env.troops_state.ranger.level]])
+			io.emit("player_turn");
+			//console.log("start game");
 
-     
+			//test
 
-
-      
-      io.emit("update_state", Env);
-      io.emit("player_turn");
-    }
-  });
-  //  =================================================
+			
 
 
- 
+			
+			io.emit("update_state", Env);
+			io.emit("player_turn");
+		}
+	});
+	//  =================================================
 
 
 
 
 
-  
-  socket.on('disconnect', () => {
-    console.log('Client disconnected')
-    if(socket.id in player_list){
-      player_list = {}
-      player1HasBeenChoosen = false;
-      player2HasBeenChoosen = false;
-      io.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
-      console.log("有人跳game")
-    }
-    delete player_list[socket.id];
-    delete connected_list[socket.id];
-  });
 
 
 
 
-  //每回合結算玩家的行動並更新環境
-  socket.on("action_done", (player_id, action ,msg)=>{ //玩家的訊息
-    
-    io.emit("player_msg",msg);
+	socket.on('disconnect', () => {
+		console.log('Client disconnected')
+		if(socket.id in player_list){
+			player_list = {}
+			player1HasBeenChoosen = false;
+			player2HasBeenChoosen = false;
+			io.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
+			console.log("有人跳game")
+		}
+		delete player_list[socket.id];
+		delete connected_list[socket.id];
+	});
 
-    if(player_id==1){
-      player_action_handle(action);
-      io.emit("update_state", Env);
-      io.emit("player_turn");
-    }
-    else if(player_id==-1){
-      player_action_handle(action);
-      roundCheck();
-      io.emit("update_state", Env);
-      io.emit("player_turn");
-    }
-  });
-  //===================================================
+
+
+
+	//每回合結算玩家的行動並更新環境
+	socket.on("action_done", (player_id, action ,msg)=>{ //玩家的訊息
+
+		var report = Env.explore("")
+		console.log(report)
+		io.emit("player_msg",msg);
+		if(player_id==1){
+			player_action_handle(action);
+			io.emit("update_state", Env);
+			io.emit("player_turn");
+		}
+		else if(player_id==-1){
+			player_action_handle(action);
+			roundCheck();
+			io.emit("update_state", Env);
+			io.emit("player_turn");
+		}
+	});
+
+	socket.on("explore", (direction)=>{
+		var report = Env.explore(direction)
+		io.emit("explore_report", report)
+	})
+	//===================================================
 })
 
 

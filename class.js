@@ -13,6 +13,7 @@
    defence_army_direction: object，記錄防禦部隊面朝方向
 
 */
+var explore_reward = require("./explore_reward").explore_reward
 exports.Environment = class {
     //環境變數
     constructor(){
@@ -25,6 +26,7 @@ exports.Environment = class {
         
         this.round = 1 ; 
         this.resource = {"wood":5000} ;
+        this.resource_gain = {"wood":500} //回合結束可獲得的資源
 
         //==探索地圖=============================
         this.x = 11
@@ -35,12 +37,16 @@ exports.Environment = class {
         }
         this.map[Math.floor(this.x/2)][Math.floor(this.y/2)] = "castle"
 
-        this.exployer_location = {"x":Math.floor(this.x/2), "y":Math.floor(this.y/2)};
+        this.explorer_mobility = 3
+        this.explorer_data = {
+            "x":Math.floor(this.x/2), 
+            "y":Math.floor(this.y/2),
+            "move_left":this.explorer_mobility,
+        };
 
-        this.resource_spot = {"wood":3, "shoe":1}
-        for(var resource_type in this.resource_spot){
-            this.create_resource_spot(resource_type)
-        }
+        this.resource_point = {"wood":3,"shoe":1}
+
+        this.create_resource_point()
         //=======================================
 
         //===========軍力&科技===================
@@ -48,7 +54,6 @@ exports.Environment = class {
         
         this.troops_state = { 
             
-
             "armor":{"valid":true, "level":0, "amount":0}, 
             //"heavy_armor":{"valid":false, "amount":0},
             //"archer_armor":{"valid":false, "amount":0},
@@ -82,18 +87,62 @@ exports.Environment = class {
         }
 
         //============================================
+
+        this.dict = {
+            "N" : "北方的",
+            "E" : "東方的",
+            "W" : "西方的",
+            "S" : "南方的",
+            "all" : "",
+        }
+    }
+    gainResource(){
+        for(var r in this.resource_gain){
+            this.resource[r] += this.resource_gain[r]
+        }
     }
 
-    create_resource_spot(resource_type){
-        for(var i=0; i<this.resource_spot[resource_type];){
-            var x = Math.floor(Math.random()*this.x)
-            var y = Math.floor(Math.random()*this.y)
-            if(this.map[x][y]==undefined && this.map[x][y]!="castle"){
-                this.map[x][y] = resource_type
-                i++
+    create_resource_point(){
+        this.map[Math.floor(this.x/2)][Math.floor(this.y/2)] = {"type":"castle","found":true,}
+        for(var resource_type in this.resource_point){
+            for(var i=0; i<this.resource_point[resource_type];){
+                var x = Math.floor(Math.random()*this.x)
+                var y = Math.floor(Math.random()*this.y)
+                if(this.map[x][y]==undefined){
+                    var r = {
+                        "type":resource_type,
+                        "found":false,
+                    }
+                    this.map[x][y] = r
+                    i++
+                }
             }
         }
     }
+
+    explore(direction){
+        this.explorer_data.move_left -= 1
+        var report = {"resource":"", "explorer_data":this.explorer_data}
+        
+        if(direction=="N"){
+            this.explorer_data.y += 1
+        }else if(direction=="S"){
+            this.explorer_data.y -= 1
+        }else if(direction=="E"){
+            this.explorer_data.x += 1
+        }else if(direction=="W"){
+            this.explorer_data.x -= 1
+        }
+        if(this.map[this.explorer_data.x][this.explorer_data.y]!=undefined){
+            report["resource"] = this.map[this.explorer_data.x][this.explorer_data.y].type
+            if(!this.map[this.explorer_data.x][this.explorer_data.y].found){
+                explore_reward[this.map[this.explorer_data.x][this.explorer_data.y].type].reward(this)
+                this.map[this.explorer_data.x][this.explorer_data.y].found = true
+            }
+        }
+        return report
+    }
+
     
     recruit(army_type, army_data){
         var level = this.troops_state[army_type].level
@@ -140,13 +189,13 @@ exports.Environment = class {
         if(this.RD[research_type][dir]["progress"] >= difficulty){
             this.RD[research_type][dir]["level"] = RD[research_type][level].research_done(this, dir);
             this.RD[research_type][dir]["progress"] = 0;
-            report.msg = "成功研發" + research_name
+            report.msg = "成功研發" + this.dict[dir] + research_name
             report.done = true
             report.progress = 0
             report.level = this.RD[research_type][dir]["level"]
         }
         else{
-            report.msg = "研發了:" + research_name + "， 進度:" + this.RD[research_type][dir]["progress"] + "/" + difficulty
+            report.msg = "研發了:" + this.dict[dir] + research_name + "， 進度:" + this.RD[research_type][dir]["progress"] + "/" + difficulty
         }
         console.log(report)
         return report

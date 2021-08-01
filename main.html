@@ -101,6 +101,36 @@
 				$("#research_report_content").prepend(text);
 			}
 
+			function canMove(dir){
+				console.log(Env.explorer_data["x"] , Env.x )
+				if (dir == "E"){
+					if(Env.explorer_data["x"] +1 < Env.x){
+						return true;
+					}
+				}
+
+				if (dir == "W"){
+					if(Env.explorer_data["x"] -1 >= 0){
+						return true;
+					}
+				}
+
+				if (dir == "N"){
+					if(Env.explorer_data["y"] +1 < Env.y){
+						return true;
+					}
+				}
+
+				if (dir == "S"){
+					if(Env.explorer_data["y"] -1 >= 0 ){
+						return true;
+					}
+				}
+
+				return false;
+
+			}
+
 			//socket區
 			//選擇玩家  ==============================================================================
 			socket.on("welcome",(player1HasBeenChoosen , player2HasBeenChoosen  )=>{ //when start,hide the main page to let player select charcters.
@@ -341,7 +371,14 @@
 				$("#alert_button").attr('disabled',false);
 			})
 
-			
+			socket.on("explore_report",(report)=>{  //之後會傳msg給這邊
+				var x = report["explorer_data"].x;
+				var y = report["explorer_data"].y;
+				addMessage("當前位置在("+x+","+y+")");
+				map.update(x,y);
+				console.log(report);
+
+			});
 
 			// jQuery , 按鈕與互動  ========================================================================
 			$(document).ready(()=>{
@@ -433,13 +470,47 @@
 
 				})
 				//      ========================================================================================
-
+				
 
 
 				
 
 				//========  ==============================================================================	
+				
+				$(".outside_move").click(function(e){
+					
+					if(Env.explorer_data["move_left"] > 0){
 
+					
+
+						var move_dir = e.target.getAttribute("dir");;
+						if(canMove(move_dir)){
+						// 計算可以行走的選項
+							if( false ){
+								
+								Alert(text="QQ")
+
+							}
+							else{
+								socket.emit("explore", move_dir);
+								addMessage("你向"+direct_dic[move_dir]+"方走了一步");  
+							}
+						}
+						else{
+							addMessage("you can`t move here");  
+						}
+					}
+
+					else{
+						addMessage("you are exhausted, can`t move anymore")
+					}
+
+				})
+
+
+
+
+				
 				// repair wall button ====================================================================
 				$(".repair_wall_dir ").click(function(e){
 					
@@ -548,6 +619,9 @@
 					var msg="你覺得養精蓄銳比較重要，於是這半天休息";
 					socket.emit("action_done" , PLAYER_ID , action, msg);
 				})
+
+			
+			
 				//========  ==============================================================================	 
 				
 
@@ -560,7 +634,7 @@
 				
 				//========================================================================================
 
-			
+				
 				//===================== battle log show =============================================================
 				$("#combat_report").click(function(event) {     
 					$("#combat_report").empty();
@@ -599,8 +673,21 @@
 					
 				});
 
+				// ============  map_manual
+				$("#map_manual").click(function() {     
+					var Text = "@:主堡，需要站在主堡上才能回城 <br> P:玩家，玩家當前位置，圖示會優先顯示玩家 <br>"
+					Alert(text=Text ,title="圖示說明");
+
+				});
+					//====================================================================================================
+
+
+
+
 
 				})
+			
+
 		</script>
 
 
@@ -775,11 +862,30 @@
 	<!-- all buttons or something user interaction below-->
 	<!-- ==================================== -->
 
+	<!--   outside ==================================== --->
 	<div  class="LEFT_TOP outside" >
 		<div>當前狀態 <span id="player_name"> </span> </div>  
 
+
+		<div id="map">地圖
+			<button id="map_manual">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-compass" viewBox="0 0 16 16">
+					<path d="M8 16.016a7.5 7.5 0 0 0 1.962-14.74A1 1 0 0 0 9 0H7a1 1 0 0 0-.962 1.276A7.5 7.5 0 0 0 8 16.016zm6.5-7.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/>
+					<path d="m6.94 7.44 4.95-2.83-2.83 4.95-4.949 2.83 2.828-4.95z"/>
+				  </svg>
+			</button>
+			<div v-for="m in [...Array(max_y+1).keys()].slice(1,max_y+1).reverse()"> <!--y axis-->
+				<span v-for="n in max_x" :x="n"  :y="m" >{{icon(n,m)}}</span>  <!--x axis   -->
+
+				
+
+			</div>
+		</div>
+		
+
 	</div>	
 
+	<!-- outside ==================================== --->
 
 
 	<div class="LEFT_BOTTOM  in_castle" style="overflow:scroll">
@@ -973,10 +1079,14 @@
 
 		</div>
 
-   <!--============ in_castle -->
+   <!--============ outside -->
     <div class="LEFT_BOTTOM  outside" style="overflow:scroll">
 		 <div id="my_mission">操作</div>
-
+	
+		<div class="dir_btn" id="outside_move">移動
+		<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn-->
+		<button-direction class="outside_move" v-bind:item="direction" v-for="direction in directions"  ></button-direction>
+	</div>
 	     <button   id="go-back-castle"> 回城</button>
     </div>
 

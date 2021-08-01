@@ -406,10 +406,36 @@ var research = new Vue({
 )
 
 
-
-
-
-
+// 外出地圖
+var map = new Vue({
+  el : "#map",
+  data:{
+    player_x : 5 , 
+    player_y : 5 ,
+    max_x : 11 ,
+    max_y : 11 ,
+  },
+  methods:{
+      icon : function(x,y){
+        x-=1;
+        y-=1;
+        if(x == this.player_x && y == this.player_y){
+          return "[P]";
+        }
+        else if (x == 5 && y==5){
+          return "[@]";
+        }
+        else{
+          return "[ ]";
+        }
+      },
+      update(x,y){
+        this.player_x = x;
+        this.player_y = y;
+      }
+  }
+  
+})
 
 
 

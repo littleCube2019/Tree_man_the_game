@@ -126,11 +126,11 @@ function player_action_handle(action){
 		//player_action_fn.repairWall(Env, action.direction, action.unit);
 	}
 	else if(action.type=='scout'){
-		var scout_report = [];
-		scout_report = Env.scout(action.scout_dir)
+		//var scout_report = [];
+		//scout_report = Env.scout(action.scout_dir)
 		//scout_report = player_action_fn.scout(Env, action.scout_dir);
-		io.emit("scout_report", scout_report[0], scout_report[1], scout_report[2])
-		console.log(scout_report)
+		io.emit("scout_report", Env.scout(action.scout_dir))
+		//console.log(scout_report)
 	}
 	else if(action.type=='retreat'){
 		Env.armyRetreat(action.direction)

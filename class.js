@@ -29,19 +29,24 @@ exports.Environment = class {
         this.resource_gain = {"wood":500} //回合結束可獲得的資源
 
         //==探索地圖=============================
-        this.x = 11
-        this.y = 11
-        this.map = new Array(this.x)
+        this.map_x = 11
+        this.map_y = 11
+        this.map = new Array(this.map_x)
         for(var i=0; i<this.map.length; i++){
-            this.map[i] = new Array(this.y)
+            this.map[i] = new Array(this.map_y)
         }
-        this.map[Math.floor(this.x/2)][Math.floor(this.y/2)] = "castle"
 
         this.explorer_mobility = 3
         this.explorer_data = {
-            "x":Math.floor(this.x/2), 
-            "y":Math.floor(this.y/2),
+            "x":Math.floor(this.map_x/2), 
+            "y":Math.floor(this.map_y/2),
             "move_left":this.explorer_mobility,
+            "move_available":{
+                "N":true,
+                "E":true,
+                "W":true,
+                "S":true,
+            }
         };
 
         this.resource_point = {"wood":3,"shoe":1}
@@ -89,11 +94,19 @@ exports.Environment = class {
         //============================================
 
         this.dict = {
-            "N" : "北方的",
-            "E" : "東方的",
-            "W" : "西方的",
-            "S" : "南方的",
-            "all" : "",
+            "N":"北方",
+            "E":"東方",
+            "W":"西方",
+            "S":"南方",
+            "all":"",
+            "wood":"木頭",
+            "armor":"步兵",
+            "archer":"弓箭手",
+            "ranger":"騎兵",
+            "wizard":"法師",
+            "tree_man":"普通樹人",
+            "big_tree_man":"大型樹人",
+            "stick_man":"樹枝噴吐者",
         }
     }
     gainResource(){
@@ -103,11 +116,11 @@ exports.Environment = class {
     }
 
     create_resource_point(){
-        this.map[Math.floor(this.x/2)][Math.floor(this.y/2)] = {"type":"castle","found":true,}
+        this.map[Math.floor(this.map_x/2)][Math.floor(this.map_y/2)] = {"type":"castle","found":true,}
         for(var resource_type in this.resource_point){
             for(var i=0; i<this.resource_point[resource_type];){
-                var x = Math.floor(Math.random()*this.x)
-                var y = Math.floor(Math.random()*this.y)
+                var x = Math.floor(Math.random()*this.map_x)
+                var y = Math.floor(Math.random()*this.map_y)
                 if(this.map[x][y]==undefined){
                     var r = {
                         "type":resource_type,
@@ -121,9 +134,7 @@ exports.Environment = class {
     }
 
     explore(direction){
-        this.explorer_data.move_left -= 1
-        var report = {"resource":"", "explorer_data":this.explorer_data}
-        
+
         if(direction=="N"){
             this.explorer_data.y += 1
         }else if(direction=="S"){
@@ -133,12 +144,32 @@ exports.Environment = class {
         }else if(direction=="W"){
             this.explorer_data.x -= 1
         }
+
+        this.explorer_data.move_available.N = this.explorer_data.x < this.map_x-1
+        this.explorer_data.move_available.S = this.explorer_data.x > 0
+        this.explorer_data.move_available.E = this.explorer_data.y < this.map_y-1
+        this.explorer_data.move_available.W = this.explorer_data.y > 0
+        this.explorer_data.move_left -= 1
+
+        var report = {
+            "resource":"", 
+            "explorer_data":this.explorer_data,
+            "msg":"",
+        }
+
         if(this.map[this.explorer_data.x][this.explorer_data.y]!=undefined){
             report["resource"] = this.map[this.explorer_data.x][this.explorer_data.y].type
             if(!this.map[this.explorer_data.x][this.explorer_data.y].found){
                 explore_reward[this.map[this.explorer_data.x][this.explorer_data.y].type].reward(this)
                 this.map[this.explorer_data.x][this.explorer_data.y].found = true
+                report.msg = "發現了一個資源點:" + this.dict[report.resource]
             }
+            else{
+                report.msg = "這裡似乎已經探索過了"
+            }
+        }
+        else{
+            report.msg = "甚麼都沒有發現..."
         }
         return report
     }
@@ -165,7 +196,27 @@ exports.Environment = class {
     }
 
     scout(direction){
-        return this.roads[direction].scout()
+
+        var msg = ""
+        var distance = this.roads[direction].nearest_enemy
+        
+        if(distance!=-1){
+            var enemy_type = this.roads[direction].enemy_location[distance][0].type
+            console.log(enemy_type)
+            if(distance>=5){
+                msg += "隱隱約約看見一隻"
+            }
+            else{
+                msg += "緊急狀況!!發現一隻"
+            }
+            msg += this.dict[enemy_type] + "位於" + this.dict[direction] + distance + "公里處"
+        }
+        else{
+            msg = this.dict[direction] + "的道路上很安全，沒有任何敵人"
+        }
+        
+        return msg
+
     }
 
     armyRetreat(direction){
@@ -184,7 +235,15 @@ exports.Environment = class {
         this.RD[research_type][dir]["progress"] += Math.ceil(Math.random()*max_research_speed);
         var research_name = RD[research_type][level].name
 
-        var report = {"research_type":research_type, "direction":dir, "done":false, "progress":this.RD[research_type][dir]["progress"], "total":difficulty, "msg":"", "level":this.RD[research_type][dir]["level"]}
+        var report = {
+            "research_type":research_type, 
+            "direction":dir, 
+            "done":false, 
+            "progress":this.RD[research_type][dir]["progress"], 
+            "total":difficulty, 
+            "msg":"", 
+            "level":this.RD[research_type][dir]["level"]
+        }
 
         if(this.RD[research_type][dir]["progress"] >= difficulty){
             this.RD[research_type][dir]["level"] = RD[research_type][level].research_done(this, dir);
@@ -315,20 +374,6 @@ class road{
         }  
     }
 
-    scout(){
-        var scout_report = []
-        if(this.nearest_enemy!=-1){
-            scout_report[0] = this.direction
-            scout_report[1] = this.nearest_enemy
-            scout_report[2] = this.enemy_location[this.nearest_enemy][0].type
-        }
-        else{
-            scout_report[0] = this.direction
-            scout_report[1] = -1
-            scout_report[2] = ""
-        }
-        return scout_report
-    }
 }
 
 // ========================== 環境 end========================================//  

@@ -26,29 +26,29 @@ exports.combat_report_process = function(Env, combat_report){
 		
 
 		if(r["wall_damaged"]>0){
-			wall_msg = "<b>" + direct_dic[r["direction"]] + "方</b>城牆正在被攻擊<br>受到"+r["enemy_total_damage"]+"點傷害<br>";
+			wall_msg = "<b>" + Env.dict[r["direction"]] + "</b>的城牆正在被攻擊<br>受到"+r["enemy_total_damage"]+"點傷害<br>";
 		}
 		
 		else{
 			if(r["location"]>0){
-				wall_msg = "位於"+"<b>" + direct_dic[r["direction"]] + "方</b>距城門"+r["location"]+"公里處發生戰爭<br>"
+				wall_msg = "位於"+"<b>" + Env.dict[r["direction"]] + "道路上</b>距城門"+r["location"]+"公里處發生戰爭<br>"
 
 			}
 			else{
-				wall_msg =  "位於"+"<b>" + direct_dic[r["direction"]] + "方</b>城門下方發生戰爭<br>"
+				wall_msg =  "位於"+"<b>" + Env.dict[r["direction"]] + "</b>的城門下方發生戰爭<br>"
 			}
 			army_hp_msg = "先鋒部隊剩餘血量為:"+r["army_hp"]
     	}
 
 		for(var army_type in r["army_attack"]){
 			if(r["army_attack"][army_type]){
-				msg += army_type+"造成"+r["army_attack"][army_type]+"點傷害<br>" 
+				msg += Env.dict[army_type] + "造成"+r["army_attack"][army_type]+"點傷害<br>" 
 			}
 		}
 
 		for(var enemy_type in r["enemy_attack"]){
 			if(r["enemy_attack"][enemy_type]){
-				msg += enemy_type+"造成"+r["enemy_attack"][enemy_type]+"點傷害<br>" 
+				msg += Env.dict[enemy_type] + "造成"+r["enemy_attack"][enemy_type]+"點傷害<br>" 
 			}
 		}
 		msg += army_hp_msg + "<br>該樹人剩下"+r["enemy_hp"]+"點血量<br>";

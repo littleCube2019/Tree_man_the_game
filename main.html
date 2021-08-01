@@ -48,7 +48,7 @@
 			var Env = null;
 			var WALL_DIR = "Default";
 			var game_start = false ; 
-
+			var OUTSIDE = false;
 
 			direct_dic = {
 						"E" : "東",
@@ -102,9 +102,9 @@
 			}
 
 			function canMove(dir){
-				console.log(Env.explorer_data["x"] , Env.x )
+			
 				if (dir == "E"){
-					if(Env.explorer_data["x"] +1 < Env.x){
+					if(Env.explorer_data["x"] +1 < Env.map_x){
 						return true;
 					}
 				}
@@ -116,7 +116,7 @@
 				}
 
 				if (dir == "N"){
-					if(Env.explorer_data["y"] +1 < Env.y){
+					if(Env.explorer_data["y"] +1 < Env.map_y){
 						return true;
 					}
 				}
@@ -228,9 +228,10 @@
 					$(".choice_button").attr('disabled', true);
 				}
 				
+				if(!OUTSIDE){
 				$(".detail_choose").hide();
 				$("#choose_basic_action").show();
-
+				}
 		
 	
 			})
@@ -395,6 +396,7 @@
      				 $(".outside").hide();
 					  $("#choose_basic_action").show();
 					  $("#go-back").hide();
+					  OUTSIDE=false;
 				})
 
 				$("#go-back ").click(()=>{
@@ -480,7 +482,7 @@
 				
 				$(".outside_move").click(function(e){
 					
-					if(Env.explorer_data["move_left"] > 0){
+					if(Env.explorer_data["move_left"] > -100){
 
 					
 
@@ -681,8 +683,18 @@
 
 				});
 					//====================================================================================================
-
-
+				
+				// =======================================================================================================
+				$("#skip-out").click(function(e){
+					class skip {
+						constructor(){
+							this.type ='skip';
+						}
+					}
+					action = new skip();
+					var msg="你在附近找了一個安全的地點，準備休息一晚";
+					socket.emit("action_done" , PLAYER_ID , action, msg );
+				})
 
 
 
@@ -1085,10 +1097,20 @@
 		 <div id="my_mission">操作</div>
 	
 		<div class="dir_btn" id="outside_move">移動
-		<!-- Vue : button-direction  記得改class、屬性  記得上位div class要加 dir_btn-->
-		<button-direction class="outside_move" v-bind:item="direction" v-for="direction in directions"  ></button-direction>
+		<br>
+		<div style="text-align: center;">
+		<button dir="N" class="choice_button outside_move" >北</button>
+		</div>
+		<div style="text-align: center;">
+		<button dir="W" class="choice_button outside_move">西</button>
+		<button dir="E" class="choice_button outside_move">東</button>
+		</div>
+		<div style="text-align: center;">
+		<button dir="S" class="choice_button outside_move">南</button>
+		</div>
 	</div>
-	     <button   id="go-back-castle"> 回城</button>
+		 <button  class="choice_button" id ="skip-out" > 休息一晚 </button> 
+	     <button  class="choice_button"  id="go-back-castle"> 回城</button>
     </div>
 
 

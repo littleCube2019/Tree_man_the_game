@@ -284,7 +284,7 @@ io.on('connection', (socket) => {
 
 
 	//每回合結算玩家的行動並更新環境
-	socket.on("action_done", (player_id, action ,msg)=>{ //玩家的訊息
+	socket.on("action_done", (player_id, action ,msg )=>{ //玩家的訊息
 
 		var report = Env.explore("")
 		console.log(report)
@@ -304,6 +304,7 @@ io.on('connection', (socket) => {
 
 	socket.on("explore", (direction)=>{
 		var report = Env.explore(direction)
+		io.emit("update_state", Env);
 		io.emit("explore_report", report)
 	})
 	//===================================================

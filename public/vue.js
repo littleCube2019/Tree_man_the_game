@@ -181,6 +181,8 @@ var choose_basic = new Vue({
     if(event.target.getAttribute("id")=="choose_go_out"){
       $(".in_castle").hide();
       $(".outside").show();
+      OUTSIDE=true;
+   
     }
 
     $("#go-back").show();
@@ -419,14 +421,24 @@ var map = new Vue({
       icon : function(x,y){
         x-=1;
         y-=1;
+
+        if(this.player_x == 5 && this.player_y ==5 ){
+          $("#go-back-castle").show();
+        }
+        else{
+          $("#go-back-castle").hide();
+        }
+        
         if(x == this.player_x && y == this.player_y){
           return "[P]";
         }
         else if (x == 5 && y==5){
           return "[@]";
+          
         }
         else{
           return "[ ]";
+        
         }
       },
       update(x,y){

@@ -245,8 +245,9 @@
 			//接收斥侯傳送回來的報告
 			
 			
-			socket.on("scout_report" , (dir , location)=>{
+			socket.on("scout_report" , (msg)=>{
 				Title = "偵查報告"
+				/*
 				if (location != -1){
 					if(location!=0){
 						var msg = "你的斥侯隊告訴你在"+direct_dic[dir]+"方向"+location+"公里處有敵人";
@@ -258,7 +259,7 @@
 				else{
 					var msg = "此方向尚未發現任何敵人!"
 				}
-
+				*/
 				addMessage(msg);
 			})
 			

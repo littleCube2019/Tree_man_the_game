@@ -94,19 +94,10 @@ exports.Environment = class {
         //============================================
 
         this.dict = {
-            "N":"北方",
-            "E":"東方",
-            "W":"西方",
-            "S":"南方",
-            "all":"",
+            "N":"北方", "E":"東方", "W":"西方", "S":"南方", "all":"", "castle":"城堡",
             "wood":"木頭",
-            "armor":"步兵",
-            "archer":"弓箭手",
-            "ranger":"騎兵",
-            "wizard":"法師",
-            "tree_man":"普通樹人",
-            "big_tree_man":"大型樹人",
-            "stick_man":"樹枝噴吐者",
+            "armor":"步兵", "archer":"弓箭手", "ranger":"騎兵", "wizard":"法師", "defence":"防禦部隊",
+            "tree_man":"普通樹人", "big_tree_man":"大型樹人", "stick_man":"樹枝噴吐者",
         }
     }
     gainResource(){
@@ -260,6 +251,46 @@ exports.Environment = class {
         return report
     }
 
+    enemySpawn(enemy, enemy_data){
+        for(var d in this.roads){
+            this.roads[d].roadEnemySpawn(enemy, enemy_data, this.round)
+        }
+    }
+
+    armyMove(){
+        for(var d in this.roads){
+            this.roads[d].armyMove(this.troops_state)
+        }
+    }
+
+    enemyMove(){
+        for(var d in this.roads){
+            this.roads[d].enemyMove()
+        }
+    }
+
+    combat(defender_data){
+        var report = []
+        for(var d in this.roads){
+            report.push(this.roads[d].combat(defender_data, this.morale, this.dict))
+        }
+        return report
+    }
+
+    updataToClient(){
+        var report = {
+            "roads":this.roads,
+            "round":this.round,
+            "resource":this.resource,
+            "troops_state":this.troops_state,
+            "map_x":this.map_x,
+            "map_y":this.map_y,
+            "explorer_data":this.explorer_data,
+        }
+
+        return report
+    }
+
     isGameover(){
         return(this.roads["E"].wallhp<=0 || this.roads["W"].wallhp<=0 || this.roads["N"].wallhp<=0 || this.roads["S"].wallhp<=0)
     }
@@ -365,13 +396,138 @@ class road{
         }
     }
 
-    spawnEnemy(enemy, enemy_data){
+    roadEnemySpawn(enemy, enemy_data, day){
         for(var enemy_type in enemy_data){
             var spawn = Math.floor(Math.random()*100);
-            if(spawn < enemy_data[enemy_type]["spawn_prob"]*100){
+            var init = enemy_data[enemy_type]["spawn_prob_data"]["init"]*100
+            var increase_rate = enemy_data[enemy_type]["spawn_prob_data"]["increase"]*100
+            var max_prob = enemy_data[enemy_type]["spawn_prob_data"]["max"]*100
+            var minimum_day = enemy_data[enemy_type]["spawn_prob_data"]["minimum_day"]
+            var spawn_rate = Math.min(max_prob, init + increase_rate + increase_rate*day)
+            if(day>=minimum_day && spawn>=spawn_rate){
                 this.enemy_location[this.max_distance-1].push(new enemy(enemy_data[enemy_type]));
             }
         }  
+    }
+
+    combat(defender_data, morale, dict){
+  
+        var army_attack = {"armor":0, "archer":0, "ranger":0, "defence":0};
+        var army_total_damage = 0
+        var enemy_attack = {"tree_man":0, "big_tree_man":0, "stick_man":0};
+        var enemy_total_damage = 0
+        var isCombat = false;
+        var farest_army = this.farest_army;
+        var nearest_enemy = this.nearest_enemy
+    
+        if(nearest_enemy!=-1){
+            var nearest_enemy_hp = this.enemy_location[nearest_enemy][0].hp;
+        }
+        if(farest_army!=-1){
+            var farest_army_hp = this.army_location[farest_army][0].hp;
+        }
+    
+        
+        if(nearest_enemy!=-1){
+            for(var i=0; i<this.max_distance; i++){
+                for(var j=0; j<this.army_location[i].length; j++){
+                    if(this.army_location[i][j].attack_range + i >= nearest_enemy){
+                        var army_type = this.army_location[i][j].type
+                        army_attack[army_type] += this.army_location[i][j].attack;
+                    }
+                }
+            }
+    
+            for(var defence_type in this.defence){
+                if(this.defence[defence_type]["valid"] && nearest_enemy<=defender_data[defence_type]["attack_range"]){
+                    army_attack["defence"] += defender_data[defence_type]["attack"]*morale;
+                }
+            }
+            for(var i in army_attack){
+                army_total_damage += army_attack[i]
+            }
+        }
+      
+        
+        for(var i=0; i<this.max_distance; i++){
+            for(var j=0; j<this.enemy_location[i].length; j++){
+                var enemy_type = this.enemy_location[i][j].type
+                if(farest_army==-1 && i - this.enemy_location[i][j].attack_range <= 0){ //no army
+                    enemy_attack[enemy_type] += this.enemy_location[i][j].attack;
+                }
+                else if(farest_army!=-1 && i - this.enemy_location[i][j].attack_range <= farest_army){
+                    enemy_attack[enemy_type] += this.enemy_location[i][j].attack;
+                }
+            }
+        }
+        for(var i in enemy_attack){
+            enemy_total_damage += enemy_attack[i]
+        }
+    
+    
+        if(army_total_damage || enemy_total_damage){
+              isCombat = true;
+        }
+        var msg = ""
+        var wall_msg = ""
+        var damage_msg = ""
+        var hp_msg = ""
+        if(isCombat){
+            msg = "<b>" + dict[this.direction] + "</b>的城牆外傳來打鬥的聲音<br><br>"
+            if(farest_army==-1 && enemy_total_damage!=0){
+                this.wallhp = Math.max(0, this.wallhp-enemy_total_damage);
+                wall_msg = "城牆正在被攻擊!!    受到"+enemy_total_damage+"點傷害<br>"
+            }
+            else if(farest_army!=-1){
+                farest_army_hp = Math.max(0, farest_army_hp - enemy_total_damage);
+                this.army_location[farest_army][0].hp = farest_army_hp;
+                if(farest_army==0){
+                    wall_msg =  "城門下方發生戰爭<br>"
+                }
+                else{
+                    wall_msg = "距城門"+farest_army+"公里處發生戰爭<br>"
+                }
+                hp_msg += "<br>先鋒部隊剩餘血量為:"+farest_army_hp + "點血量    該戰場剩下士兵數:"+this.army_location[farest_army].length + "<br>"
+
+            }
+
+            nearest_enemy_hp = Math.max(0, nearest_enemy_hp - army_total_damage);
+            this.enemy_location[nearest_enemy][0].hp = nearest_enemy_hp;
+    
+            if(farest_army_hp==0){
+                this.army_location[farest_army].splice(0, 1);
+                morale = Math.max(0.5, morale-0.1)
+            }
+            
+        
+            if(nearest_enemy_hp==0){
+                for(var i in this.enemy_location[nearest_enemy][0].reward){
+                    Env.resource[i] += this.enemy_location[nearest_enemy][0].reward[i];
+                }
+                this.enemy_location[nearest_enemy].splice(0, 1);
+                morale = Math.min(1.5, morale+0.1)
+            }
+            damage_msg += "我方部隊造成的傷害:<br>"
+            for(var army_type in army_attack){
+                if(army_attack[army_type]){
+                    damage_msg += "--" + dict[army_type] + "造成"+army_attack[army_type]+"點傷害<br>" 
+                }
+            }
+            if(damage_msg=="我方部隊造成的傷害:<br>"){
+                damage_msg = "我方沒有對敵人造成任何傷害..."
+            }
+
+            damage_msg += "<br>敵方部隊造成的傷害:<br>"
+            for(var enemy_type in enemy_attack){   
+                if(enemy_attack[enemy_type]){
+                    damage_msg += "--" + dict[enemy_type] + "造成"+enemy_attack[enemy_type]+"點傷害<br>" 
+                }
+            }
+            hp_msg += "最前線的敵人剩下"+nearest_enemy_hp+"點血量    該戰場剩下敵人數:"+this.enemy_location[nearest_enemy].length+"<br>"
+            
+            msg += wall_msg + damage_msg + hp_msg + "<br>******************************<br>"
+        }
+        return(msg)
     }
 
 }

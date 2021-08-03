@@ -2,6 +2,25 @@
 /*
 Note : 可以使用Global variable、socket 等等主檔的變數 (限function , Data 不行)
 */
+// 主畫面
+var main =  new Vue({
+  el: '#Main',
+  
+  data : {
+    mode : 0
+
+  },
+
+  methods:{
+    updateMode: function(mode){
+      this.mode = mode; 
+    }
+
+  }
+
+
+})
+
 
 
 // 選擇玩家按鈕  
@@ -160,7 +179,10 @@ var choose_basic = new Vue({
     }
 
     if(event.target.getAttribute("id")=="choose_go_out"){
-      $("#go_out").show();
+      $(".in_castle").hide();
+      $(".outside").show();
+      OUTSIDE=true;
+   
     }
 
     $("#go-back").show();
@@ -386,10 +408,46 @@ var research = new Vue({
 )
 
 
+// 外出地圖
+var map = new Vue({
+  el : "#map",
+  data:{
+    player_x : 5 , 
+    player_y : 5 ,
+    max_x : 11 ,
+    max_y : 11 ,
+  },
+  methods:{
+      icon : function(x,y){
+        x-=1;
+        y-=1;
 
-
-
-
+        if(this.player_x == 5 && this.player_y ==5 ){
+          $("#go-back-castle").show();
+        }
+        else{
+          $("#go-back-castle").hide();
+        }
+        
+        if(x == this.player_x && y == this.player_y){
+          return "[P]";
+        }
+        else if (x == 5 && y==5){
+          return "[@]";
+          
+        }
+        else{
+          return "[ ]";
+        
+        }
+      },
+      update(x,y){
+        this.player_x = x;
+        this.player_y = y;
+      }
+  }
+  
+})
 
 
 

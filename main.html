@@ -48,7 +48,7 @@
 			var Env = null;
 			var WALL_DIR = "Default";
 			var game_start = false ; 
-
+			var OUTSIDE = false;
 
 			direct_dic = {
 						"E" : "東",
@@ -101,6 +101,36 @@
 				$("#research_report_content").prepend(text);
 			}
 
+			function canMove(dir){
+			
+				if (dir == "E"){
+					if(Env.explorer_data["x"] +1 < Env.map_x){
+						return true;
+					}
+				}
+
+				if (dir == "W"){
+					if(Env.explorer_data["x"] -1 >= 0){
+						return true;
+					}
+				}
+
+				if (dir == "N"){
+					if(Env.explorer_data["y"] +1 < Env.map_y){
+						return true;
+					}
+				}
+
+				if (dir == "S"){
+					if(Env.explorer_data["y"] -1 >= 0 ){
+						return true;
+					}
+				}
+
+				return false;
+
+			}
+
 			//socket區
 			//選擇玩家  ==============================================================================
 			socket.on("welcome",(player1HasBeenChoosen , player2HasBeenChoosen  )=>{ //when start,hide the main page to let player select charcters.
@@ -131,6 +161,7 @@
 						$(".RIGHT").hide();
 						$(".alert").hide();
 						$("#game_over").hide();
+
 						
 				})
 
@@ -174,6 +205,7 @@
 				}
 
 				$(".LEFT").show();
+				$(".outside").hide();
 				$(".RIGHT").show();
 				
 				//基礎文本
@@ -196,9 +228,10 @@
 					$(".choice_button").attr('disabled', true);
 				}
 				
+				if(!OUTSIDE){
 				$(".detail_choose").hide();
 				$("#choose_basic_action").show();
-
+				}
 		
 	
 			})
@@ -340,7 +373,14 @@
 				$("#alert_button").attr('disabled',false);
 			})
 
-			
+			socket.on("explore_report",(report)=>{  //之後會傳msg給這邊
+				var x = report["explorer_data"].x;
+				var y = report["explorer_data"].y;
+				addMessage("當前位置在("+x+","+y+")");
+				map.update(x,y);
+				console.log(report);
+
+			});
 
 			// jQuery , 按鈕與互動  ========================================================================
 			$(document).ready(()=>{
@@ -349,9 +389,15 @@
 					$('[data-toggle="tooltip"]').tooltip()
 					})
 				
+					
 				
-				
-				
+				$("#go-back-castle ").click(()=>{
+					$(".in_castle").show();
+     				 $(".outside").hide();
+					  $("#choose_basic_action").show();
+					  $("#go-back").hide();
+					  OUTSIDE=false;
+				})
 
 				$("#go-back ").click(()=>{
 					$(".detail_choose").hide();
@@ -427,13 +473,47 @@
 
 				})
 				//      ========================================================================================
-
+				
 
 
 				
 
 				//========  ==============================================================================	
+				
+				$(".outside_move").click(function(e){
+					
+					if(Env.explorer_data["move_left"] > -100){
 
+					
+
+						var move_dir = e.target.getAttribute("dir");;
+						if(canMove(move_dir)){
+						// 計算可以行走的選項
+							if( false ){
+								
+								Alert(text="QQ")
+
+							}
+							else{
+								socket.emit("explore", move_dir);
+								addMessage("你向"+direct_dic[move_dir]+"方走了一步");  
+							}
+						}
+						else{
+							addMessage("you can`t move here");  
+						}
+					}
+
+					else{
+						addMessage("you are exhausted, can`t move anymore")
+					}
+
+				})
+
+
+
+
+				
 				// repair wall button ====================================================================
 				$(".repair_wall_dir ").click(function(e){
 					
@@ -542,6 +622,9 @@
 					var msg="你覺得養精蓄銳比較重要，於是這半天休息";
 					socket.emit("action_done" , PLAYER_ID , action, msg);
 				})
+
+			
+			
 				//========  ==============================================================================	 
 				
 
@@ -554,7 +637,7 @@
 				
 				//========================================================================================
 
-			
+				
 				//===================== battle log show =============================================================
 				$("#combat_report").click(function(event) {     
 					$("#combat_report").empty();
@@ -593,8 +676,31 @@
 					
 				});
 
+				// ============  map_manual
+				$("#map_manual").click(function() {     
+					var Text = "@:主堡，需要站在主堡上才能回城 <br> P:玩家，玩家當前位置，圖示會優先顯示玩家 <br>"
+					Alert(text=Text ,title="圖示說明");
+
+				});
+					//====================================================================================================
+				
+				// =======================================================================================================
+				$("#skip-out").click(function(e){
+					class skip {
+						constructor(){
+							this.type ='skip';
+						}
+					}
+					action = new skip();
+					var msg="你在附近找了一個安全的地點，準備休息一晚";
+					socket.emit("action_done" , PLAYER_ID , action, msg );
+				})
+
+
 
 				})
+			
+
 		</script>
 
 
@@ -606,7 +712,7 @@
 
 
 
-	<body>
+	<body  >
    
 	<!-- 選角畫面 ======================          -->
 	
@@ -654,7 +760,7 @@
 
     <!-- our status showing below-->
 	<!-- ==================================== -->
-	<div  class="LEFT_TOP">
+	<div  class="LEFT_TOP in_castle" >
 		<!--屬性欄，此div為最外框-->
     	<div id="status" > <div>當前狀態 <span id="player_name"> </span> </div>   
 			<div id="my_basic-data">
@@ -763,12 +869,39 @@
 	<!-- all status showing above-->
 	<!-- ==================================== -->
 
-
+	
 	
 
 	<!-- all buttons or something user interaction below-->
 	<!-- ==================================== -->
-	<div class="LEFT_BOTTOM " style="overflow:scroll">
+
+	<!--   outside ==================================== --->
+	<div  class="LEFT_TOP outside" >
+		<div>當前狀態 <span id="player_name"> </span> </div>  
+
+
+		<div id="map">地圖
+			<button id="map_manual">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-compass" viewBox="0 0 16 16">
+					<path d="M8 16.016a7.5 7.5 0 0 0 1.962-14.74A1 1 0 0 0 9 0H7a1 1 0 0 0-.962 1.276A7.5 7.5 0 0 0 8 16.016zm6.5-7.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/>
+					<path d="m6.94 7.44 4.95-2.83-2.83 4.95-4.949 2.83 2.828-4.95z"/>
+				  </svg>
+			</button>
+			<div v-for="m in [...Array(max_y+1).keys()].slice(1,max_y+1).reverse()"> <!--y axis-->
+				<span v-for="n in max_x" :x="n"  :y="m" >{{icon(n,m)}}</span>  <!--x axis   -->
+
+				
+
+			</div>
+		</div>
+		
+
+	</div>	
+
+	<!-- outside ==================================== --->
+
+
+	<div class="LEFT_BOTTOM  in_castle" style="overflow:scroll">
 		
 			<div id="my_mission">操作</div>
 			
@@ -941,13 +1074,7 @@
 
 
 
-			<!--   外出  -->
-			<div class= "detail_choose" id="go_out">
 			
-				<div >
-					Bye
-				</div>
-			</div>
 			<!--   =======================================   -->	
 
 
@@ -958,15 +1085,45 @@
 
 			
 
-			<button class="detail_choose" , id="go-back"> 返回</button>
+			<button class="detail_choose"  id="go-back"> 返回</button>
 			<!--   =======================================   -->
 			
 
 
 		</div>
+
+   <!--============ outside -->
+    <div class="LEFT_BOTTOM  outside" style="overflow:scroll">
+		 <div id="my_mission">操作</div>
+	
+		<div class="dir_btn" id="outside_move">移動
+		<br>
+		<div style="text-align: center;">
+		<button dir="N" class="choice_button outside_move" >北</button>
+		</div>
+		<div style="text-align: center;">
+		<button dir="W" class="choice_button outside_move">西</button>
+		<button dir="E" class="choice_button outside_move">東</button>
+		</div>
+		<div style="text-align: center;">
+		<button dir="S" class="choice_button outside_move">南</button>
+		</div>
 	</div>
+		 <button  class="choice_button" id ="skip-out" > 休息一晚 </button> 
+	     <button  class="choice_button"  id="go-back-castle"> 回城</button>
+    </div>
+
 
 	</div>
+
+	
+
+
+	</div>
+
+	
+
+
 	<div class="RIGHT">
 	<!-- show message below--> 
 			<!-- ==================================== -->

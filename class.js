@@ -94,19 +94,10 @@ exports.Environment = class {
         //============================================
 
         this.dict = {
-            "N":"北方",
-            "E":"東方",
-            "W":"西方",
-            "S":"南方",
-            "all":"",
+            "N":"北方", "E":"東方", "W":"西方", "S":"南方", "all":"", "castle":"城堡",
             "wood":"木頭",
-            "armor":"步兵",
-            "archer":"弓箭手",
-            "ranger":"騎兵",
-            "wizard":"法師",
-            "tree_man":"普通樹人",
-            "big_tree_man":"大型樹人",
-            "stick_man":"樹枝噴吐者",
+            "armor":"步兵", "archer":"弓箭手", "ranger":"騎兵", "wizard":"法師",
+            "tree_man":"普通樹人", "big_tree_man":"大型樹人", "stick_man":"樹枝噴吐者",
         }
     }
     gainResource(){
@@ -260,6 +251,38 @@ exports.Environment = class {
         return report
     }
 
+    enemySpawn(enemy, enemy_data){
+        for(var d in this.roads){
+            this.roads[d].roadEnemySpawn(enemy, enemy_data, this.round)
+        }
+    }
+
+    armyMove(){
+        for(var d in this.roads){
+            this.roads[d].armyMove(this.troops_state)
+        }
+    }
+
+    enemyMove(){
+        for(var d in this.roads){
+            this.roads[d].enemyMove()
+        }
+    }
+
+    updataToClient(){
+        var report = {
+            "roads":this.roads,
+            "round":this.round,
+            "resource":this.resource,
+            "troops_state":this.troops_state,
+            "map_x":this.map_x,
+            "map_y":this.map_y,
+            "explorer_data":this.explorer_data,
+        }
+
+        return report
+    }
+
     isGameover(){
         return(this.roads["E"].wallhp<=0 || this.roads["W"].wallhp<=0 || this.roads["N"].wallhp<=0 || this.roads["S"].wallhp<=0)
     }
@@ -365,10 +388,15 @@ class road{
         }
     }
 
-    spawnEnemy(enemy, enemy_data){
+    roadEnemySpawn(enemy, enemy_data, day){
         for(var enemy_type in enemy_data){
             var spawn = Math.floor(Math.random()*100);
-            if(spawn < enemy_data[enemy_type]["spawn_prob"]*100){
+            var init = enemy_data[enemy_type]["spawn_prob_data"]["init"]*100
+            var increase_rate = enemy_data[enemy_type]["spawn_prob_data"]["increase"]*100
+            var max_prob = enemy_data[enemy_type]["spawn_prob_data"]["max"]*100
+            var minimum_day = enemy_data[enemy_type]["spawn_prob_data"]["minimum_day"]
+            var spawn_rate = Math.min(max_prob, init + increase_rate + increase_rate*day)
+            if(day>=minimum_day && spawn>=spawn_rate){
                 this.enemy_location[this.max_distance-1].push(new enemy(enemy_data[enemy_type]));
             }
         }  

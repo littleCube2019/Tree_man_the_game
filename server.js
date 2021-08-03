@@ -169,16 +169,20 @@ function roll_the_dice(range=100){
 var combat_fn = require("./combat_functions")
 function roundCheck(){
 	var combat_report = [];
+	Env.enemySpawn(enemy, enemy_data)
+	Env.armyMove()
+	Env.enemyMove()
 	var dir = ["N", "E", "W", "S"];
 	for(var d=0; d<dir.length; d++){
-		Env.roads[dir[d]].spawnEnemy(enemy, enemy_data)
+		//Env.roads[dir[d]].spawnEnemy(enemy, enemy_data)
 		//round_check_fn.spawnEnemy(Env, dir[d], enemy, enemy_data);
-		Env.roads[dir[d]].armyMove(Env.troops_state)
+		//Env.roads[dir[d]].armyMove(Env.troops_state)
 		//round_check_fn.armyMove(Env, dir[d]);
-		Env.roads[dir[d]].enemyMove()
+		//Env.roads[dir[d]].enemyMove()
 		//round_check_fn.enemyMove(Env, dir[d]);
 		combat_fn.combat(Env, dir[d], combat_report, defender_data)
 	}
+
 	console.log(combat_report)
 	reports = combat_fn.combat_report_process(Env, combat_report);
 	console.log(reports)

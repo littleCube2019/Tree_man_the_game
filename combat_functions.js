@@ -144,7 +144,10 @@ exports.combat = function(Env, dir, total_report, defender_data){
 		"enemy_hp": nearest_enemy_hp, //最近樹人剩餘血量
 		"reward":{},  //擊殺樹人獎勵
 	}; 
-
+	var msg = ""
+	var wall_msg = ""
+	var damage_msg = ""
+	var hp_msg = ""
     //console.log(isCombat);
     if(isCombat){
 

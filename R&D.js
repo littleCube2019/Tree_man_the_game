@@ -38,7 +38,6 @@ exports.RD = {
             "cost" : {"wood":1000},
             "difficulty" : 10,
             "max_research_speed" : 3,
-            "msg":"研發要顯示的東西",
 
             research_done(Env, dir){
                 Env.roads[dir].defence["crossbow"]["valid"] = true;

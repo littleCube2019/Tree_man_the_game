@@ -222,11 +222,11 @@ io.on('connection', (socket) => {
 			/*
 			io.emit("player_turn");
 
-
-			io.emit("update_state", Env);
+			
 			io.emit("player_turn");
 			*/
-
+			var update_report = Env.updataToClient()
+			io.emit("update_state", update_report);
 		}
 	});
 	//  =================================================

@@ -172,7 +172,7 @@
 						if(id==1){
 							
 							$("#pl1").attr('disabled',true);
-							$("#pl1").text("player2 has been choosed");
+							$("#pl1").text("player1 has been choosed");
 							
 						}else if(id==-1){
 							$("#pl2").attr('disabled',true);
@@ -200,16 +200,16 @@
 			
 				//放入玩家名
 				if(PLAYER_ID == 1){
-					$("#player_name").text("上半天");
+					$("#player_name").text("帝國之眼");
 				}
 				else{
-					$("#player_name").text("下半天");
+					$("#player_name").text("帝國賢者");
 				}
 
 				$(".LEFT").show();
 				$(".outside").hide();
 				$(".RIGHT").show();
-				
+				choose_basic.update_pid(PLAYER_ID);
 				//基礎文本
 				$("#start_game_alert").modal("toggle")
 				console.log(env, troop , defender)
@@ -284,7 +284,8 @@
 				else{
 					Text="今天似乎又有驚無險的度過了..."
 				}
-				Text+="<br>趁著空檔帝國後勤隊為你運來了500木頭";
+				Text+="<br>趁著空檔帝國後勤隊為你運來了"+ Env.resource_gain["wood"] + "木頭";
+				console.log(Env);
 				Alert(text=Text,title="本日觀察")
 			})
 			//========  ==============================================================================	
@@ -379,10 +380,13 @@
 			socket.on("explore_report",(report)=>{  //之後會傳msg給這邊
 				var x = report["explorer_data"].x;
 				var y = report["explorer_data"].y;
+				
+				
+
 				addMessage("當前位置在("+x+","+y+")");
 
 				addMessage(report.msg);
-
+				
 				map.update(x,y);
 				
 
@@ -905,8 +909,8 @@
 			移動剩餘次數 <span id="move_left"> </span>
 		</div>
 
-		<div id="item">道具
-
+		<div id="outside_item">道具
+			
 
 
 		</div>
@@ -932,7 +936,7 @@
 			<!-- Vue : choose_basic-->
 			<div v-for="content in contents">
 			
-			<button class="choice_button btn btn-dark"   v-bind:id="content[0]" v-on:click="choose_action">{{content[1]}}</button>
+			<button class="choice_button btn btn-dark"  v-if="content[2] == 0 || content[2] == pid " v-bind:id="content[0]" v-on:click="choose_action">{{content[1]}}</button>
 			</div>
 		
 		    </div>

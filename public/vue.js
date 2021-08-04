@@ -144,14 +144,15 @@ var choose_basic = new Vue({
 
   data: {
     contents:[
-      ["choose_scout","偵查"],
-      ["choose_troop_move","調度軍隊"],
-      ["choose_recruit_troop","招募士兵"],
-      ["choose_repair_wall","修築城牆"],
-      ["choose_research","研發"],
-      ["choose_go_out","外出"],
-      ["skip","跳過這回合"],
+      ["choose_scout","偵查",0],
+      ["choose_troop_move","調度軍隊",0],
+      ["choose_recruit_troop","招募士兵",0],
+      ["choose_repair_wall","修築城牆",0],
+      ["choose_research","研發",-1],
+      ["choose_go_out","外出",1],
+      ["skip","跳過這回合",0],
     ],
+    pid:0
   },
 
   methods:{
@@ -178,6 +179,7 @@ var choose_basic = new Vue({
       $("#research").show();
     }
 
+    
     if(event.target.getAttribute("id")=="choose_go_out"){
       $(".in_castle").hide();
       $(".outside").show();
@@ -186,7 +188,12 @@ var choose_basic = new Vue({
     }
 
     $("#go-back").show();
+  } ,
+
+  update_pid(pid){
+    this.pid = pid;
   }
+
   }
 
 

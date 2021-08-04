@@ -119,30 +119,30 @@ exports.Environment = class {
                     }
                     this.map[x][y] = r
                     i++
+                    console.log(resource_type+"x:"+x+"  y:"+y)
                 }
             }
         }
-        console.log(this.map)
     }
 
     explore(direction){
 
-        if(direction=="N"){
+        if(direction=="N" && this.explorer_data.move_available.N){
             this.explorer_data.y += 1
-        }else if(direction=="S"){
+        }else if(direction=="S" && this.explorer_data.move_available.S){
             this.explorer_data.y -= 1
-        }else if(direction=="E"){
+        }else if(direction=="E" && this.explorer_data.move_available.E){
             this.explorer_data.x += 1
-        }else if(direction=="W"){
+        }else if(direction=="W" && this.explorer_data.move_available.W){
             this.explorer_data.x -= 1
         }
 
         console.log(this.explorer_data.x + "  " + this.explorer_data.y)
 
-        this.explorer_data.move_available.N = this.explorer_data.x < this.map_x-1
-        this.explorer_data.move_available.S = this.explorer_data.x > 0
-        this.explorer_data.move_available.E = this.explorer_data.y < this.map_y-1
-        this.explorer_data.move_available.W = this.explorer_data.y > 0
+        this.explorer_data.move_available.E = this.explorer_data.x < this.map_x-1
+        this.explorer_data.move_available.W = this.explorer_data.x > 0
+        this.explorer_data.move_available.N = this.explorer_data.y < this.map_y-1
+        this.explorer_data.move_available.S = this.explorer_data.y > 0
         this.explorer_data.move_left -= 1
 
         var report = {
@@ -165,7 +165,7 @@ exports.Environment = class {
         else{
             report.msg = "甚麼都沒有發現..."
         }
-        console.log(report.msg)
+        console.log(report)
         return report
     }
 

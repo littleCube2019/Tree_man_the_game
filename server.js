@@ -291,6 +291,7 @@ io.on('connection', (socket) => {
 
 	socket.on("explore", (direction)=>{
 		var explore_report = Env.explore(direction)
+		io.emit("update_state", Env);
 		io.emit("explore_report", explore_report)
 	})
 	//===================================================

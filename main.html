@@ -102,9 +102,10 @@
 			}
 
 			function canMove(dir){
-			
+				console.log(Env.explorer_data)
 				if (dir == "E"){
 					if(Env.explorer_data["x"] +1 < Env.map_x){
+						
 						return true;
 					}
 				}
@@ -186,7 +187,7 @@
 				
 				
 				//基礎設定
-
+				Env = env
 				game_start = true;
 
 				if( -1 == PLAYER_ID){
@@ -379,7 +380,9 @@
 				var x = report["explorer_data"].x;
 				var y = report["explorer_data"].y;
 				addMessage("當前位置在("+x+","+y+")");
+
 				addMessage(report.msg);
+
 				map.update(x,y);
 				
 

@@ -115,31 +115,21 @@ function player_action_handle(action){
 	console.log(action);
 	if(action.type=='recruit'){
 		Env.recruit(action.troop_type, army_data)
-		//player_action_fn.recruit(Env, action.troop_type);
 	}
 	else if(action.type=='move_army'){
 		Env.deployArmy(action.direction, army, action.troop_type, army_data)
-		//player_action_fn.deployArmy(Env, action.troop_type, action.direction);
 	}
 	else if(action.type=='repair_wall'){
 		Env.repairWall(action.direction, action.unit)
-		//player_action_fn.repairWall(Env, action.direction, action.unit);
 	}
 	else if(action.type=='scout'){
-		//var scout_report = [];
-		//scout_report = Env.scout(action.scout_dir)
-		//scout_report = player_action_fn.scout(Env, action.scout_dir);
 		io.emit("scout_report", Env.scout(action.scout_dir))
-		//console.log(scout_report)
 	}
 	else if(action.type=='retreat'){
 		Env.armyRetreat(action.direction)
-		//player_action_fn.retreat(Env, action.direction, action.location, action.order);
 	}
 	else if(action.type=="research"){
-		var report = {}
-		report = Env.research(RD, action.research_type, action.direction)
-		//report = player_action_fn.research(Env, action.research_type, action.direction);
+		var report = Env.research(RD, action.research_type, action.direction)
 		io.emit("research_report", report)
 	if(report.done){
 		io.emit("research_done", action.research_type, action.direction, report.level+1)
@@ -172,8 +162,7 @@ function roundCheck(){
 	Env.enemySpawn(enemy, enemy_data)
 	Env.armyMove()
 	Env.enemyMove()
-	reports = Env.combat(defender_data)
-	console.log(reports)
+	var reports = Env.combat(defender_data)
 	io.emit("combat_report", reports);
 
 	io.emit("turn_end",roll_the_dice()); //告知user此回合結束，並傳一個機率結果給接收端,先於game over才不會鎖住player2的按鈕
@@ -192,8 +181,8 @@ function roundCheck(){
 
 
 
-	var player_list = {}
-	var connected_list = {}
+var player_list = {}
+var connected_list = {}
 
 io.on('connection', (socket) => {
 
@@ -221,11 +210,8 @@ io.on('connection', (socket) => {
 		if(player1HasBeenChoosen && player2HasBeenChoosen){
 
 			//把沒選角的剔掉=====
-			console.log(player_list)
-			console.log(connected_list)
 			for(var sockedId in connected_list){
 				if(!(sockedId in player_list)){
-					console.log(sockedId);
 					io.to(sockedId).emit("gameover");//觀戰or其他處理(暫定gameover)
 				}
 			}
@@ -233,16 +219,14 @@ io.on('connection', (socket) => {
 
 			newGame();
 			io.emit("start_game", Env, [army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]]);
-			
+			/*
 			io.emit("player_turn");
 
 
-			
-
-
-			
 			io.emit("update_state", Env);
 			io.emit("player_turn");
+			*/
+
 		}
 	});
 	//  =================================================
@@ -277,21 +261,22 @@ io.on('connection', (socket) => {
 		io.emit("player_msg",msg);
 		player_action_handle(action);
 		if(player_id==1){
-			var report = Env.updataToClient()
-			io.emit("update_state", report);
+			var update_report = Env.updataToClient()
+			io.emit("update_state", update_report);
 			io.emit("player_turn");
 		}
 		else if(player_id==-1){
 			roundCheck();
-			var report = Env.updataToClient()
-			io.emit("update_state", report);
+			var update_report = Env.updataToClient()
+			io.emit("update_state", update_report);
 			io.emit("player_turn");
 		}
 	});
 
 	socket.on("explore", (direction)=>{
+		var update_report = Env.updataToClient()
 		var explore_report = Env.explore(direction)
-		io.emit("update_state", Env);
+		io.emit("update_state", update_report);
 		io.emit("explore_report", explore_report)
 	})
 	//===================================================

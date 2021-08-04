@@ -103,18 +103,13 @@ exports.enemy_data = {
         "attack" : 50,
         "attack_range" : 0,
         "mobility" : 10,
-        "spawn_prob" : 0.2,
+        "spawn_prob_data":{
+            "minimum_day":1,
+            "init":0.2,
+            "increase":0.05,
+            "max":0.5,
+        },
         "reward" : {"wood":2000},
-    },
-
-    "big_tree_man" : {
-        "type" : "big_tree_man",
-        "hp" : 3000,
-        "attack" : 500,
-        "attack_range" : 0,
-        "mobility" : 1,
-        "spawn_prob" : 0.05,
-        "reward" : {"wood":10000},
     },
 
     "stick_man" : {
@@ -123,7 +118,29 @@ exports.enemy_data = {
         "attack" : 200,
         "attack_range" : 3,
         "mobility" : 1,
-        "spawn_prob" : 0.2,
+        "spawn_prob_data":{
+            "minimum_day":1,
+            "init":0.2,
+            "increase":0.05,
+            "max":0.5,
+        },
         "reward" : {"wood":3000},
     },
+
+    "big_tree_man" : {
+        "type" : "big_tree_man",
+        "hp" : 3000,
+        "attack" : 500,
+        "attack_range" : 0,
+        "mobility" : 1,
+        "spawn_prob_data":{
+            "minimum_day":10,
+            "init":0.05,
+            "increase":0.01,
+            "max":0.2,
+        },
+        "reward" : {"wood":10000},
+    },
+
+    
 }

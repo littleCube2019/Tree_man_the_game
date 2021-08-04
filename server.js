@@ -165,26 +165,16 @@ function roll_the_dice(range=100){
 
 //==========回合結束判定======================
 //回合結束會傳戰報(一天分，每條路獨立計算)
-//var round_check_fn = require("./round_check_functions")
-var combat_fn = require("./combat_functions")
+
+
 function roundCheck(){
-	var combat_report = [];
-	var dir = ["N", "E", "W", "S"];
-	for(var d=0; d<dir.length; d++){
-		Env.roads[dir[d]].spawnEnemy(enemy, enemy_data)
-		//round_check_fn.spawnEnemy(Env, dir[d], enemy, enemy_data);
-		Env.roads[dir[d]].armyMove(Env.troops_state)
-		//round_check_fn.armyMove(Env, dir[d]);
-		Env.roads[dir[d]].enemyMove()
-		//round_check_fn.enemyMove(Env, dir[d]);
-		combat_fn.combat(Env, dir[d], combat_report, defender_data)
-	}
-	console.log(combat_report)
-	reports = combat_fn.combat_report_process(Env, combat_report);
+
+	Env.enemySpawn(enemy, enemy_data)
+	Env.armyMove()
+	Env.enemyMove()
+	reports = Env.combat(defender_data)
 	console.log(reports)
 	io.emit("combat_report", reports);
-	//console.log(Env.roads);
-	//console.log("戰報:"+combat_report);
 
 	io.emit("turn_end",roll_the_dice()); //告知user此回合結束，並傳一個機率結果給接收端,先於game over才不會鎖住player2的按鈕
 	if(Env.isGameover()){
@@ -243,11 +233,9 @@ io.on('connection', (socket) => {
 
 			newGame();
 			io.emit("start_game", Env, [army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]]);
-			//console.log([army_data["armor"][Env.troops_state.armor.level], army_data["archer"][Env.troops_state.archer.level], army_data["ranger"][Env.troops_state.ranger.level]])
+			
 			io.emit("player_turn");
-			//console.log("start game");
 
-			//test
 
 			
 
@@ -286,26 +274,24 @@ io.on('connection', (socket) => {
 	//每回合結算玩家的行動並更新環境
 	socket.on("action_done", (player_id, action ,msg )=>{ //玩家的訊息
 
-		var report = Env.explore("")
-		console.log(report)
 		io.emit("player_msg",msg);
+		player_action_handle(action);
 		if(player_id==1){
-			player_action_handle(action);
-			io.emit("update_state", Env);
+			var report = Env.updataToClient()
+			io.emit("update_state", report);
 			io.emit("player_turn");
 		}
 		else if(player_id==-1){
-			player_action_handle(action);
 			roundCheck();
-			io.emit("update_state", Env);
+			var report = Env.updataToClient()
+			io.emit("update_state", report);
 			io.emit("player_turn");
 		}
 	});
 
 	socket.on("explore", (direction)=>{
-		var report = Env.explore(direction)
-		io.emit("update_state", Env);
-		io.emit("explore_report", report)
+		var explore_report = Env.explore(direction)
+		io.emit("explore_report", explore_report)
 	})
 	//===================================================
 })

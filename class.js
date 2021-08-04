@@ -95,7 +95,7 @@ exports.Environment = class {
 
         this.dict = {
             "N":"北方", "E":"東方", "W":"西方", "S":"南方", "all":"", "castle":"城堡",
-            "wood":"木頭",
+            "wood":"木頭", "shoe":"鞋子",
             "armor":"步兵", "archer":"弓箭手", "ranger":"騎兵", "wizard":"法師", "defence":"防禦部隊",
             "tree_man":"普通樹人", "big_tree_man":"大型樹人", "stick_man":"樹枝噴吐者",
         }
@@ -119,6 +119,7 @@ exports.Environment = class {
                     }
                     this.map[x][y] = r
                     i++
+                    console.log(resource_type+"x:"+x+"  y:"+y)
                 }
             }
         }
@@ -126,20 +127,22 @@ exports.Environment = class {
 
     explore(direction){
 
-        if(direction=="N"){
+        if(direction=="N" && this.explorer_data.move_available.N){
             this.explorer_data.y += 1
-        }else if(direction=="S"){
+        }else if(direction=="S" && this.explorer_data.move_available.S){
             this.explorer_data.y -= 1
-        }else if(direction=="E"){
+        }else if(direction=="E" && this.explorer_data.move_available.E){
             this.explorer_data.x += 1
-        }else if(direction=="W"){
+        }else if(direction=="W" && this.explorer_data.move_available.W){
             this.explorer_data.x -= 1
         }
 
-        this.explorer_data.move_available.N = this.explorer_data.x < this.map_x-1
-        this.explorer_data.move_available.S = this.explorer_data.x > 0
-        this.explorer_data.move_available.E = this.explorer_data.y < this.map_y-1
-        this.explorer_data.move_available.W = this.explorer_data.y > 0
+        console.log(this.explorer_data.x + "  " + this.explorer_data.y)
+
+        this.explorer_data.move_available.E = this.explorer_data.x < this.map_x-1
+        this.explorer_data.move_available.W = this.explorer_data.x > 0
+        this.explorer_data.move_available.N = this.explorer_data.y < this.map_y-1
+        this.explorer_data.move_available.S = this.explorer_data.y > 0
         this.explorer_data.move_left -= 1
 
         var report = {
@@ -162,6 +165,7 @@ exports.Environment = class {
         else{
             report.msg = "甚麼都沒有發現..."
         }
+        console.log(report)
         return report
     }
 

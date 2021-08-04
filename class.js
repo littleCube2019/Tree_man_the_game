@@ -60,12 +60,8 @@ exports.Environment = class {
         this.troops_state = { 
             
             "armor":{"valid":true, "level":0, "amount":0}, 
-            //"heavy_armor":{"valid":false, "amount":0},
-            //"archer_armor":{"valid":false, "amount":0},
 
             "ranger":{"valid":true, "level":0, "amount":0},
-            //"heavy_ranger":{"valid":false, "amount":0},
-            //"archer_ranger":{"valid":false, "amount":0},
 
             "archer":{"valid":true, "level":0, "amount":0},
 
@@ -95,11 +91,33 @@ exports.Environment = class {
 
         this.dict = {
             "N":"北方", "E":"東方", "W":"西方", "S":"南方", "all":"", "castle":"城堡",
-            "wood":"木頭", "shoe":"鞋子",
+            "wood":"木頭", "shoe":"草鞋(皇叔編的那種)",
             "armor":"步兵", "archer":"弓箭手", "ranger":"騎兵", "wizard":"法師", "defence":"防禦部隊",
             "tree_man":"普通樹人", "big_tree_man":"大型樹人", "stick_man":"樹枝噴吐者",
         }
     }
+
+    updataToClient(){
+        var report = {
+            "roads":this.roads,
+            "round":this.round,
+            "resource":this.resource,
+            "resource_gain":this.resource_gain,
+            "map_x":this.map_x,
+            "map_y":this.map_y,
+            "map":this.map,
+            "exployer_mobility":this.explorer_mobility,
+            "explorer_data":this.explorer_data,
+            "resource_point":this.resource_point,
+            "morale":this.morale,
+            "troops_state":this.troops_state,
+            "RD":this.RD,
+            "dict":this.dict,
+        }
+
+        return report
+    }
+
     gainResource(){
         for(var r in this.resource_gain){
             this.resource[r] += this.resource_gain[r]
@@ -278,20 +296,6 @@ exports.Environment = class {
         for(var d in this.roads){
             report.push(this.roads[d].combat(defender_data, this.morale, this.dict))
         }
-        return report
-    }
-
-    updataToClient(){
-        var report = {
-            "roads":this.roads,
-            "round":this.round,
-            "resource":this.resource,
-            "troops_state":this.troops_state,
-            "map_x":this.map_x,
-            "map_y":this.map_y,
-            "explorer_data":this.explorer_data,
-        }
-
         return report
     }
 

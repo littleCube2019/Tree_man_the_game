@@ -115,6 +115,7 @@
 					}
 				}
 
+
 				if (dir == "N"){
 					if(Env.explorer_data["y"] +1 < Env.map_y){
 						return true;
@@ -302,7 +303,8 @@
 				console.log(env.resource["wood"])
 				// 基本數值更新區
 				$("#round").text(env.round);
-				
+				$("#move_left").text(env.explorer_data.move_left);
+
 				wall_status.update(env.roads);
 				
 				$("#wood").text(env.resource["wood"]);
@@ -377,8 +379,9 @@
 				var x = report["explorer_data"].x;
 				var y = report["explorer_data"].y;
 				addMessage("當前位置在("+x+","+y+")");
+				addMessage(report.msg);
 				map.update(x,y);
-				console.log(report);
+				
 
 			});
 
@@ -893,6 +896,16 @@
 				
 
 			</div>
+		</div>
+
+		<div >
+			移動剩餘次數 <span id="move_left"> </span>
+		</div>
+
+		<div id="item">道具
+
+
+
 		</div>
 		
 

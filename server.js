@@ -129,15 +129,18 @@ function player_action_handle(action){
 		Env.armyRetreat(action.direction)
 	}
 	else if(action.type=="research"){
-		var report = Env.research(RD, action.research_type, action.direction)
+		var report = Env.research(RD, action.research_type, action.direction) //action = {"type":"research", "research_type":"resin_factory", "direction":"all"}
 		io.emit("research_report", report)
-	if(report.done){
-		io.emit("research_done", action.research_type, action.direction, report.level+1)
+		if(report.done){
+			io.emit("research_done", action.research_type, action.direction, report.level+1)
 			if(action.research_type == "armor_upgrade"){
 			io.emit("update_troop_info", [army_data["armor"][Env.troops_state["armor"]["level"]]])
 			console.log(army_data["armor"][Env.troops_state["armor"]["level"]])
 			}
 		}
+	}
+	else if(action.type=="factory_replenishment"){ //action:{"type":"factory_replenishment", "factory_type":"resin", "replenishment":{"wood":xxx}}
+		Env.factoryReplenish(action)
 	}
 }
 //===========================================
@@ -158,7 +161,7 @@ function roll_the_dice(range=100){
 
 
 function roundCheck(){
-
+	
 	Env.enemySpawn(enemy, enemy_data)
 	Env.armyMove()
 	Env.enemyMove()
@@ -173,6 +176,8 @@ function roundCheck(){
 		player2HasBeenChoosen = false;
 	}
 	Env.gainResource()
+	console.log(Env.resource)
+	console.log(Env.special_resource.resin.factory)
 	Env.explorer_data.move_left = Env.explorer_mobility
 	Env.round += 1;
 }
@@ -220,14 +225,11 @@ io.on('connection', (socket) => {
 			newGame();
 			var update_report = Env.updataToClient()
 			io.emit("start_game", update_report, [army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]]);
-			/*
-			io.emit("player_turn");
-
+			io.emit("update_state", update_report);
 			
 			io.emit("player_turn");
-			*/
-			var update_report = Env.updataToClient()
-			io.emit("update_state", update_report);
+			io.emit("player_turn");
+			
 		}
 	});
 	//  =================================================

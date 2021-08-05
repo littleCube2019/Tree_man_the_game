@@ -25,8 +25,12 @@ exports.Environment = class {
         }
         
         this.round = 1 ; 
-        this.resource = {"wood":5000} ;
-        this.resource_gain = {"wood":500} //回合結束可獲得的資源
+        this.resource = {"wood":5000, "resin":0, "food":1000} ;
+        this.resource_gain = {"wood":500, "resin":0, "food":0} //回合結束可獲得的資源
+
+        this.special_resource = {
+            "resin":{"valid":true, "factory":new factory()}
+        }
 
         //==探索地圖=============================
         this.map_x = 11
@@ -83,8 +87,9 @@ exports.Environment = class {
                 "S":{"level":0, "progress":0},
             },
 
-
             "armor_upgrade":{"all":{"level":0, "progress":0},},
+
+            "resin_factory":{"all":{"level":0, "progress":0},},
         }
 
         //============================================
@@ -103,6 +108,7 @@ exports.Environment = class {
             "round":this.round,
             "resource":this.resource,
             "resource_gain":this.resource_gain,
+            "special_resource":this.special_resource,
             "map_x":this.map_x,
             "map_y":this.map_y,
             "map":this.map,
@@ -122,6 +128,21 @@ exports.Environment = class {
         for(var r in this.resource_gain){
             this.resource[r] += this.resource_gain[r]
         }
+        for(var r in this.special_resource){
+            if(this.special_resource[r].valid){
+                var product = this.special_resource[r].factory.active()
+                for(var p in product){
+                    this.resource[p] += product[p]
+                }
+            }
+        }
+    }
+
+    factoryReplenish(data){
+        for(var r in data.replenishment){
+            this.resource[r] -= data.replenishment[r]
+        }
+        this.special_resource[data.factory_type].factory.replenish(data.replenishment)
     }
 
     create_resource_point(){
@@ -298,6 +319,7 @@ exports.Environment = class {
         }
         return report
     }
+
 
     isGameover(){
         return(this.roads["E"].wallhp<=0 || this.roads["W"].wallhp<=0 || this.roads["N"].wallhp<=0 || this.roads["S"].wallhp<=0)
@@ -540,6 +562,57 @@ class road{
 
 }
 
+
+class factory{
+    constructor(){
+        this.input = {"wood":100}
+        this.output = {"resin":50}
+        this.storage = {"wood":0}
+    }
+    active(){
+        var inaff = true
+        for(var r in this.input){
+            if(this.storage[r]<this.input[r]){
+                inaff = false
+            }
+        }
+
+        if(inaff){
+            for(var r in this.input){
+                this.storage[r] -= this.input[r]
+            }
+            console.log("成功生產資源")
+            return this.output
+        }
+        else{
+            console.log("沒有足夠的資源")
+            return {}
+        }
+    }
+
+    replenish(resource){
+        for(var r in this.storage){
+            this.storage[r] += resource[r]
+        }
+    }
+
+    upgrade(resource, data){
+        this.input = data.input
+        this.output = data.output
+
+        var temp = this.storage
+        this.storage = data.storage
+        for(var r in temp){
+            if(r in this.storage){
+                this.storage[r] = temp[r]
+            }
+            else{
+                resource[r] += temp[r]
+            }
+        }
+    }
+}
+
 // ========================== 環境 end========================================//  
 
 
@@ -582,3 +655,6 @@ exports.enemy = class {
     }
 }
 // ====================單位"種類"樣版區 end ==================================// 
+
+//=====================工廠============================================
+

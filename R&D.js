@@ -1,3 +1,4 @@
+var resin_factory = require("./factory").resin_factory
 
 
 exports.RD = {
@@ -77,6 +78,21 @@ exports.RD = {
             }
         }
     ],
+
+    "resin_factory":[
+        {
+            "name":"樹脂提煉廠",
+            "cost" : {"wood":500},
+            "difficulty" : 5,
+            "max_research_speed" : 3,
+
+            research_done(Env, dir){
+                Env.factory["resin"].upgrade(Env.resource, resin_factory[0])
+                var next_level = -1
+                return next_level
+            }
+        }
+    ]
 
 }
 

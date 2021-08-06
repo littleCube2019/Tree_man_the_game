@@ -430,14 +430,14 @@ var research = new Vue({
           this.type ='research';
           this.research_type = research_type;
           this.sub_type = sub_type;
-          this.dir = dir ;
+          this.direction = dir ;
         }
       }
       can_research = true;
       // 看條件
 
       if( Env.resource["wood"]   >=  this.details[research_type][dir][sub_type]["cost"]  ){
-        action = new research(research_type, dir, sub_type);
+        action = new research(research_type,  sub_type  , dir,);
         research_name=  this.details[research_type][dir][sub_type]["name"] ;
         
       }

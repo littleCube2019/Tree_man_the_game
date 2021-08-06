@@ -129,15 +129,19 @@ function player_action_handle(action){
 		Env.armyRetreat(action.direction)
 	}
 	else if(action.type=="research"){
-		var report = Env.research(RD, action.research_type, action.direction)
+		var report = Env.research(RD, action.research_type, action.sub_type) //action = {"type":"research", "research_type":"factory", "sub_type":"resin"}
 		io.emit("research_report", report)
-	if(report.done){
-		io.emit("research_done", action.research_type, action.direction, report.level+1)
-			if(action.research_type == "armor_upgrade"){
+		console.log(report)
+		if(report.done){
+			//io.emit("research_done", action.research_type, action.sub_type, report.level+1)
+			if(action.research_type == "army_upgrade"){
 			io.emit("update_troop_info", [army_data["armor"][Env.troops_state["armor"]["level"]]])
 			console.log(army_data["armor"][Env.troops_state["armor"]["level"]])
 			}
 		}
+	}
+	else if(action.type=="factory_replenishment"){ //action:{"type":"factory_replenishment", "factory_type":"resin", "replenishment":{"wood":xxx}}
+		Env.factoryReplenish(action)
 	}
 }
 //===========================================
@@ -158,7 +162,7 @@ function roll_the_dice(range=100){
 
 
 function roundCheck(){
-
+	
 	Env.enemySpawn(enemy, enemy_data)
 	Env.armyMove()
 	Env.enemyMove()
@@ -173,6 +177,8 @@ function roundCheck(){
 		player2HasBeenChoosen = false;
 	}
 	Env.gainResource()
+	console.log(Env.resource)
+	console.log(Env.special_resource.resin.factory)
 	Env.explorer_data.move_left = Env.explorer_mobility
 	Env.round += 1;
 }
@@ -218,12 +224,15 @@ io.on('connection', (socket) => {
 			//====================
 
 			newGame();
-			io.emit("start_game", Env, [army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]]);
-			/*
-			
-			*/
+
 			var update_report = Env.updataToClient()
+			console.log(Env.RD)
+			io.emit("start_game", update_report, 
+				[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
+				Env.RD
+			);
 			io.emit("update_state", update_report);
+
 			io.emit("player_turn");
 			io.emit("player_turn");
 			
@@ -259,6 +268,7 @@ io.on('connection', (socket) => {
 	socket.on("action_done", (player_id, action ,msg )=>{ //玩家的訊息
 
 		io.emit("player_msg",msg);
+		//action = {"type":"research", "research_type":"factory", "direction":"resin"}
 		player_action_handle(action);
 		if(player_id==1){
 			var update_report = Env.updataToClient()

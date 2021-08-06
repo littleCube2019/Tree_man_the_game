@@ -25,8 +25,12 @@ exports.Environment = class {
         }
         
         this.round = 1 ; 
-        this.resource = {"wood":5000} ;
-        this.resource_gain = {"wood":500} //回合結束可獲得的資源
+        this.resource = {"wood":5000, "resin":0, "food":1000} ;
+        this.resource_gain = {"wood":500, "resin":0, "food":0} //回合結束可獲得的資源
+
+        this.special_resource = {
+            "resin":{"valid":false, "factory":new factory()}
+        }
 
         //==探索地圖=============================
         this.map_x = 11
@@ -69,22 +73,38 @@ exports.Environment = class {
         }
 
         this.RD = {
-            "wall_upgrade":{
-                "N":{"level":0, "progress":0},
-                "E":{"level":0, "progress":0},
-                "W":{"level":0, "progress":0},
-                "S":{"level":0, "progress":0},
+            "wall":{
+                "N":{
+                   "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
+                   "defence":{"level":0, "progress":0, "name":"弩炮", "cost":1000},
+                },
+                "E":{
+                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
+                    "defence":{"level":0, "progress":0, "name":"弩炮", "cost":1000},
+                },
+                "W":{
+                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
+                    "defence":{"level":0, "progress":0, "name":"弩炮", "cost":1000},
+                },
+                "S":{
+                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
+                    "defence":{"level":0, "progress":0, "name":"弩炮", "cost":1000},
+                },
             },
 
-            "defence_developments":{
-                "N":{"level":0, "progress":0},
-                "E":{"level":0, "progress":0},
-                "W":{"level":0, "progress":0},
-                "S":{"level":0, "progress":0},
+
+            "army_upgrade":{
+                "all":{
+                    "armor":{"level":0, "progress":0, "name":"厚木裝甲", "cost":500},
+                }
             },
 
+            "factory":{
+                "all":{
+                    "resin":{"level":0, "progress":0, "name":"厚木裝甲", "cost":500},
+                }
+            },
 
-            "armor_upgrade":{"all":{"level":0, "progress":0},},
         }
 
         //============================================
@@ -103,6 +123,7 @@ exports.Environment = class {
             "round":this.round,
             "resource":this.resource,
             "resource_gain":this.resource_gain,
+            "special_resource":this.special_resource,
             "map_x":this.map_x,
             "map_y":this.map_y,
             "map":this.map,
@@ -122,6 +143,21 @@ exports.Environment = class {
         for(var r in this.resource_gain){
             this.resource[r] += this.resource_gain[r]
         }
+        for(var r in this.special_resource){
+            if(this.special_resource[r].valid){
+                var product = this.special_resource[r].factory.active()
+                for(var p in product){
+                    this.resource[p] += product[p]
+                }
+            }
+        }
+    }
+
+    factoryReplenish(data){
+        for(var r in data.replenishment){
+            this.resource[r] -= data.replenishment[r]
+        }
+        this.special_resource[data.factory_type].factory.replenish(data.replenishment)
     }
 
     create_resource_point(){
@@ -236,42 +272,39 @@ exports.Environment = class {
         this.roads[direction].armyRetreat()
     }
 
-    research(RD, research_type, dir){
-        var level = this.RD[research_type][dir]["level"]
-        var max_research_speed = RD[research_type][level].max_research_speed
-        var difficulty = RD[research_type][level].difficulty
+    research(RD, research_type, dir, sub_type){
+        var level = this.RD[research_type][dir][sub_type]["level"]
+        var max_research_speed = RD[research_type][sub_type][level].max_research_speed
+        var difficulty = RD[research_type][sub_type][level].difficulty
         
-        for(var r in RD[research_type][level]["cost"]){
-            this.resource[r] -= RD[research_type][level]["cost"][r];
+        for(var r in RD[research_type][sub_type][level]["cost"]){
+            this.resource[r] -= RD[research_type][sub_type][level]["cost"][r];
         }
 
-        this.RD[research_type][dir]["progress"] += Math.ceil(Math.random()*max_research_speed);
-        var research_name = RD[research_type][level].name
+        this.RD[research_type][dir][sub_type]["progress"] += Math.ceil(Math.random()*max_research_speed);
+        
 
-        var report = {
-            "research_type":research_type, 
-            "direction":dir, 
-            "done":false, 
-            "progress":this.RD[research_type][dir]["progress"], 
-            "total":difficulty, 
-            "msg":"", 
-            "level":this.RD[research_type][dir]["level"]
+
+        if(this.RD[research_type][dir][sub_type]["progress"] >= difficulty){
+            this.RD[research_type][dir][sub_type]["level"] = RD[research_type][sub_type][level].research_done(this, sub_type);
+            this.RD[research_type][dir][sub_type]["progress"] = 0;
+        }
+        if(this.RD[research_type][dir][sub_type]["level"]!=-1){
+            var next_research_name = RD[research_type][sub_type][level].name
+            var next_cost = RD[research_type][sub_type][level].cost
+            this.RD[research_type][dir][sub_type]["name"] = next_research_name
+            this.RD[research_type][dir][sub_type]["cost"] = next_cost
         }
 
-        if(this.RD[research_type][dir]["progress"] >= difficulty){
-            this.RD[research_type][dir]["level"] = RD[research_type][level].research_done(this, dir);
-            this.RD[research_type][dir]["progress"] = 0;
-            report.msg = "成功研發" + this.dict[dir] + research_name
-            report.done = true
-            report.progress = 0
-            report.level = this.RD[research_type][dir]["level"]
+        else if(this.RD[research_type][dir][sub_type]["level"]==-1){
+            delete  this.RD[research_type][dir][sub_type]
         }
-        else{
-            report.msg = "研發了:" + this.dict[dir] + research_name + "， 進度:" + this.RD[research_type][dir]["progress"] + "/" + difficulty
-        }
-        console.log(report)
-        return report
+
+
+        return this.RD
     }
+
+    
 
     enemySpawn(enemy, enemy_data){
         for(var d in this.roads){
@@ -298,6 +331,7 @@ exports.Environment = class {
         }
         return report
     }
+
 
     isGameover(){
         return(this.roads["E"].wallhp<=0 || this.roads["W"].wallhp<=0 || this.roads["N"].wallhp<=0 || this.roads["S"].wallhp<=0)
@@ -540,6 +574,57 @@ class road{
 
 }
 
+
+class factory{
+    constructor(){
+        this.input = {}
+        this.output = {}
+        this.storage = {}
+    }
+    active(){
+        var inaff = true
+        for(var r in this.input){
+            if(this.storage[r]<this.input[r]){
+                inaff = false
+            }
+        }
+
+        if(inaff){
+            for(var r in this.input){
+                this.storage[r] -= this.input[r]
+            }
+            console.log("成功生產資源")
+            return this.output
+        }
+        else{
+            console.log("沒有足夠的資源")
+            return {}
+        }
+    }
+
+    replenish(resource){
+        for(var r in this.storage){
+            this.storage[r] += resource[r]
+        }
+    }
+
+    upgrade(resource, data){
+        this.input = data.input
+        this.output = data.output
+
+        var temp = this.storage
+        this.storage = data.storage
+        for(var r in temp){
+            if(r in this.storage){
+                this.storage[r] = temp[r]
+            }
+            else{
+                resource[r] += temp[r]
+            }
+        }
+    }
+}
+
 // ========================== 環境 end========================================//  
 
 
@@ -582,3 +667,6 @@ exports.enemy = class {
     }
 }
 // ====================單位"種類"樣版區 end ==================================// 
+
+//=====================工廠============================================
+

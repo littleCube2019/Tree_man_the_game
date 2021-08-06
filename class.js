@@ -290,10 +290,10 @@ exports.Environment = class {
 
         this.RD[research_type][dir][sub_type]["progress"] += Math.ceil(Math.random()*max_research_speed);
         
-
+        console.log(this.RD[research_type][dir][sub_type])
 
         if(this.RD[research_type][dir][sub_type]["progress"] >= difficulty){
-            research_report.msg = "你成功研發了" + this.RD[research_type][sub_type]["name"]
+            research_report.msg = "你成功研發了" + this.RD[research_type][dir][sub_type]["name"]
             research_report.progress = difficulty
             research_report.done = true
             this.RD[research_type][dir][sub_type]["level"] = RD[research_type][sub_type][level].research_done(this, sub_type);
@@ -301,7 +301,7 @@ exports.Environment = class {
         }
         else{
             research_report.progress = this.RD[research_type][dir][sub_type]["progress"]
-            research_report.msg = "你研發了" + this.RD[research_type][sub_type]["name"] + ": 進度"+research_report.progress+"/"+difficulty
+            research_report.msg = "你研發了" + this.RD[research_type][dir][sub_type]["name"] + ": 進度"+research_report.progress+"/"+difficulty
         }
 
         if(this.RD[research_type][dir][sub_type]["level"]!=-1){

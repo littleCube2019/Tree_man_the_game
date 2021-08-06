@@ -224,6 +224,7 @@ io.on('connection', (socket) => {
 			//====================
 
 			newGame();
+
 			var update_report = Env.updataToClient()
 			console.log(Env.RD)
 			var research_log = {
@@ -237,7 +238,7 @@ io.on('connection', (socket) => {
 				Env.RD,
 			);
 			io.emit("update_state", update_report);
-			
+
 			io.emit("player_turn");
 			io.emit("player_turn");
 			

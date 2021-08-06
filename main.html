@@ -190,9 +190,7 @@
 				Env = env
 				game_start = true;
 
-				if( -1 == PLAYER_ID){
-					$(".choice_button").attr('disabled', false);
-				}
+			
 				
 				round = 1;
 				$("#choose_player").hide();
@@ -204,6 +202,7 @@
 				}
 				else{
 					$("#player_name").text("帝國賢者");
+					$(".choice_button").attr('disabled', true);
 				}
 
 				$(".LEFT").show();
@@ -220,8 +219,8 @@
 			socket.on("player_turn" , ()=>{
 				TURN *= -1;
 				
-			//	console.log(TURN);
-			//	console.log(PLAYER_ID)
+				console.log(TURN);
+				console.log(PLAYER_ID)
 			// 鎖住行動button
 				if(TURN == PLAYER_ID){
 					$(".choice_button").attr('disabled', false);
@@ -936,7 +935,7 @@
 			<!-- Vue : choose_basic-->
 			<div v-for="content in contents">
 			
-			<button class="choice_button btn btn-dark"  v-if="content[2] == 0 || content[2] == pid " v-bind:id="content[0]" v-on:click="choose_action">{{content[1]}}</button>
+			<button class="choose_basic  choice_button btn btn-dark"  v-if="content[2] == 0 || content[2] == pid " v-bind:id="content[0]" v-on:click="choose_action">{{content[1]}}</button>
 			</div>
 		
 		    </div>

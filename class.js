@@ -301,7 +301,7 @@ exports.Environment = class {
         }
         else{
             research_report.progress = this.RD[research_type][dir][sub_type]["progress"]
-            research_report.msg = "你研發了" + this.RD[research_type][sub_type][level]["name"] + ": 進度"+research_report.progress+"/"+difficulty
+            research_report.msg = "你研發了" + this.RD[research_type][sub_type]["name"] + ": 進度"+research_report.progress+"/"+difficulty
         }
 
         if(this.RD[research_type][dir][sub_type]["level"]!=-1){

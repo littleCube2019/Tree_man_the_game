@@ -230,8 +230,7 @@
 			socket.on("player_turn" , ()=>{
 				TURN *= -1;
 				
-				console.log(TURN);
-				console.log(PLAYER_ID)
+		
 			// 鎖住行動button
 				if(TURN == PLAYER_ID){
 					$(".choice_button").attr('disabled', false);
@@ -351,8 +350,9 @@
 				research.update_level(type , dir , level);
 			})
 			//研究通知
-			socket.on("research_report",(report)=>{
-				
+			socket.on("research_report",(report ,RD)=>{
+				research.update_all(undefined,RD);
+				console.log(RD);
 				//{"research_type":research_type, "direction":dir, "done":false, "progress":this.RD[research_type][dir]["progress"], "total":difficulty, "msg":"", "level":this.RD[research_type][dir]["level"]}
 				
 				$("#research_report").empty();

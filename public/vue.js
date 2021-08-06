@@ -382,37 +382,37 @@ var research = new Vue({
    
 
     details:{
-      "wall":{
-        "N":{
-           "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-           "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+          "wall":{
+            "N":{
+              "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
+              "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+            },
+            "E":{
+                "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
+                "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+            },
+            "W":{
+                "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
+                "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+            },
+            "S":{
+                "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
+                "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+            },
         },
-        "E":{
-            "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-            "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
-        },
-        "W":{
-            "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-            "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
-        },
-        "S":{
-            "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-            "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
-        },
-      },
 
 
-      "army_upgrade":{
-          "all":{
-              "armor":{"level":0, "progress":0, "name":"厚木裝甲", "cost":500},
-          }
-      },
+        "army_upgrade":{
+            "all":{
+                "armor":{"level":0, "progress":0, "name":"厚木裝甲", "cost":500},
+            }
+        },
 
-      "factory":{
-          "all":{
-              "resin":{"level":0, "progress":0, "name":"樹脂工廠", "cost":500},
-          }
-      },
+        "factory":{
+            "all":{
+                "resin":{"level":0, "progress":0, "name":"樹脂工廠", "cost":500},
+            }
+        },
     } ,
     
     all : "all" ,
@@ -436,7 +436,7 @@ var research = new Vue({
       can_research = true;
       // 看條件
 
-      if( Env.resource["wood"]   >=  this.details[research_type][dir][sub_type]["cost"]  ){
+      if( Env.resource["wood"]   >=  this.details[research_type][dir][sub_type]["cost"]["wood"]  ){
         action = new research(research_type,  sub_type  , dir,);
         research_name=  this.details[research_type][dir][sub_type]["name"] ;
         
@@ -457,8 +457,12 @@ var research = new Vue({
   
 
     update_all : function(log,RD){
-      this.researchs = log;
+      if(log){
+        this.researchs = log;
+      }
+      if(RD){
       this.details  = RD;
+      }
     },
 
   }

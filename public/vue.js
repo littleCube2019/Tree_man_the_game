@@ -288,7 +288,7 @@ var recruit_troop = new Vue({
     
     else if(n==2){
       return "需要: "+this.state["ranger"]["cost"]["wood"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["ranger"]["attack"]+" <br> 移動能力:日行"+this.state["ranger"]["mobility"]+"公里\
-      <br> 承受傷害能力:"+this.state["ranger"]["hp"]+" <br> 敘述:前帝國軍隊士兵組成，至少有基本的戰鬥技巧與騎術，還有之前留下的鏽跡斑斑的武器，木頭用在他們的軍餉與馬的飼料"
+      <br> 承受傷害能力:"+this.state["ranger"]["hp"]+" <br> 敘述:前帝國軍隊士兵組成，至少有基本的戰鬥技巧與騎術，還有之前留下的鏽跡斑斑的武器"
 
     }
 
@@ -365,16 +365,13 @@ var research = new Vue({
 
   data: {
     
-    researchs:[
-      // [ number , id , name , isDir   ]
+    researchs:{
+      // [  id , name , isDir   ]
       // 未來會像troop一樣處理 ， name ==> level
-      [0,"wall_upgrade","城牆加固" , true ],
-
-      [1,"defence_developments","防禦工事" , true],
-
-      [2,"armor_upgrade","士兵升級" , false],
-
-    ],
+      "wall":[ "城牆強化", true],
+      "army_upgrade":[ "士兵升級", false],
+      "factory":["生產技術", false]
+    },
     directions:[
       ["E","東"],
       ["S","南"],
@@ -382,16 +379,40 @@ var research = new Vue({
       ["N","北"],
     ],
     
-    level:{
-      "wall_upgrade":{ "E":1 , "S":1 , "W":1 ,"N":1},
-      "defence_developments":{ "E":1 , "S":1 , "W":1 ,"N":1},
-      "armor_upgrade":{"all":1},
-    },
+   
 
-    name:{
-      "wall_upgrade" : {1:"加固木牆" , 2: "雙重木牆"},
-      "defence_developments":{1:"駐城弩隊" , 2:"守城投石機"},
-      "armor_upgrade" : {1:"厚木甲"}
+    details:{
+      "wall":{
+        "N":{
+           "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
+           "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+        },
+        "E":{
+            "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
+            "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+        },
+        "W":{
+            "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
+            "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+        },
+        "S":{
+            "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
+            "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+        },
+      },
+
+
+      "army_upgrade":{
+          "all":{
+              "armor":{"level":0, "progress":0, "name":"厚木裝甲", "cost":500},
+          }
+      },
+
+      "factory":{
+          "all":{
+              "resin":{"level":0, "progress":0, "name":"樹脂工廠", "cost":500},
+          }
+      },
     } ,
     
     all : "all" ,
@@ -399,12 +420,41 @@ var research = new Vue({
   },
 
   methods:{
-    Click: function(event){
+    Click: function(e){
+      var research_type = e.target.getAttribute("research_type");
+      var sub_type = e.target.getAttribute("sub_type");
+      var dir =  e.target.getAttribute("dir");
+      var research_name = "沒有";
+      class research {
+        constructor(research_type="None" , sub_type , dir){
+          this.type ='research';
+          this.research_type = research_type;
+          this.sub_type = sub_type;
+          this.dir = dir ;
+        }
+      }
+      can_research = true;
+      // 看條件
+
+      if( Env.resource["wood"]   >=  this.details[research_type][dir][sub_type]["cost"]  ){
+        action = new research(research_type, dir, sub_type);
+        research_name=  this.details[research_type][dir][sub_type]["name"] ;
+        
+      }
+      
+
+      else{
+        Alert(text="木頭不足研究");
+        can_research=false;
+      }
+      
+      if(can_research){
+        var msg = "你開始研究了"+research_name+"!";
+        socket.emit("action_done" , PLAYER_ID , action,msg);
+      }
           
-      },
-    Name: function(id , dir){
-      return this.name[id][this.level[id][dir]];
     },
+  
 
     update_level : function(type, dir , levels){
       this.level[type][dir]  = levels;

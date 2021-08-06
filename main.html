@@ -138,7 +138,7 @@
 			socket.on("welcome",(player1HasBeenChoosen , player2HasBeenChoosen  )=>{ //when start,hide the main page to let player select charcters.
 						// 重新初始化
 						PLAYER_ID = 0;	
-						$("#message div").remove()
+						$("#message div").remove();
 						$("#pl1").attr('disabled',false);
 						$("#pl2").attr('disabled',false);
 						$("#pl1").show();
@@ -189,8 +189,18 @@
 				//基礎設定
 				Env = env
 				game_start = true;
+				// update  ============
+				$("#round").text(env.round);
+				$("#move_left").text(env.explorer_data.move_left);
 
-			
+				wall_status.update(env.roads);
+				
+				$("#wood").text(env.resource["wood"]);
+
+				
+				
+				troop_status.update(env.troops_state);
+				// = ======================
 				
 				round = 1;
 				$("#choose_player").hide();
@@ -577,46 +587,7 @@
 				//========  ==============================================================================	
 				
 				// skip  =================================================================================
-				$(".research_choose ").click(function(e){
-					
-					var research_type = e.target.getAttribute("research_type");
-					var dir = e.target.getAttribute("dir");;
-					var research_name = "沒有";
-					class research {
-						constructor(research_type="None" , dir="all"){
-							this.type ='research';
-							this.research_type = research_type;
-							this.direction = dir;
-						}
-					}
-					can_research = true;
-					// 看條件
-					if(research_type == "wall_upgrade" && Env.resource["wood"] >= 1000  ){
-						action = new research(research_type,dir);
-						research_name= "城牆加固";
-						
-					}
-					else if(research_type == "defence_developments" && Env.resource["wood"] >= 500  ){
-						action = new research(research_type,dir);
-						research_name="防禦工事";
-					}
-					else if(research_type == "armor_upgrade" && Env.resource["wood"] >= 2000 ){
-						action = new research(research_type);
-						research_name="厚木裝甲";
-					}
-					else{
-						Alert(text="木頭不足研究");
-						can_research=false;
-					}
-					
-					if(can_research){
-						var msg = "你開始研究了"+research_name+"!";
-						socket.emit("action_done" , PLAYER_ID , action,msg);
-					}
-				}
-
-
-				)
+			
 				
 				//========  ==============================================================================	 
 				
@@ -1069,21 +1040,27 @@
 			<!--   研究  -->
 			<div class= "detail_choose" id="research">
 			
-			<div style=" height:20%;"  v-for="r in researchs"  >
-				<div  v-if="r[3]==false" > 
-				{{r[2]}}
+			<div style=" height:20%;"  v-for="(r,r_name) in researchs"  >
+				<div  v-if="r[1]==false" > 
+				{{r[0]}}
 				<br>
-				<button  v-if="level[r[1]][all] != 0"    type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]" dir="all"  >{{Name(r[1],"all")}}</button>   
-						   
+				<div v-for="( sub, sub_name) in details[r_name][all]">
+
+				<button  v-if="sub.level != -1"    type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r_name" :sub_type="sub_name"  dir="all"  v-on:click="Click">{{sub["name"]}}</button>   
+				   
+				</div>
 				</div>
 
 				<div  v-else  >
-				{{r[2]}}
+				{{r[0]}}
 				<br>
 				<div class="float" v-for="direction in directions">
-				{{direction[1]}}
-				<button  v-if="level[r[1]][direction[0]] != 0" type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r[1]"  :dir=direction[0] >{{Name(r[1],direction[0])}}</button>  
-				</div> 
+					{{direction[1]}}
+						<div v-for="( sub, sub_name) in details[r_name][direction[0]]">
+						<button  v-if="sub.level != -1" type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r_name"   :sub_type="sub_name"  :dir=direction[0]  v-on:click="Click">{{sub["name"]}}</button>  
+						</div>
+				
+					</div> 
 				</div>
 				
 			</div>

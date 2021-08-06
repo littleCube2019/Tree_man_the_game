@@ -218,12 +218,12 @@ io.on('connection', (socket) => {
 			//====================
 
 			newGame();
-			io.emit("start_game", Env, [army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]]);
+			var update_report = Env.updataToClient();
+			io.emit("start_game", update_report, [army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]]);
 			/*
 			
 			*/
-			var update_report = Env.updataToClient()
-			io.emit("update_state", update_report);
+			// 為了不讓"研發" 留下來，以後要改進
 			io.emit("player_turn");
 			io.emit("player_turn");
 			

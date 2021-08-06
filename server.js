@@ -129,11 +129,12 @@ function player_action_handle(action){
 		Env.armyRetreat(action.direction)
 	}
 	else if(action.type=="research"){
-		var report = Env.research(RD, action.research_type, action.direction) //action = {"type":"research", "research_type":"resin_factory", "direction":"all"}
+		var report = Env.research(RD, action.research_type, action.sub_type) //action = {"type":"research", "research_type":"factory", "sub_type":"resin"}
 		io.emit("research_report", report)
+		console.log(report)
 		if(report.done){
-			io.emit("research_done", action.research_type, action.direction, report.level+1)
-			if(action.research_type == "armor_upgrade"){
+			//io.emit("research_done", action.research_type, action.sub_type, report.level+1)
+			if(action.research_type == "army_upgrade"){
 			io.emit("update_troop_info", [army_data["armor"][Env.troops_state["armor"]["level"]]])
 			console.log(army_data["armor"][Env.troops_state["armor"]["level"]])
 			}
@@ -224,7 +225,11 @@ io.on('connection', (socket) => {
 
 			newGame();
 			var update_report = Env.updataToClient()
-			io.emit("start_game", update_report, [army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]]);
+			console.log(Env.RD)
+			io.emit("start_game", update_report, 
+				[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
+				Env.RD
+			);
 			io.emit("update_state", update_report);
 			
 			io.emit("player_turn");
@@ -262,6 +267,7 @@ io.on('connection', (socket) => {
 	socket.on("action_done", (player_id, action ,msg )=>{ //玩家的訊息
 
 		io.emit("player_msg",msg);
+		//action = {"type":"research", "research_type":"factory", "direction":"resin"}
 		player_action_handle(action);
 		if(player_id==1){
 			var update_report = Env.updataToClient()

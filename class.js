@@ -290,7 +290,7 @@ exports.Environment = class {
 
         this.RD[research_type][dir][sub_type]["progress"] += Math.ceil(Math.random()*max_research_speed);
         
-
+        console.log(this.RD[research_type][dir][sub_type])
 
         if(this.RD[research_type][dir][sub_type]["progress"] >= difficulty){
             research_report.msg = "你成功研發了" + this.RD[research_type][dir][sub_type]["name"]

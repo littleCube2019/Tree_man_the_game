@@ -68,7 +68,7 @@ exports.RD = {
 
     //步兵升級=================
     "army_upgrade":{
-        "amor":[
+        "armor":[
             {
                 "name":"厚木裝甲",
                 "cost" : {"wood":500},

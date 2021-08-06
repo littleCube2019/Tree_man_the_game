@@ -129,8 +129,8 @@ function player_action_handle(action){
 		Env.armyRetreat(action.direction)
 	}
 	else if(action.type=="research"){
-		var report = Env.research(RD, action.research_type, action.sub_type) //action = {"type":"research", "research_type":"factory", "sub_type":"resin"}
-		io.emit("research_report", report)
+		var report = Env.research(RD, action.research_type, action.direction, action.sub_type) //action = {"type":"research", "research_type":"factory", "sub_type":"resin"}
+		io.emit("research_report", report, Env.RD)
 		console.log(report)
 		if(report.done){
 			//io.emit("research_done", action.research_type, action.sub_type, report.level+1)
@@ -227,9 +227,15 @@ io.on('connection', (socket) => {
 
 			var update_report = Env.updataToClient()
 			console.log(Env.RD)
+			var research_log = {
+				"wall":["wall", "城牆加固", true],
+				"army_upgrade":["army_upgrade", "士兵升級", false],
+				"factory":["factory", "半成品加工", false]
+			}
 			io.emit("start_game", update_report, 
 				[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
-				Env.RD
+				research_log,
+				Env.RD,
 			);
 			io.emit("update_state", update_report);
 

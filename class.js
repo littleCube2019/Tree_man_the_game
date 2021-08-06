@@ -277,6 +277,13 @@ exports.Environment = class {
         var max_research_speed = RD[research_type][sub_type][level].max_research_speed
         var difficulty = RD[research_type][sub_type][level].difficulty
         
+        var research_report = {
+            "done":false,
+            "msg":"",
+            "progress":0,
+            "total":difficulty,
+        }
+
         for(var r in RD[research_type][sub_type][level]["cost"]){
             this.resource[r] -= RD[research_type][sub_type][level]["cost"][r];
         }
@@ -286,14 +293,23 @@ exports.Environment = class {
 
 
         if(this.RD[research_type][dir][sub_type]["progress"] >= difficulty){
+            research_report.msg = "你成功研發了" + this.RD[research_type][sub_type][level]["name"]
+            research_report.progress = difficulty
+            research_report.done = true
             this.RD[research_type][dir][sub_type]["level"] = RD[research_type][sub_type][level].research_done(this, sub_type);
-            this.RD[research_type][dir][sub_type]["progress"] = 0;
+            this.RD[research_type][dir][sub_type]["progress"] = 0; 
         }
+        else{
+            research_report.progress = this.RD[research_type][dir][sub_type]["progress"]
+            research_report.msg = "你研發了" + this.RD[research_type][sub_type][level]["name"] + ": 進度"+research_report.progress+"/"+difficulty
+        }
+
         if(this.RD[research_type][dir][sub_type]["level"]!=-1){
             var next_research_name = RD[research_type][sub_type][level].name
             var next_cost = RD[research_type][sub_type][level].cost
             this.RD[research_type][dir][sub_type]["name"] = next_research_name
             this.RD[research_type][dir][sub_type]["cost"] = next_cost
+
         }
 
         else if(this.RD[research_type][dir][sub_type]["level"]==-1){
@@ -301,7 +317,7 @@ exports.Environment = class {
         }
 
 
-        return this.RD
+        return research_report
     }
 
     

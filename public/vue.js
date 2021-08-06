@@ -456,8 +456,9 @@ var research = new Vue({
     },
   
 
-    update_level : function(type, dir , levels){
-      this.level[type][dir]  = levels;
+    update_all : function(log,RD){
+      this.researchs = log;
+      this.details  = RD;
     },
 
   }

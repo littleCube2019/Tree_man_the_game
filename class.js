@@ -76,19 +76,19 @@ exports.Environment = class {
             "wall":{
                 "N":{
                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-                   "defence":{"level":0, "progress":0, "name":"弩炮", "cost":1000},
+                   "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
                 },
                 "E":{
                     "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-                    "defence":{"level":0, "progress":0, "name":"弩炮", "cost":1000},
+                    "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
                 },
                 "W":{
                     "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-                    "defence":{"level":0, "progress":0, "name":"弩炮", "cost":1000},
+                    "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
                 },
                 "S":{
                     "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-                    "defence":{"level":0, "progress":0, "name":"弩炮", "cost":1000},
+                    "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
                 },
             },
 

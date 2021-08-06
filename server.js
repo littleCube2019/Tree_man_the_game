@@ -229,9 +229,9 @@ io.on('connection', (socket) => {
 			var update_report = Env.updataToClient()
 			console.log(Env.RD)
 			var research_log = {
-				"wall":["wall", "城牆加固", true],
-				"army_upgrade":["army_upgrade", "士兵升級", false],
-				"factory":["factory", "半成品加工", false]
+				"wall":[ "城牆加固", true],
+				"army_upgrade":[ "士兵升級", false],
+				"factory":[ "半成品加工", false]
 			}
 			io.emit("start_game", update_report, 
 				[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],

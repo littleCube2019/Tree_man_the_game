@@ -181,7 +181,7 @@
 						}
 				})
 
-			socket.on("start_game",(env,troop,defender)=>{
+			socket.on("start_game",(env,troop,research_log,research_level)=>{
 				
 				
 				
@@ -190,11 +190,12 @@
 				Env = env
 				game_start = true;
 				// update  ============
+				console.log(env.roads)
 				$("#round").text(env.round);
 				$("#move_left").text(env.explorer_data.move_left);
 
 				wall_status.update(env.roads);
-				
+				research.update_all(research_log,research_level);
 				$("#wood").text(env.resource["wood"]);
 
 				
@@ -221,7 +222,7 @@
 				choose_basic.update_pid(PLAYER_ID);
 				//基礎文本
 				$("#start_game_alert").modal("toggle")
-				console.log(env, troop , defender)
+				
 				recruit_troop.update(troop);
 			
 			})	
@@ -1040,7 +1041,7 @@
 			<!--   研究  -->
 			<div class= "detail_choose" id="research">
 			
-			<div style=" height:20%;"  v-for="(r,r_name) in researchs"  >
+			<div style=" height:25%;"  v-for="(r,r_name) in researchs"  >
 				<div  v-if="r[1]==false" > 
 				{{r[0]}}
 				<br>
@@ -1056,11 +1057,12 @@
 				<br>
 				<div class="float" v-for="direction in directions">
 					{{direction[1]}}
-						<div v-for="( sub, sub_name) in details[r_name][direction[0]]">
+					<div v-for="( sub, sub_name) in details[r_name][direction[0]]">
 						<button  v-if="sub.level != -1" type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r_name"   :sub_type="sub_name"  :dir=direction[0]  v-on:click="Click">{{sub["name"]}}</button>  
 						</div>
 				
 					</div> 
+					
 				</div>
 				
 			</div>

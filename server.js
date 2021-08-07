@@ -148,9 +148,9 @@ function player_action_handle(action){
 
 
 // 機率決定 
-function roll_the_dice(range=100){
+function roll_the_dice(lo=0 ,range=100){
 	// Math.floor(Math.random() * 10) returns a random integer between 0 and 9 (both included):
-	return (Math.floor(Math.random() * range)+1);
+	return (Math.floor(Math.random() * range)+1)+lo;
 }
 
 
@@ -233,7 +233,8 @@ io.on('connection', (socket) => {
 				"army_upgrade":[ "士兵升級", false],
 				"factory":[ "半成品加工", false]
 			}
-			io.emit("start_game", update_report, 
+			var number = roll_the_dice(20000,10000); // 決定城號
+			io.emit("start_game", update_report, number,
 				[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
 				research_log,
 				Env.RD,

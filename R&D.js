@@ -12,6 +12,8 @@ exports.RD = {
                 "difficulty" : 3,
                 "max_research_speed" : 2,
 
+                "description":"增加城牆1000耐久度上限<br>研究難度:3點<br>花費1000木頭可隨機升級1-2點",
+
                 research_done(Env, dir){
                     Env.roads[dir].max_wallhp += 1000;
                     var next_level = 1
@@ -25,6 +27,8 @@ exports.RD = {
                 "difficulty" : 5,
                 "max_research_speed" : 2,
 
+                "description":"增加城牆2000耐久度上限<br>研究難度:5點<br>花費1500木頭可隨機升級1-2點",
+
                 research_done(Env, dir){
                     Env.roads[dir].max_wallhp += 2000;
                     var next_level = -1
@@ -35,10 +39,12 @@ exports.RD = {
         
         "defence":[
             {
-                "name":"弩炮",
+                "name":"守城弩隊",
                 "cost" : {"wood":1000},
                 "difficulty" : 10,
                 "max_research_speed" : 3,
+
+                "description":"派駐一隊守城弩隊(攻擊距離:3  攻擊力:200)於城牆上<br>研究難度:10點<br>花費1000木頭可隨機升級1-3點",
 
                 research_done(Env, dir){
                     Env.roads[dir].defence["crossbow"]["valid"] = true;
@@ -52,6 +58,8 @@ exports.RD = {
                 "cost" : {"wood":1000},
                 "difficulty" : 10,
                 "max_research_speed" : 3,
+
+                "description":"派駐一台投石機(攻擊距離:5  攻擊力:200)於城牆上<br>研究難度:10點<br>花費1000木頭可隨機升級1-3點",
 
                 research_done(Env, dir){
                     Env.roads[dir].defence["catapult"]["valid"] = true;
@@ -75,6 +83,8 @@ exports.RD = {
                 "difficulty" : 5,
                 "max_research_speed" : 3,
 
+                "description":"重步兵血量增加1000<br>研究難度:5點<br>花費500木頭可隨機升級1-3點",
+
                 research_done(Env, dir){
                     Env.troops_state["armor"]["level"] = 1;
                     var next_level = -1
@@ -91,6 +101,8 @@ exports.RD = {
                 "cost" : {"wood":500},
                 "difficulty" : 5,
                 "max_research_speed" : 3,
+
+                "description":"興建樹脂提煉廠，可以從木頭中提煉出樹脂<br>研究難度:10點<br>花費1000木頭可隨機升級1-3點",
 
                 research_done(Env, dir){
                     Env.special_resource["resin"].factory.upgrade(Env.resource, resin_factory[0])

@@ -317,10 +317,11 @@ var move_troop = new Vue({
     ],
     
     state:{
+      /*
       "archer":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
       "armor":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
       "ranger":{"hp":1 ,"attack":555 , "cost":3 , "move":4 ,"range":5 },
-
+      */
     },
     directions:[
       ["E","東"],
@@ -382,6 +383,7 @@ var research = new Vue({
    
 
     details:{
+        /*
           "wall":{
             "N":{
               "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
@@ -413,6 +415,7 @@ var research = new Vue({
                 "resin":{"level":0, "progress":0, "name":"樹脂工廠", "cost":500},
             }
         },
+        */
     } ,
     
     all : "all" ,
@@ -436,9 +439,9 @@ var research = new Vue({
       can_research = true;
       // 看條件
 
-      if( Env.resource["wood"]   >=  this.details[research_type][dir][sub_type]["cost"]["wood"]  ){
+      if( Env.resource["wood"]   >=  this.details[research_type][dir][sub_type].data.cost.wood  ){
         action = new research(research_type,  sub_type  , dir,);
-        research_name=  this.details[research_type][dir][sub_type]["name"] ;
+        research_name=  this.details[research_type][dir][sub_type].data.name ;
         
       }
       

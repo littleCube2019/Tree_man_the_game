@@ -239,7 +239,7 @@ var recruit_troop = new Vue({
       }
     }
     can_recruit = true;
-    console.log(Env.resource["wood"]);
+   
     var action;
     var troop = Object.keys(this.state);
     for(var i = 0 ; i<troop.length ; i++){
@@ -503,7 +503,7 @@ var map = new Vue({
         
         }
       },
-      update(x,y){
+      update:function(x,y){
         this.player_x = x;
         this.player_y = y;
       }
@@ -512,8 +512,19 @@ var map = new Vue({
 })
 
 
+var Resource = new Vue({
+  el : "#resource",
+  data:{
+     resources : {"wood":5000, "food":1000,"resin":0 },
+     name : {"wood":"木頭" ,  "food":"食物" ,"resin":"樹脂" },
+  },
+  methods:{
+     update: function(resource){
+        this.resources = resource;
+     }
+  }
 
-
+})
 
 // 方向選擇的 元件
 Vue.component('button-direction', {

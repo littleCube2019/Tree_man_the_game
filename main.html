@@ -49,7 +49,7 @@
 			var WALL_DIR = "Default";
 			var game_start = false ; 
 			var OUTSIDE = false;
-
+			var Number_of_castle = 0;
 			direct_dic = {
 						"E" : "東",
 						"S" : "南",
@@ -102,7 +102,8 @@
 			}
 
 			function canMove(dir){
-				console.log(Env.explorer_data)
+				
+
 				if (dir == "E"){
 					if(Env.explorer_data["x"] +1 < Env.map_x){
 						
@@ -181,11 +182,11 @@
 						}
 				})
 
-			socket.on("start_game",(env,troop,research_log,research_level)=>{
+			socket.on("start_game",(env,number,troop,research_log,research_level)=>{
 				
 				
 				
-				
+				Number_of_castle = number;
 				//基礎設定
 				Env = env
 				game_start = true;
@@ -196,7 +197,8 @@
 
 				wall_status.update(env.roads);
 				research.update_all(research_log,research_level);
-				$("#wood").text(env.resource["wood"]);
+				
+				Resource.update(env.resource);
 
 				
 				
@@ -209,10 +211,10 @@
 			
 				//放入玩家名
 				if(PLAYER_ID == 1){
-					$("#player_name").text("帝國之眼");
+					$("#player_name").text("帝國之眼 在伐木城"+Number_of_castle+"號");
 				}
 				else{
-					$("#player_name").text("帝國賢者");
+					$("#player_name").text("帝國賢者 在伐木城"+Number_of_castle+"號");
 					$(".choice_button").attr('disabled', true);
 				}
 
@@ -311,15 +313,15 @@
 			socket.on("update_state", (env)=>{  //更新狀態
 				Env = env;
 				
-				console.log(env.resource["wood"])
+				
 				// 基本數值更新區
 				$("#round").text(env.round);
 				$("#move_left").text(env.explorer_data.move_left);
 
 				wall_status.update(env.roads);
 				
-				$("#wood").text(env.resource["wood"]);
-
+				
+				Resource.update(env.resource);
 				
 				
 				troop_status.update(env.troops_state);
@@ -345,10 +347,10 @@
 
 			})
 			//研究成功
-			socket.on("research_done",(type , dir , level)=>{
+			//socket.on("research_done",(type , dir , level)=>{
 
-				research.update_level(type , dir , level);
-			})
+			//	research.update_level(type , dir , level);
+			//})
 			//研究通知
 			socket.on("research_report",(report ,RD)=>{
 				research.update_all(undefined,RD);
@@ -391,6 +393,13 @@
 				var x = report["explorer_data"].x;
 				var y = report["explorer_data"].y;
 				
+				if(report.resource != ''){
+					var table = {
+						"wood":"舊伐木場",
+						"shoe":"草鞋",
+					}
+					$("#outside_item").append("<div>"+table[report.resource]+" at ("+x+","+y+")</div>");
+				}
 				
 
 				addMessage("當前位置在("+x+","+y+")");
@@ -754,14 +763,16 @@
 					  </svg>
 					</button>
 				
-				<div>
-				
-						<div>木頭: 
-						<span id="wood">500 </span> </div>
+				<div id="resource">
+						<div v-for="(r,r_name) in resources">
+						<div >{{name[r_name]}}:
+						<span >{{r}} </span> </div>
 
-						<br>
+						</div>
 				</div>
+
 			   </div>
+			   <br>
 			    <!-- 城牆區 ========================  -->
 				<div id="wall_state"  > 城牆狀態 
 					<button class="show_state">
@@ -880,8 +891,8 @@
 			移動剩餘次數 <span id="move_left"> </span>
 		</div>
 
-		<div id="outside_item">道具
-			
+		<div id="outside_item">已發現道具
+		
 
 
 		</div>
@@ -1041,7 +1052,7 @@
 			<!--   研究  -->
 			<div class= "detail_choose" id="research">
 			
-			<div style=" height:25%;"  v-for="(r,r_name) in researchs"  >
+			<div   v-for="(r,r_name) in researchs"   class="clearfix">
 				<div  v-if="r[1]==false" > 
 				{{r[0]}}
 				<br>
@@ -1050,6 +1061,7 @@
 				<button  v-if="sub.level != -1"    type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r_name" :sub_type="sub_name"  dir="all"  v-on:click="Click">{{sub["name"]}}</button>   
 				   
 				</div>
+				
 				</div>
 
 				<div  v-else  >
@@ -1062,9 +1074,9 @@
 						</div>
 				
 					</div> 
-					
-				</div>
 				
+				</div>
+				<br>
 			</div>
 			</div>
 			<!--   =======================================   -->	

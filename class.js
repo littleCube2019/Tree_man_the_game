@@ -211,8 +211,8 @@ exports.Environment = class {
         }
 
         if(this.map[this.explorer_data.x][this.explorer_data.y]!=undefined){
-            report["resource"] = this.map[this.explorer_data.x][this.explorer_data.y].type
             if(!this.map[this.explorer_data.x][this.explorer_data.y].found){
+                report["resource"] = this.map[this.explorer_data.x][this.explorer_data.y].type
                 explore_reward[this.map[this.explorer_data.x][this.explorer_data.y].type].reward(this)
                 this.map[this.explorer_data.x][this.explorer_data.y].found = true
                 report.msg = "發現了一個資源點:" + this.dict[report.resource]

@@ -14,6 +14,7 @@
 
 */
 var explore_reward = require("./explore_reward").explore_reward
+var RD_data = require("./R&D").RD
 exports.Environment = class {
     //環境變數
     constructor(){
@@ -72,40 +73,48 @@ exports.Environment = class {
             "wizard":{"valid":false, "level":0, "amount":0},
         }
 
-        this.RD = {
+        this.RD_title = { //{type:[name, isDir, show]}
+            "wall":["城牆加固", true, true],
+            "army_upgrade":[ "士兵升級", false, true],
+            "factory":[ "半成品加工", false, true]
+        }
+
+        this.RD_list = {
             "wall":{
                 "N":{
-                   "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":{"wood":1000} },
-                   "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":{"wood":1000}},
+                    "upgrade":{"level":0, "progress":0, /*"name":"加固木牆", "cost":{"wood":1000}*/ "data":{}},
+                    "defence":{"level":0, "progress":0, /*"name":"駐城弩隊", "cost":{"wood":1000}*/ "data":{}},
                 },
                 "E":{
-                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":{"wood":1000}},
-                    "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":{"wood":1000}},
+                    "upgrade":{"level":0, "progress":0, /*"name":"加固木牆", "cost":{"wood":1000}*/ "data":{}},
+                    "defence":{"level":0, "progress":0, /*"name":"駐城弩隊", "cost":{"wood":1000}*/ "data":{}},
                 },
                 "W":{
-                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":{"wood":1000}},
-                    "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":{"wood":1000}},
+                    "upgrade":{"level":0, "progress":0, /*"name":"加固木牆", "cost":{"wood":1000}*/ "data":{}},
+                    "defence":{"level":0, "progress":0, /*"name":"駐城弩隊", "cost":{"wood":1000}*/ "data":{}},
                 },
                 "S":{
-                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":{"wood":1000}},
-                    "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":{"wood":1000}},
+                    "upgrade":{"level":0, "progress":0, /*"name":"加固木牆", "cost":{"wood":1000}*/ "data":{}},
+                    "defence":{"level":0, "progress":0, /*"name":"駐城弩隊", "cost":{"wood":1000}*/ "data":{}},
                 },
             },
 
 
             "army_upgrade":{
                 "all":{
-                    "armor":{"level":0, "progress":0, "name":"厚木裝甲", "cost":{"wood":500}},
+                    "armor":{"level":0, "progress":0, /*"name":"厚木裝甲", "cost":{"wood":500}*/ "data":{}},
                 }
             },
 
             "factory":{
                 "all":{
-                    "resin":{"level":0, "progress":0, "name":"樹脂工廠", "cost":{"wood":500}},
+                    "resin":{"level":0, "progress":0, /*"name":"樹脂工廠", "cost":{"wood":500}*/ "data":{}},
                 }
             },
 
         }
+
+        this.researchInit()
 
         //============================================
 
@@ -132,7 +141,8 @@ exports.Environment = class {
             "resource_point":this.resource_point,
             "morale":this.morale,
             "troops_state":this.troops_state,
-            "RD":this.RD,
+            "RD_title":this.RD_title,
+            "RD_list":this.RD_list,
             "dict":this.dict,
         }
 
@@ -206,8 +216,8 @@ exports.Environment = class {
         }
 
         if(this.map[this.explorer_data.x][this.explorer_data.y]!=undefined){
-            report["resource"] = this.map[this.explorer_data.x][this.explorer_data.y].type
             if(!this.map[this.explorer_data.x][this.explorer_data.y].found){
+                report["resource"] = this.map[this.explorer_data.x][this.explorer_data.y].type
                 explore_reward[this.map[this.explorer_data.x][this.explorer_data.y].type].reward(this)
                 this.map[this.explorer_data.x][this.explorer_data.y].found = true
                 report.msg = "發現了一個資源點:" + this.dict[report.resource]
@@ -272,10 +282,21 @@ exports.Environment = class {
         this.roads[direction].armyRetreat()
     }
 
-    research(RD, research_type, dir, sub_type){
-        var level = this.RD[research_type][dir][sub_type]["level"]
-        var max_research_speed = RD[research_type][sub_type][level].max_research_speed
-        var difficulty = RD[research_type][sub_type][level].difficulty
+    researchInit(){
+        for(var type in this.RD_list){
+            for(var dir in this.RD_list[type]){
+                for(var sub_type in this.RD_list[type][dir]){
+                    var level = this.RD_list[type][dir][sub_type].level
+                    this.RD_list[type][dir][sub_type].data = RD_data[type][sub_type][level]
+                }
+            }
+        }
+    }
+
+    research(RD, type, dir, sub_type){
+        var max_research_speed = this.RD_list[type][dir][sub_type].data.max_research_speed
+        var difficulty = this.RD_list[type][dir][sub_type].data.difficulty
+        var cost = this.RD_list[type][dir][sub_type].data.cost
         
         var research_report = {
             "done":false,
@@ -284,43 +305,36 @@ exports.Environment = class {
             "total":difficulty,
         }
 
-        for(var r in RD[research_type][sub_type][level]["cost"]){
-            this.resource[r] -= RD[research_type][sub_type][level]["cost"][r];
+        for(var r in cost){
+            this.resource[r] -= cost[r];
         }
 
-        this.RD[research_type][dir][sub_type]["progress"] += Math.ceil(Math.random()*max_research_speed);
+        this.RD_list[type][dir][sub_type]["progress"] += Math.ceil(Math.random()*max_research_speed);
         
 
-
-        if(this.RD[research_type][dir][sub_type]["progress"] >= difficulty){
-            research_report.msg = "你成功研發了" + this.RD[research_type][dir][sub_type]["name"]
+        if(this.RD_list[type][dir][sub_type]["progress"] >= difficulty){
+            research_report.msg = "你成功研發了" + this.RD_list[type][dir][sub_type]["name"]
             research_report.progress = difficulty
             research_report.done = true
-            this.RD[research_type][dir][sub_type]["level"] = RD[research_type][sub_type][level].research_done(this, sub_type);
-            this.RD[research_type][dir][sub_type]["progress"] = 0; 
+            var next_level = this.RD_list[type][dir][sub_type].data.research_done(this, dir)
+            this.RD_list[type][dir][sub_type]["level"] = next_level
+            this.RD_list[type][dir][sub_type]["progress"] = 0
+            if(next_level!=-1){
+                this.RD_list[type][dir][sub_type].data = RD_data[type][sub_type][next_level]
+            }
+            else{
+                delete  this.RD_list[type][dir][sub_type]
+            }
+            
         }
         else{
-            research_report.progress = this.RD[research_type][dir][sub_type]["progress"]
-            research_report.msg = "你研發了" + this.RD[research_type][dir][sub_type]["name"] + ": 進度"+research_report.progress+"/"+difficulty
+            research_report.progress = this.RD_list[type][dir][sub_type]["progress"]
+            research_report.msg = "你研發了" + this.RD_list[type][dir][sub_type]["name"] + ": 進度"+research_report.progress+"/"+difficulty
         }
-
-        if(this.RD[research_type][dir][sub_type]["level"]!=-1){
-            var next_research_name = RD[research_type][sub_type][level].name
-            var next_cost = RD[research_type][sub_type][level].cost
-            this.RD[research_type][dir][sub_type]["name"] = next_research_name
-            this.RD[research_type][dir][sub_type]["cost"] = next_cost
-
-        }
-
-        else if(this.RD[research_type][dir][sub_type]["level"]==-1){
-            delete  this.RD[research_type][dir][sub_type]
-        }
-
 
         return research_report
     }
 
-    
 
     enemySpawn(enemy, enemy_data){
         for(var d in this.roads){
@@ -343,7 +357,7 @@ exports.Environment = class {
     combat(defender_data){
         var report = []
         for(var d in this.roads){
-            report.push(this.roads[d].combat(defender_data, this.morale, this.dict))
+            report.push(this.roads[d].combat(this.resource, defender_data, this.morale, this.dict))
         }
         return report
     }
@@ -468,7 +482,7 @@ class road{
         }  
     }
 
-    combat(defender_data, morale, dict){
+    combat(Env_resource, defender_data, morale, dict){
   
         var army_attack = {"armor":0, "archer":0, "ranger":0, "defence":0};
         var army_total_damage = 0
@@ -560,7 +574,7 @@ class road{
         
             if(nearest_enemy_hp==0){
                 for(var i in this.enemy_location[nearest_enemy][0].reward){
-                    Env.resource[i] += this.enemy_location[nearest_enemy][0].reward[i];
+                    Env_resource[i] += this.enemy_location[nearest_enemy][0].reward[i];
                 }
                 this.enemy_location[nearest_enemy].splice(0, 1);
                 morale = Math.min(1.5, morale+0.1)

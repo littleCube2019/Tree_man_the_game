@@ -182,6 +182,26 @@
 						}
 				})
 
+			socket.on("init_data",(env,number,troop,research_log,research_level)=>{
+				Number_of_castle = number;
+				//基礎設定
+				Env = env
+				game_start = true;
+				// update  ============
+				console.log(env.roads)
+				$("#round").text(env.round);
+				$("#move_left").text(env.explorer_data.move_left);
+
+				wall_status.update(env.roads);
+				research.update_all(research_log,research_level);
+				
+				Resource.update(env.resource);
+
+				
+				
+				troop_status.update(env.troops_state);
+			})
+
 			socket.on("start_game",(env,number,troop,research_log,research_level)=>{
 				
 				
@@ -1058,7 +1078,7 @@
 				<br>
 				<div v-for="( sub, sub_name) in details[r_name][all]">
 
-				<button  v-if="sub.level != -1"    type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r_name" :sub_type="sub_name"  dir="all"  v-on:click="Click">{{sub["name"]}}</button>   
+				<button  v-if="sub.level != -1"    type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r_name" :sub_type="sub_name"  dir="all"  v-on:click="Click">{{sub["data"]["name"]}}</button>   
 				   
 				</div>
 				
@@ -1070,7 +1090,7 @@
 				<div class="float" v-for="direction in directions">
 					{{direction[1]}}
 					<div v-for="( sub, sub_name) in details[r_name][direction[0]]">
-						<button  v-if="sub.level != -1" type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r_name"   :sub_type="sub_name"  :dir=direction[0]  v-on:click="Click">{{sub["name"]}}</button>  
+						<button  v-if="sub.level != -1" type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r_name"   :sub_type="sub_name"  :dir=direction[0]  v-on:click="Click">{{sub["data"]["name"]}}</button>  
 						</div>
 				
 					</div> 

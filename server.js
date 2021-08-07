@@ -130,8 +130,8 @@ function player_action_handle(action){
 	}
 	else if(action.type=="research"){
 		var report = Env.research(RD, action.research_type, action.direction, action.sub_type) //action = {"type":"research", "research_type":"factory", "sub_type":"resin"}
-		io.emit("research_report", report, Env.RD)
-		console.log(report)
+		io.emit("research_report", report, Env.RD_list)
+		console.log(Env.RD_list)
 		if(report.done){
 			//io.emit("research_done", action.research_type, action.sub_type, report.level+1)
 			if(action.research_type == "army_upgrade"){
@@ -191,6 +191,22 @@ var player_list = {}
 var connected_list = {}
 
 io.on('connection', (socket) => {
+	var update_report = Env.updataToClient()
+	var number = roll_the_dice(20000,10000); // 決定城號
+	io.emit("init_data", update_report, number,
+		[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
+		Env.RD_title,
+		Env.RD_list,
+	)
+	io.emit("update_state", update_report);
+	/*
+	io.emit("start_game", update_report, number,
+				[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
+				Env.RD_title,
+				Env.RD_list,
+			);
+	io.emit("update_state", update_report);
+	*/
 
 	console.log('Client connected');
 	connected_list[socket.id] = socket.id;
@@ -227,7 +243,7 @@ io.on('connection', (socket) => {
 
 
 			var update_report = Env.updataToClient()
-			console.log(Env.RD)
+			console.log(Env.RD_list.army_upgrade.all.armor.data)
 			var research_log = {
 				"wall":[ "城牆加固", true],
 				"army_upgrade":[ "士兵升級", false],
@@ -236,8 +252,8 @@ io.on('connection', (socket) => {
 			var number = roll_the_dice(20000,10000); // 決定城號
 			io.emit("start_game", update_report, number,
 				[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
-				research_log,
-				Env.RD,
+				Env.RD_title,
+				Env.RD_list,
 			);
 			io.emit("update_state", update_report);
 

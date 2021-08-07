@@ -79,33 +79,33 @@ exports.Environment = class {
         this.RD_list = {
             "wall":{
                 "N":{
-                   "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-                   "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+                   "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":{"wood":1000} },
+                   "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":{"wood":1000}},
                 },
                 "E":{
-                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-                    "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":{"wood":1000}},
+                    "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":{"wood":1000}},
                 },
                 "W":{
-                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-                    "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":{"wood":1000}},
+                    "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":{"wood":1000}},
                 },
                 "S":{
-                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-                    "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
+                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":{"wood":1000}},
+                    "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":{"wood":1000}},
                 },
             },
 
 
             "army_upgrade":{
                 "all":{
-                    "armor":{"level":0, "progress":0, "name":"厚木裝甲", "cost":500},
+                    "armor":{"level":0, "progress":0, "name":"厚木裝甲", "cost":{"wood":500}},
                 }
             },
 
             "factory":{
                 "all":{
-                    "resin":{"level":0, "progress":0, "name":"厚木裝甲", "cost":500},
+                    "resin":{"level":0, "progress":0, "name":"樹脂工廠", "cost":{"wood":500}},
                 }
             },
 

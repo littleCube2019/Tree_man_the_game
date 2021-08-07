@@ -301,7 +301,7 @@ exports.Environment = class {
             research_report.msg = "你成功研發了" + this.RD_list[research_type][dir][sub_type]["name"]
             research_report.progress = difficulty
             research_report.done = true
-            this.RD_list[research_type][dir][sub_type]["level"] = RD[research_type][sub_type][level].research_done(this, sub_type);
+            this.RD_list[research_type][dir][sub_type]["level"] = RD[research_type][sub_type][level].research_done(this, dir);
             this.RD_list[research_type][dir][sub_type]["progress"] = 0; 
         }
         else{
@@ -348,7 +348,7 @@ exports.Environment = class {
     combat(defender_data){
         var report = []
         for(var d in this.roads){
-            report.push(this.roads[d].combat(defender_data, this.morale, this.dict))
+            report.push(this.roads[d].combat(this.resource, defender_data, this.morale, this.dict))
         }
         return report
     }
@@ -473,7 +473,7 @@ class road{
         }  
     }
 
-    combat(defender_data, morale, dict){
+    combat(Env_resource, defender_data, morale, dict){
   
         var army_attack = {"armor":0, "archer":0, "ranger":0, "defence":0};
         var army_total_damage = 0
@@ -565,7 +565,7 @@ class road{
         
             if(nearest_enemy_hp==0){
                 for(var i in this.enemy_location[nearest_enemy][0].reward){
-                    Env.resource[i] += this.enemy_location[nearest_enemy][0].reward[i];
+                    Env_resource[i] += this.enemy_location[nearest_enemy][0].reward[i];
                 }
                 this.enemy_location[nearest_enemy].splice(0, 1);
                 morale = Math.min(1.5, morale+0.1)

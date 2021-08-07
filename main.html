@@ -102,7 +102,8 @@
 			}
 
 			function canMove(dir){
-				console.log(Env.explorer_data)
+				
+
 				if (dir == "E"){
 					if(Env.explorer_data["x"] +1 < Env.map_x){
 						
@@ -346,10 +347,10 @@
 
 			})
 			//研究成功
-			socket.on("research_done",(type , dir , level)=>{
+			//socket.on("research_done",(type , dir , level)=>{
 
-				research.update_level(type , dir , level);
-			})
+			//	research.update_level(type , dir , level);
+			//})
 			//研究通知
 			socket.on("research_report",(report ,RD)=>{
 				research.update_all(undefined,RD);
@@ -392,6 +393,13 @@
 				var x = report["explorer_data"].x;
 				var y = report["explorer_data"].y;
 				
+				if(report.resource != ''){
+					var table = {
+						"wood":"舊伐木場",
+						"shoe":"草鞋",
+					}
+					$("#outside_item").append("<div>"+table[report.resource]+" at ("+x+","+y+")</div>");
+				}
 				
 
 				addMessage("當前位置在("+x+","+y+")");
@@ -883,8 +891,8 @@
 			移動剩餘次數 <span id="move_left"> </span>
 		</div>
 
-		<div id="outside_item">道具
-			
+		<div id="outside_item">已發現道具
+		
 
 
 		</div>

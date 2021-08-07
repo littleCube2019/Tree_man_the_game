@@ -72,7 +72,11 @@ exports.Environment = class {
             "wizard":{"valid":false, "level":0, "amount":0},
         }
 
-        this.RD = {
+        this.RD_title = { //{type:[show, name, isDir]}
+
+        }
+
+        this.RD_list = {
             "wall":{
                 "N":{
                    "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
@@ -132,7 +136,8 @@ exports.Environment = class {
             "resource_point":this.resource_point,
             "morale":this.morale,
             "troops_state":this.troops_state,
-            "RD":this.RD,
+            "RD_title":this.RD_title,
+            "RD_list":this.RD_list,
             "dict":this.dict,
         }
 
@@ -273,7 +278,7 @@ exports.Environment = class {
     }
 
     research(RD, research_type, dir, sub_type){
-        var level = this.RD[research_type][dir][sub_type]["level"]
+        var level = this.RD_list[research_type][dir][sub_type]["level"]
         var max_research_speed = RD[research_type][sub_type][level].max_research_speed
         var difficulty = RD[research_type][sub_type][level].difficulty
         
@@ -288,32 +293,32 @@ exports.Environment = class {
             this.resource[r] -= RD[research_type][sub_type][level]["cost"][r];
         }
 
-        this.RD[research_type][dir][sub_type]["progress"] += Math.ceil(Math.random()*max_research_speed);
+        this.RD_list[research_type][dir][sub_type]["progress"] += Math.ceil(Math.random()*max_research_speed);
         
-        console.log(this.RD[research_type][dir][sub_type])
+        console.log(this.RD_list[research_type][dir][sub_type])
 
-        if(this.RD[research_type][dir][sub_type]["progress"] >= difficulty){
-            research_report.msg = "你成功研發了" + this.RD[research_type][dir][sub_type]["name"]
+        if(this.RD_list[research_type][dir][sub_type]["progress"] >= difficulty){
+            research_report.msg = "你成功研發了" + this.RD_list[research_type][dir][sub_type]["name"]
             research_report.progress = difficulty
             research_report.done = true
-            this.RD[research_type][dir][sub_type]["level"] = RD[research_type][sub_type][level].research_done(this, sub_type);
-            this.RD[research_type][dir][sub_type]["progress"] = 0; 
+            this.RD_list[research_type][dir][sub_type]["level"] = RD[research_type][sub_type][level].research_done(this, sub_type);
+            this.RD_list[research_type][dir][sub_type]["progress"] = 0; 
         }
         else{
-            research_report.progress = this.RD[research_type][dir][sub_type]["progress"]
-            research_report.msg = "你研發了" + this.RD[research_type][dir][sub_type]["name"] + ": 進度"+research_report.progress+"/"+difficulty
+            research_report.progress = this.RD_list[research_type][dir][sub_type]["progress"]
+            research_report.msg = "你研發了" + this.RD_list[research_type][dir][sub_type]["name"] + ": 進度"+research_report.progress+"/"+difficulty
         }
 
-        if(this.RD[research_type][dir][sub_type]["level"]!=-1){
+        if(this.RD_list[research_type][dir][sub_type]["level"]!=-1){
             var next_research_name = RD[research_type][sub_type][level].name
             var next_cost = RD[research_type][sub_type][level].cost
-            this.RD[research_type][dir][sub_type]["name"] = next_research_name
-            this.RD[research_type][dir][sub_type]["cost"] = next_cost
+            this.RD_list[research_type][dir][sub_type]["name"] = next_research_name
+            this.RD_list[research_type][dir][sub_type]["cost"] = next_cost
 
         }
 
-        else if(this.RD[research_type][dir][sub_type]["level"]==-1){
-            delete  this.RD[research_type][dir][sub_type]
+        else if(this.RD_list[research_type][dir][sub_type]["level"]==-1){
+            delete  this.RD_list[research_type][dir][sub_type]
         }
 
 

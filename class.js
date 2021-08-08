@@ -128,7 +128,7 @@ exports.Environment = class {
 
             "resource":{
                 "all":{
-                    "tuntian":{"level":0, "progress":0, "data":{}},
+                    "food":{"level":0, "progress":0, "data":{}},
                 }
             },
 

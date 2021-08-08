@@ -13,8 +13,21 @@
    defence_army_direction: object，記錄防禦部隊面朝方向
 
 */
+var app = require('express')();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+const e = require('express');
+var express = require('express');
+const { env } = require('process');
+app.get('/', function(req, res){
+res.sendFile(__dirname + '/main.html');
+});
+
+app.use(express.static('public'));
+
 var explore_reward = require("./explore_reward").explore_reward
 var RD_data = require("./R&D").RD
+var army_data = require("./troop").army_data
 exports.Environment = class {
     //環境變數
     constructor(){
@@ -29,7 +42,7 @@ exports.Environment = class {
         this.resource = {"wood":5000, "resin":0, "food":1000} ;
         this.resource_gain = {"wood":500, "resin":0, "food":0} //回合結束可獲得的資源
 
-        this.special_resource = {
+        this.factory_resource = {
             "resin":{"valid":false, "factory":new factory()}
         }
 
@@ -76,39 +89,46 @@ exports.Environment = class {
         this.RD_title = { //{type:[name, isDir, show]}
             "wall":["城牆加固", true, true],
             "army_upgrade":[ "士兵升級", false, true],
-            "factory":[ "半成品加工", false, true]
+            "factory":[ "半成品加工", false, true],
+            "resource":["資源升級", false, true],
         }
 
         this.RD_list = {
             "wall":{
                 "N":{
-                    "upgrade":{"level":0, "progress":0, /*"name":"加固木牆", "cost":{"wood":1000}*/ "data":{}},
-                    "defence":{"level":0, "progress":0, /*"name":"駐城弩隊", "cost":{"wood":1000}*/ "data":{}},
+                    "upgrade":{"level":0, "progress":0, "data":{}},
+                    "defence":{"level":0, "progress":0, "data":{}},
                 },
                 "E":{
-                    "upgrade":{"level":0, "progress":0, /*"name":"加固木牆", "cost":{"wood":1000}*/ "data":{}},
-                    "defence":{"level":0, "progress":0, /*"name":"駐城弩隊", "cost":{"wood":1000}*/ "data":{}},
+                    "upgrade":{"level":0, "progress":0, "data":{}},
+                    "defence":{"level":0, "progress":0, "data":{}},
                 },
                 "W":{
-                    "upgrade":{"level":0, "progress":0, /*"name":"加固木牆", "cost":{"wood":1000}*/ "data":{}},
-                    "defence":{"level":0, "progress":0, /*"name":"駐城弩隊", "cost":{"wood":1000}*/ "data":{}},
+                    "upgrade":{"level":0, "progress":0, "data":{}},
+                    "defence":{"level":0, "progress":0, "data":{}},
                 },
                 "S":{
-                    "upgrade":{"level":0, "progress":0, /*"name":"加固木牆", "cost":{"wood":1000}*/ "data":{}},
-                    "defence":{"level":0, "progress":0, /*"name":"駐城弩隊", "cost":{"wood":1000}*/ "data":{}},
+                    "upgrade":{"level":0, "progress":0, "data":{}},
+                    "defence":{"level":0, "progress":0, "data":{}},
                 },
             },
 
 
             "army_upgrade":{
                 "all":{
-                    "armor":{"level":0, "progress":0, /*"name":"厚木裝甲", "cost":{"wood":500}*/ "data":{}},
+                    "armor":{"level":0, "progress":0, "data":{}},
                 }
             },
 
             "factory":{
                 "all":{
-                    "resin":{"level":0, "progress":0, /*"name":"樹脂工廠", "cost":{"wood":500}*/ "data":{}},
+                    "resin":{"level":0, "progress":0, "data":{}},
+                }
+            },
+
+            "resource":{
+                "all":{
+                    "tuntian":{"level":0, "progress":0, "data":{}},
                 }
             },
 
@@ -132,7 +152,7 @@ exports.Environment = class {
             "round":this.round,
             "resource":this.resource,
             "resource_gain":this.resource_gain,
-            "special_resource":this.special_resource,
+            "factory_resource":this.factory_resource,
             "map_x":this.map_x,
             "map_y":this.map_y,
             "map":this.map,
@@ -153,13 +173,25 @@ exports.Environment = class {
         for(var r in this.resource_gain){
             this.resource[r] += this.resource_gain[r]
         }
-        for(var r in this.special_resource){
-            if(this.special_resource[r].valid){
-                var product = this.special_resource[r].factory.active()
+        for(var r in this.factory_resource){
+            if(this.factory_resource[r].valid){
+                var product = this.factory_resource[r].factory.active()
                 for(var p in product){
                     this.resource[p] += product[p]
                 }
             }
+        }
+
+        for(var type in this.troops_state){
+            for(var r in army_data[type].daily_cost){
+                this.resource[r] = Math.max(this.resource[r]-army_data[type].daily_cost[r]*this.troops_state[type].amount, 0)
+            }
+        }
+    }
+
+    isOutOfFood(){
+        if(this.resource.food<=0){
+
         }
     }
 
@@ -167,7 +199,7 @@ exports.Environment = class {
         for(var r in data.replenishment){
             this.resource[r] -= data.replenishment[r]
         }
-        this.special_resource[data.factory_type].factory.replenish(data.replenishment)
+        this.factory_resource[data.factory_type].factory.replenish(data.replenishment)
     }
 
     create_resource_point(){
@@ -313,7 +345,7 @@ exports.Environment = class {
         
 
         if(this.RD_list[type][dir][sub_type]["progress"] >= difficulty){
-            research_report.msg = "你成功研發了" + this.RD_list[type][dir][sub_type]["name"]
+            research_report.msg = "你成功研發了" + this.RD_list[type][dir][sub_type].data.name
             research_report.progress = difficulty
             research_report.done = true
             var next_level = this.RD_list[type][dir][sub_type].data.research_done(this, dir)
@@ -329,7 +361,7 @@ exports.Environment = class {
         }
         else{
             research_report.progress = this.RD_list[type][dir][sub_type]["progress"]
-            research_report.msg = "你研發了" + this.RD_list[type][dir][sub_type]["name"] + ": 進度"+research_report.progress+"/"+difficulty
+            research_report.msg = "你研發了" + this.RD_list[type][dir][sub_type].data.name + ": 進度"+research_report.progress+"/"+difficulty
         }
 
         return research_report
@@ -623,11 +655,9 @@ class factory{
             for(var r in this.input){
                 this.storage[r] -= this.input[r]
             }
-            console.log("成功生產資源")
             return this.output
         }
         else{
-            console.log("沒有足夠的資源")
             return {}
         }
     }
@@ -666,13 +696,14 @@ class factory{
 // ====================單位"種類"樣版區 start =================================// 
 exports.army = class {
     constructor(data){
-        this.type = data[Object.keys(data)[0]];
-        this.cost = data[Object.keys(data)[1]];
-        this.hp = data[Object.keys(data)[2]];
-        this.attack = data[Object.keys(data)[3]];
-        this.attack_range = data[Object.keys(data)[4]];
-        this.mobility = data[Object.keys(data)[5]];
-        this.retreat = data[Object.keys(data)[6]];
+        this.type = data.type;
+        this.cost = data.cost;
+        this.daily_cost = data.daily_cost
+        this.hp = data.hp;
+        this.attack = data.attack;
+        this.attack_range = data.attack_range;
+        this.mobility = data.mobility;
+        this.retreat = data.retreat;
     }
 }
 

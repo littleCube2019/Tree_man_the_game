@@ -131,12 +131,10 @@ function player_action_handle(action){
 	else if(action.type=="research"){
 		var report = Env.research(RD, action.research_type, action.direction, action.sub_type) //action = {"type":"research", "research_type":"factory", "sub_type":"resin"}
 		io.emit("research_report", report, Env.RD_list)
-		console.log(Env.RD_list)
 		if(report.done){
 			//io.emit("research_done", action.research_type, action.sub_type, report.level+1)
 			if(action.research_type == "army_upgrade"){
 			io.emit("update_troop_info", [army_data["armor"][Env.troops_state["armor"]["level"]]])
-			console.log(army_data["armor"][Env.troops_state["armor"]["level"]])
 			}
 		}
 	}
@@ -178,7 +176,7 @@ function roundCheck(){
 	}
 	Env.gainResource()
 	console.log(Env.resource)
-	console.log(Env.special_resource.resin.factory)
+	console.log(Env.factory_resource.resin.factory)
 	Env.explorer_data.move_left = Env.explorer_mobility
 	Env.round += 1;
 }

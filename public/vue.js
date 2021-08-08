@@ -386,11 +386,10 @@ var research = new Vue({
   data: {
     
     researchs:{
-      // [  id , name , isDir   ]
+      // [  name , isDir , isShow  ]
       // 未來會像troop一樣處理 ， name ==> level
-      "wall":[ "城牆強化", true],
-      "army_upgrade":[ "士兵升級", false],
-      "factory":["生產技術", false]
+      "army_upgrade":[ "強化", false , true ],
+     
     },
     directions:[
       ["E","東"],
@@ -402,8 +401,13 @@ var research = new Vue({
    
 
     details:{
-     
-    } ,
+      "army_upgrade":{
+        "all":{
+            "armor":{"level":0, "progress":0, "data":{"cost":1000, "description":"XD" ,"name":"阿姆斯特朗式加速阿姆斯特朗迴旋炮"}},
+        }
+      },
+    },
+
     
     all : "all" ,
 
@@ -447,13 +451,16 @@ var research = new Vue({
     },
   
 
-    update_all : function(log,RD){
-      if(log){
-        this.researchs = log;
+    update_all : function(title,RD){
+      console.log(this.details );
+      if(title){
+        this.researchs = title;
+        
       }
       if(RD){
-      this.details  = RD;
+        this.details  = RD;
       }
+      console.log(this.details );
     },
 
     /*update_title : function(){

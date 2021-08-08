@@ -116,20 +116,22 @@ exports.RD = {
 
     //農田研發===========================
     "resource":{
-        "tuntian":{
-            "name":"屯田",
-            "cost" : {"wood":500},
-            "difficulty" : 5,
-            "max_research_speed" : 3,
+        "food":[
+            {
+                "name":"屯田",
+                "cost" : {"wood":500},
+                "difficulty" : 5,
+                "max_research_speed" : 3,
 
-            "description":"實行屯田制，增加糧食日產量500<br>研究難度:10點<br>花費1000木頭可隨機升級1-3點",
+                "description":"實行屯田制，增加糧食日產量500<br>研究難度:10點<br>花費1000木頭可隨機升級1-3點",
 
-            research_done(Env, dir){
-                Env.resource.food += 500
-                var next_level = -1
-                return next_level
+                research_done(Env, dir){
+                    Env.resource.food += 500
+                    var next_level = -1
+                    return next_level
+                }
             }
-        }
+        ]
     },
 
 }

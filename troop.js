@@ -10,6 +10,7 @@ exports.army_data = {
         {
             "type" : "armor",
             "cost" : {"wood":500},
+            "daily_cost":{"food":100},
             "hp" : 1000,
             "attack" : 50,
             "attack_range" : 0,
@@ -20,6 +21,7 @@ exports.army_data = {
         {
             "type" : "armor",
             "cost" : {"wood":500},
+            "daily_cost":{"food":100},
             "hp" : 2000,
             "attack" : 50,
             "attack_range" : 0,
@@ -35,6 +37,7 @@ exports.army_data = {
         {
             "type" : "ranger",
             "cost" : {"wood":2000},
+            "daily_cost":{"food":100},
             "hp" : 500,
             "attack" : 300,
             "attack_range" : 0,
@@ -50,6 +53,7 @@ exports.army_data = {
         {
             "type" : "archer",
             "cost" : {"wood":1000},
+            "daily_cost":{"food":100},
             "hp" : 250,
             "attack" : 100,
             "attack_range" : 3,
@@ -66,6 +70,7 @@ exports.army_data = {
         {
             "type" : "widard",
             "cost" : {"wood":2000},
+            "daily_cost":{"food":100},
             "hp" : 100,
             "attack" : 250,
             "attack_range" : 3,

@@ -1078,7 +1078,7 @@
 				<br>
 				<div v-for="( sub, sub_name) in details[r_name][all]">
 
-				<button  v-if="sub.level != -1"    type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r_name" :sub_type="sub_name"  dir="all"  v-on:click="Click">{{sub["data"]["name"]}}</button>   
+				<button  v-if="sub.level != -1"    type="button" class="btn btn-success  research_choose" data-toggle="tooltip" data-placement="right" data-html="true" :title="sub.data.description"   :research_type="r_name" :sub_type="sub_name"  dir="all"  v-on:click="Click">{{sub["data"]["name"]}}</button>   
 				   
 				</div>
 				
@@ -1090,7 +1090,7 @@
 				<div class="float" v-for="direction in directions">
 					{{direction[1]}}
 					<div v-for="( sub, sub_name) in details[r_name][direction[0]]">
-						<button  v-if="sub.level != -1" type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" title="研究"   :research_type="r_name"   :sub_type="sub_name"  :dir=direction[0]  v-on:click="Click">{{sub["data"]["name"]}}</button>  
+						<button  v-if="sub.level != -1" type="button" class="btn btn-success research_choose" data-toggle="tooltip" data-placement="right" data-html="true" :title= "sub.data.description"    :research_type="r_name"   :sub_type="sub_name"  :dir="direction[0]"  v-on:click="Click">{{sub["data"]["name"]}}</button>  
 						</div>
 				
 					</div> 

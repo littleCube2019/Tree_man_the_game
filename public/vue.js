@@ -64,7 +64,7 @@ var wall_status = new Vue({
 
   methods: {
     update : function(roads){ //每回合更新 wall 資料
-      console.log(roads);
+ 
       
       if(roads){ //一定一開遊戲就會呼叫，這時roads還是NLL，會出錯
           
@@ -317,11 +317,30 @@ var move_troop = new Vue({
     ],
     
     state:{
-      /*
-      "archer":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
-      "armor":{"hp":1 ,"attack":2 , "cost":3 , "move":4 ,"range":5 },
-      "ranger":{"hp":1 ,"attack":555 , "cost":3 , "move":4 ,"range":5 },
-      */
+      /*Example :  "armor" : [
+        
+        {
+            "type" : "armor",
+            "cost" : {"wood":500},
+            "hp" : 1000,
+            "attack" : 50,
+            "attack_range" : 0,
+            "mobility" : 1,
+            "retreat" : false,
+        },
+
+        {  //Level 2
+            "type" : "armor",
+            "cost" : {"wood":500},
+            "hp" : 2000,
+            "attack" : 50,
+            "attack_range" : 0,
+            "mobility" : 1,
+            "retreat" : false,
+
+        },
+    ],
+    */
     },
     directions:[
       ["E","東"],
@@ -367,11 +386,10 @@ var research = new Vue({
   data: {
     
     researchs:{
-      // [  id , name , isDir   ]
+      // [  name , isDir , isShow  ]
       // 未來會像troop一樣處理 ， name ==> level
-      "wall":[ "城牆強化", true],
-      "army_upgrade":[ "士兵升級", false],
-      "factory":["生產技術", false]
+      "army_upgrade":[ "強化", false , true ],
+     
     },
     directions:[
       ["E","東"],
@@ -383,40 +401,13 @@ var research = new Vue({
    
 
     details:{
-        /*
-          "wall":{
-            "N":{
-              "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-              "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
-            },
-            "E":{
-                "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-                "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
-            },
-            "W":{
-                "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-                "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
-            },
-            "S":{
-                "upgrade":{"level":0, "progress":0, "name":"加固木牆", "cost":1000},
-                "defence":{"level":0, "progress":0, "name":"駐城弩隊", "cost":1000},
-            },
-        },
+      "army_upgrade":{
+        "all":{
+            "armor":{"level":0, "progress":0, "data":{"cost":1000, "description":"XD" ,"name":"阿姆斯特朗式加速阿姆斯特朗迴旋炮"}},
+        }
+      },
+    },
 
-
-        "army_upgrade":{
-            "all":{
-                "armor":{"level":0, "progress":0, "name":"厚木裝甲", "cost":500},
-            }
-        },
-
-        "factory":{
-            "all":{
-                "resin":{"level":0, "progress":0, "name":"樹脂工廠", "cost":500},
-            }
-        },
-        */
-    } ,
     
     all : "all" ,
 
@@ -440,6 +431,7 @@ var research = new Vue({
       // 看條件
 
       if( Env.resource["wood"]   >=  this.details[research_type][dir][sub_type].data.cost.wood  ){
+        
         action = new research(research_type,  sub_type  , dir,);
         research_name=  this.details[research_type][dir][sub_type].data.name ;
         
@@ -459,14 +451,23 @@ var research = new Vue({
     },
   
 
-    update_all : function(log,RD){
-      if(log){
-        this.researchs = log;
+    update_all : function(title,RD){
+     
+      if(title){
+        this.researchs = title;
+        
       }
       if(RD){
-      this.details  = RD;
+        this.details  = RD;
       }
+  
     },
+
+    /*update_title : function(){
+      for(var i =0 ;i < troop.length ; i++){
+        $("#"+troop[i]["type"]).attr('data-original-title',this.description(this.troops[troop[i]["type"]][0]));
+      }
+    }*/
 
   }
   }
@@ -488,10 +489,10 @@ var map = new Vue({
         y-=1;
 
         if(this.player_x == 5 && this.player_y ==5 ){
-          $("#go-back-castle").show();
+          $(".at-castle").show();
         }
         else{
-          $("#go-back-castle").hide();
+          $(".at-castle").hide();
         }
         
         if(x == this.player_x && y == this.player_y){

@@ -306,11 +306,19 @@ io.on('connection', (socket) => {
 		}
 	});
 
+	socket.on("explore_prepare",(food, troop)=>{
+		Env.explorePrepare(food,troop)
+	})
+
 	socket.on("explore", (direction)=>{
 		var update_report = Env.updataToClient()
 		var explore_report = Env.explore(direction)
 		io.emit("update_state", update_report);
 		io.emit("explore_report", explore_report)
+	})
+
+	socket.on("explore_end",()=>{
+		Env.exploreEnd()
 	})
 	//===================================================
 })

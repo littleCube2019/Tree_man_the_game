@@ -56,6 +56,7 @@ exports.Environment = class {
 
         this.explorer_mobility = 3
         this.explorer_data = {
+            "is_explore":false,
             "x":Math.floor(this.map_x/2), 
             "y":Math.floor(this.map_y/2),
             "move_left":this.explorer_mobility,
@@ -64,7 +65,10 @@ exports.Environment = class {
                 "E":true,
                 "W":true,
                 "S":true,
-            }
+            },
+            "food":0,
+            "troop":{"hp":0, "attack":0, "amount":{}},
+            "resource":{}
         };
 
         this.resource_point = {"wood":3,"shoe":1}
@@ -188,13 +192,13 @@ exports.Environment = class {
             }
         }
     }
-
+//************ */
     isOutOfFood(){
         if(this.resource.food<=0){
 
         }
     }
-
+//************* */
     factoryReplenish(data){
         for(var r in data.replenishment){
             this.resource[r] -= data.replenishment[r]
@@ -219,6 +223,22 @@ exports.Environment = class {
                 }
             }
         }
+    }
+
+    explorePrepare(food, troop){
+        this.explorer_data.is_explore = true
+
+        this.explorer_data.food = food
+        this.resource.food -= food
+
+        for(var type in troop){
+            var level = this.troops_state[type].level
+            this.explorer_data.troop.hp += army_data[type][level].hp
+            this.explorer_data.troop.attack += army_data[type][level].attack
+            this.troops_state[type].amount -= troop[type]
+        }
+        this.explorer_data.troop.amount = troop
+
     }
 
     explore(direction){
@@ -265,6 +285,24 @@ exports.Environment = class {
         return report
     }
 
+    exploreEnd(){
+        this.explorer_data.is_explore = false
+
+        this.resource.food += this.explorer_data.food
+        this.explorer_data.food = 0
+
+        for(var type in this.explorer_data.troop.amount){
+            this.troops_state[type] += this.explorer_data.troop.amount[type]
+        }
+        this.explorer_data.troop.hp = 0
+        this.explorer_data.troop.attack = 0
+        this.explorer_data.troop = {}
+
+        for(var type in this.explorer_data.resource){
+            this.resource[type] += this.explorer_data.resource[type]
+        }
+        this.explorer_data.resource = {}
+    }
     
     recruit(army_type, army_data){
         var level = this.troops_state[army_type].level

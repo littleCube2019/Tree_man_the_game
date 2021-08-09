@@ -64,7 +64,7 @@ var wall_status = new Vue({
 
   methods: {
     update : function(roads){ //每回合更新 wall 資料
-      console.log(roads);
+ 
       
       if(roads){ //一定一開遊戲就會呼叫，這時roads還是NLL，會出錯
           
@@ -452,7 +452,7 @@ var research = new Vue({
   
 
     update_all : function(title,RD){
-      console.log(this.details );
+     
       if(title){
         this.researchs = title;
         
@@ -460,7 +460,7 @@ var research = new Vue({
       if(RD){
         this.details  = RD;
       }
-      console.log(this.details );
+  
     },
 
     /*update_title : function(){
@@ -489,10 +489,10 @@ var map = new Vue({
         y-=1;
 
         if(this.player_x == 5 && this.player_y ==5 ){
-          $("#go-back-castle").show();
+          $(".at-castle").show();
         }
         else{
-          $("#go-back-castle").hide();
+          $(".at-castle").hide();
         }
         
         if(x == this.player_x && y == this.player_y){

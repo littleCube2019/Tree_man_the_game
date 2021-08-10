@@ -457,39 +457,9 @@
 					 socket.emit("explore_end");
 				})
 
-				$("#bring_out_resource").click(()=>{
-					$("#bring_resource_content").empty();
-					$("#bring_resource_pop").modal('toggle');
-					var hasThing = false;
-				
-					for(var troop_type in Env.troops_state){
-						
-						if( Env.troops_state[troop_type].amount != 0){
-							
-							$("#bring_resource_content").append(troop_dic[troop_type]+"有"+Env.troops_state[troop_type].amount+"隊可隨你出城探索，選擇幾隊?<br>");
-
-							$("#bring_resource_content").append("<select class=\"form-control\" id=\""+troop_type+"_selection_out\"></select>")
-							for(var i=0; i<= parseInt(Env.troops_state[troop_type].amount) ; i++){
-								$("#"+troop_type+"_selection_out").append("<option type=\""+troop_type+"\" value=\""+i+"\">"+i+"</option>") 
-							}	
-						
-
-
-							hasThing = true;
-						}
-					}
-					if(!hasThing){
-						$("#bring_resource_content").append("沒有可外出的軍隊<br>");
-					}
-					$("#bring_resource_content").append("<br>================================================================================================================================<br>");
-
-					$("#bring_resource_content").append("(以百為單位)可帶出的食物:"+Math.floor(Env.resource.food/100));
-					$("#bring_resource_content").append("<select class=\"form-control\" id=\"food_selection_out\"></select>")
-							for(var i=0; i<= Math.floor(Env.resource.food/100) ; i++){
-								$("#food_selection_out").append("<option type=\""+troop_type+"\" value=\""+i+"\">"+i+"</option>") 
-					}	
-
-				})
+			/*	$("#bring_out_resource").click(()=>{
+					
+				}) */  
 
 				$("#bring_resource_ok").click(()=>{
 					
@@ -1210,7 +1180,7 @@
 		</div>
 	</div>
 		 <button  class="choice_button" id ="skip-out" > 休息一晚 </button> 
-		 <button  class="choice_button at-castle" id="bring_out_resource" >補充資源</button>
+		<!-- <button  class="choice_button at-castle" id="bring_out_resource" >補充資源</button>  -->
 	     <button  class="choice_button at-castle" id="go-back-castle"> 回城</button>
     </div>
 
@@ -1347,7 +1317,7 @@
 
 		<!-- ======================================  -->
 
-		<!-- 研究跳出視窗-->
+		<!-- 資源跳出視窗-->
 
 		<div class="modal fade"  tabindex="-1" role="dialog"  aria-labelledby="exampleModalCenterTitle" aria-hidden="true" id="bring_resource_pop" >
 			<div class="modal-dialog  modal-xl modal-dialog-scrollable" role="document" >

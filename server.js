@@ -177,7 +177,7 @@ function roundCheck(){
 	Env.gainResource()
 	console.log(Env.resource)
 	console.log(Env.factory_resource.resin.factory)
-	Env.explorer_data.move_left = Env.explorer_mobility
+	Env.explorer_data.move_left = Env.explorer_data.mobility
 	Env.round += 1;
 }
 	//=============================================

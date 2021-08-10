@@ -28,6 +28,7 @@ app.use(express.static('public'));
 var explore_reward = require("./explore_reward").explore_reward
 var RD_data = require("./R&D").RD
 var army_data = require("./troop").army_data
+var explorePrepare = require("./explore_reward").explorePrepare
 exports.Environment = class {
     //環境變數
     constructor(){
@@ -59,20 +60,25 @@ exports.Environment = class {
             "is_explore":false,
             "x":Math.floor(this.map_x/2), 
             "y":Math.floor(this.map_y/2),
-            "move_left":this.explorer_mobility,
+            "mobility":3,
+            "move_left":3,
             "move_available":{
                 "N":true,
                 "E":true,
                 "W":true,
                 "S":true,
             },
-            "food":0,
             "troop":{"hp":0, "attack":0, "amount":{}},
-            "resource":{}
+            "resource":{"food":0, "wood":0}
         };
 
         this.resource_point = {"wood":3,"shoe":1}
 
+        this.explore_event = {
+            "resource":{"wood":10,"shoe":1},
+            "village":{"forest":10},
+        }
+        
         this.create_resource_point()
         //=======================================
 
@@ -225,21 +231,30 @@ exports.Environment = class {
         }
     }
 
+    /*
+        探索機制
+        ----探索前須準備糧食及攜帶部隊
+        ----
+    */
+
+
     explorePrepare(food, troop){
         this.explorer_data.is_explore = true
 
-        this.explorer_data.food = food
+        this.explorer_data.resource.food = food
         this.resource.food -= food
 
         for(var type in troop){
+            
             var level = this.troops_state[type].level
             this.explorer_data.troop.hp += army_data[type][level].hp
             this.explorer_data.troop.attack += army_data[type][level].attack
             this.troops_state[type].amount -= troop[type]
         }
         this.explorer_data.troop.amount = troop
-
+        console.log(this.explorer_data)
     }
+
 
     explore(direction){
 
@@ -268,11 +283,12 @@ exports.Environment = class {
         }
 
         if(this.map[this.explorer_data.x][this.explorer_data.y]!=undefined){
+            var type = this.map[this.explorer_data.x][this.explorer_data.y].type
             if(!this.map[this.explorer_data.x][this.explorer_data.y].found){
-                report["resource"] = this.map[this.explorer_data.x][this.explorer_data.y].type
-                explore_reward[this.map[this.explorer_data.x][this.explorer_data.y].type].reward(this)
+                report["resource"] = type
+                explore_reward[type].reward(this)
+                report.msg = explore_reward[type].msg
                 this.map[this.explorer_data.x][this.explorer_data.y].found = true
-                report.msg = "發現了一個資源點:" + this.dict[report.resource]
             }
             else{
                 report.msg = "這裡似乎已經探索過了"
@@ -288,11 +304,10 @@ exports.Environment = class {
     exploreEnd(){
         this.explorer_data.is_explore = false
 
-        this.resource.food += this.explorer_data.food
-        this.explorer_data.food = 0
+
 
         for(var type in this.explorer_data.troop.amount){
-            this.troops_state[type] += this.explorer_data.troop.amount[type]
+            this.troops_state[type].amount += this.explorer_data.troop.amount[type]
         }
         this.explorer_data.troop.hp = 0
         this.explorer_data.troop.attack = 0
@@ -300,9 +315,11 @@ exports.Environment = class {
 
         for(var type in this.explorer_data.resource){
             this.resource[type] += this.explorer_data.resource[type]
+            this.explorer_data.resource[type] = 0
         }
-        this.explorer_data.resource = {}
     }
+
+
     
     recruit(army_type, army_data){
         var level = this.troops_state[army_type].level
@@ -362,6 +379,12 @@ exports.Environment = class {
             }
         }
     }
+
+    /*
+        研發機制
+        ----當沒有後續可研發項目時，level = -1
+        ----return research_report = {done, msg}
+    */
 
     research(RD, type, dir, sub_type){
         var max_research_speed = this.RD_list[type][dir][sub_type].data.max_research_speed
@@ -459,6 +482,13 @@ class road{
         }
     }
 
+    /*
+        部隊移動機制
+        ----回合結束時呼叫
+        ----當有敵方單位進入攻擊範圍內停止移動
+        ----撤退時無法攻擊且仍會受到傷害
+    */
+
 
     armyMove(army_state){
         //行軍
@@ -538,6 +568,12 @@ class road{
         }
     }
 
+    /*
+        敵人生成機制
+        ----回合結束時呼叫
+        ----同一回合四個方向均有機率生成多個敵人
+    */
+
     roadEnemySpawn(enemy, enemy_data, day){
         for(var enemy_type in enemy_data){
             var spawn = 0; // Math.floor(Math.random()*100);
@@ -552,6 +588,12 @@ class road{
         }  
     }
 
+    /*
+        戰鬥系統
+        ----回合結束時呼叫
+        ----一回合內只會有最前線的單位受到傷害
+        ----return 戰報 
+    */
     combat(Env_resource, defender_data, morale, dict){
   
         var army_attack = {"armor":0, "archer":0, "ranger":0, "defence":0};

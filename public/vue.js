@@ -184,7 +184,37 @@ var choose_basic = new Vue({
       $(".in_castle").hide();
       $(".outside").show();
       OUTSIDE=true;
-   
+      $("#bring_resource_content").empty();
+					$("#bring_resource_pop").modal('toggle');
+					var hasThing = false;
+				
+					for(var troop_type in Env.troops_state){
+						
+						if( Env.troops_state[troop_type].amount != 0){
+							
+							$("#bring_resource_content").append(troop_dic[troop_type]+"有"+Env.troops_state[troop_type].amount+"隊可隨你出城探索，選擇幾隊?<br>");
+
+							$("#bring_resource_content").append("<select class=\"form-control\" id=\""+troop_type+"_selection_out\"></select>")
+							for(var i=0; i<= parseInt(Env.troops_state[troop_type].amount) ; i++){
+								$("#"+troop_type+"_selection_out").append("<option type=\""+troop_type+"\" value=\""+i+"\">"+i+"</option>") 
+							}	
+						
+
+
+							hasThing = true;
+						}
+					}
+					if(!hasThing){
+						$("#bring_resource_content").append("沒有可外出的軍隊<br>");
+					}
+					$("#bring_resource_content").append("<br>================================================================================================================================<br>");
+
+					$("#bring_resource_content").append("(以百為單位)可帶出的食物:"+Math.floor(Env.resource.food/100));
+					$("#bring_resource_content").append("<select class=\"form-control\" id=\"food_selection_out\"></select>")
+							for(var i=0; i<= Math.floor(Env.resource.food/100) ; i++){
+								$("#food_selection_out").append("<option type=\""+troop_type+"\" value=\""+i+"\">"+i+"</option>") 
+					}	
+
     }
 
     $("#go-back").show();

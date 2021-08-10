@@ -177,7 +177,7 @@ function roundCheck(){
 	Env.gainResource()
 	console.log(Env.resource)
 	console.log(Env.factory_resource.resin.factory)
-	Env.explorer_data.move_left = Env.explorer_mobility
+	Env.explorer_data.move_left = Env.explorer_data.mobility
 	Env.round += 1;
 }
 	//=============================================
@@ -306,11 +306,19 @@ io.on('connection', (socket) => {
 		}
 	});
 
+	socket.on("explore_prepare",(food, troop)=>{
+		Env.explorePrepare(food,troop)
+	})
+
 	socket.on("explore", (direction)=>{
 		var update_report = Env.updataToClient()
 		var explore_report = Env.explore(direction)
 		io.emit("update_state", update_report);
 		io.emit("explore_report", explore_report)
+	})
+
+	socket.on("explore_end",()=>{
+		Env.exploreEnd()
 	})
 	//===================================================
 })

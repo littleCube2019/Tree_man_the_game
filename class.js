@@ -55,7 +55,6 @@ exports.Environment = class {
             this.map[i] = new Array(this.map_y)
         }
 
-        this.explorer_mobility = 3
         this.explorer_data = {
             "is_explore":false,
             "x":Math.floor(this.map_x/2), 
@@ -156,7 +155,7 @@ exports.Environment = class {
         }
     }
 
-    updataToClient(){
+    updateToClient(){
         var report = {
             "roads":this.roads,
             "round":this.round,
@@ -166,7 +165,6 @@ exports.Environment = class {
             "map_x":this.map_x,
             "map_y":this.map_y,
             "map":this.map,
-            "exployer_mobility":this.explorer_mobility,
             "explorer_data":this.explorer_data,
             "resource_point":this.resource_point,
             "morale":this.morale,

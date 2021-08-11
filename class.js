@@ -25,10 +25,10 @@ res.sendFile(__dirname + '/main.html');
 
 app.use(express.static('public'));
 
-var explore_reward = require("./explore_reward").explore_reward
+var explore_event = require("./explore_reward").exlore_event
+var explore_mercenary = require("./explore_reward").explore_mercenary
 var RD_data = require("./R&D").RD
 var army_data = require("./troop").army_data
-var explorePrepare = require("./explore_reward").explorePrepare
 exports.Environment = class {
     //環境變數
     constructor(){
@@ -40,7 +40,7 @@ exports.Environment = class {
         }
         
         this.round = 1 ; 
-        this.resource = {"wood":5000, "resin":0, "food":1000} ;
+        this.resource = {"wood":5000, "resin":0, "food":100000} ;
         this.resource_gain = {"wood":500, "resin":0, "food":0} //回合結束可獲得的資源
 
         this.factory_resource = {
@@ -67,18 +67,18 @@ exports.Environment = class {
                 "W":true,
                 "S":true,
             },
-            "troop":{"hp":0, "attack":0, "amount":{}},
+            "troop":{"hp":0, "attack":0, "daily_cost":0},
             "resource":{"food":0, "wood":0}
         };
 
         this.resource_point = {"wood":3,"shoe":1}
 
         this.explore_event = {
-            "resource":{"wood":10,"shoe":1},
-            "village":{"forest":10},
+            "resource":{"stick":10,"shoe":1},
+            "village":{"wood":10},
         }
         
-        this.create_resource_point()
+        this.createExploreEvent()
         //=======================================
 
         //===========軍力&科技===================
@@ -178,9 +178,13 @@ exports.Environment = class {
     }
 
     gainResource(){
+        var msg = ""
+        //每日自動獲得資源
         for(var r in this.resource_gain){
             this.resource[r] += this.resource_gain[r]
         }
+
+        //工廠生產資源
         for(var r in this.factory_resource){
             if(this.factory_resource[r].valid){
                 var product = this.factory_resource[r].factory.active()
@@ -189,20 +193,56 @@ exports.Environment = class {
                 }
             }
         }
-
+        //每日糧食消耗
         for(var type in this.troops_state){
-            for(var r in army_data[type].daily_cost){
-                this.resource[r] = Math.max(this.resource[r]-army_data[type].daily_cost[r]*this.troops_state[type].amount, 0)
+            var level = this.troops_state[type].level
+            for(var r in army_data[type][level].daily_cost){
+                this.resource[r] = Math.max(this.resource[r]-army_data[type][level].daily_cost[r]*this.troops_state[type].amount, 0)
             }
         }
-    }
-//************ */
-    isOutOfFood(){
-        if(this.resource.food<=0){
 
+        //探索部隊消耗
+        if(this.explorer_data.is_explore){
+            this.explorer_data.resource.food -= this.explorer_data.troop.daily_cost
         }
+        
+        //console.log(this.explorer_data)
+        //console.log(this.resource)
     }
-//************* */
+
+    isOutOfFood(){
+        var msg = []
+        if(this.resource.food<=0){
+            this.morale = Math.max(this.morale - 0.2, 0)
+            msg.push("城內的糧食耗盡，人們開始因饑餓心生不滿，士氣值大幅下降!")
+        }
+        else{
+            this.morale = Math.min(1, this.morale + 0.05)
+            if(this.morale==1){
+                msg.push("城內糧食看似充足，部隊內氣氛活躍，士氣高漲!")
+            }
+            else if(this.morale>0.8){
+                msg.push("飢餓的士兵獲得了一些可供果腹的糧食，士氣逐漸恢復!")
+            }
+        }
+        this.morale = Math.round(this.morale*100)/100
+        //console.log(this.morale)
+
+        if(this.morale==0){
+            for(var type in this.troops_state){
+                this.troops_state[type].amount = 0
+            }
+            msg.push("因為管理者的不作為，導致城內的部隊因長期飢餓全數餓死...")
+        }
+
+        if(this.explorer_data.resource.food<=0 && this.explorer_data.is_explore){
+            this.explorerInit()
+            msg.push("錯估了探索的進度...傭兵們因糧食不足一個個倒下，只剩你獨自一人逃回城內...")
+        }
+        console.log(msg)
+        return msg
+    }
+
     factoryReplenish(data){
         for(var r in data.replenishment){
             this.resource[r] -= data.replenishment[r]
@@ -210,23 +250,50 @@ exports.Environment = class {
         this.factory_resource[data.factory_type].factory.replenish(data.replenishment)
     }
 
-    create_resource_point(){
-        this.map[Math.floor(this.map_x/2)][Math.floor(this.map_y/2)] = {"type":"castle","found":true,}
-        for(var resource_type in this.resource_point){
-            for(var i=0; i<this.resource_point[resource_type];){
-                var x = Math.floor(Math.random()*this.map_x)
-                var y = Math.floor(Math.random()*this.map_y)
-                if(this.map[x][y]==undefined){
-                    var r = {
-                        "type":resource_type,
-                        "found":false,
-                    }
-                    this.map[x][y] = r
-                    i++
-                    console.log(resource_type+"x:"+x+"  y:"+y)
+    explorerInit(){
+        this.explorer_data = {
+            "is_explore":false,
+            "x":Math.floor(this.map_x/2), 
+            "y":Math.floor(this.map_y/2),
+            "mobility":300,
+            "move_left":300,
+            "move_available":{
+                "N":true,
+                "E":true,
+                "W":true,
+                "S":true,
+            },
+            "troop":{"hp":0, "attack":0, "daily_cost":0},
+            "resource":{"food":0, "wood":0}
+        };
+    }
+
+    createExploreEvent(){
+        for(var x=0; x<this.map_x; x++){
+            for(var y=0; y<this.map_y; y++){
+                this.map[x][y] = {
+                    "type":"none",
+                    "sub_type":"none",
+                    "found":false,
+                    "resource":{}
                 }
             }
         }
+        this.map[Math.floor(this.map_x/2)][Math.floor(this.map_y/2)].type = "castle"
+        for(var type in this.explore_event){
+            for(var sub_type in this.explore_event[type]){
+                for(var i=0; i<this.explore_event[type][sub_type];){
+                    var x = Math.floor(Math.random()*this.map_x)
+                    var y = Math.floor(Math.random()*this.map_y)
+                    if(this.map[x][y].type=="none"){
+                        this.map[x][y].type = type
+                        this.map[x][y].sub_type = sub_type
+                        i++
+                    }
+                }
+            }   
+        }
+        //console.log(this.map)
     }
 
     /*
@@ -242,15 +309,23 @@ exports.Environment = class {
         this.explorer_data.resource.food = food
         this.resource.food -= food
 
+        var amount = 0
         for(var type in troop){
+            amount += troop[type]
             
+            /*
             var level = this.troops_state[type].level
             this.explorer_data.troop.hp += army_data[type][level].hp
             this.explorer_data.troop.attack += army_data[type][level].attack
             this.troops_state[type].amount -= troop[type]
+            */
         }
-        this.explorer_data.troop.amount = troop
-        console.log(this.explorer_data)
+        this.resource.food -= amount * explore_mercenary.normal.cost
+        this.explorer_data.troop.hp = amount*explore_mercenary.normal.hp
+        this.explorer_data.troop.attack = amount * explore_mercenary.normal.attack
+        this.explorer_data.troop.daily_cost = amount * explore_mercenary.normal.daily_cost
+
+        //this.explorer_data.troop.amount = amount
     }
 
 
@@ -266,7 +341,7 @@ exports.Environment = class {
             this.explorer_data.x -= 1
         }
 
-        console.log(this.explorer_data.x + "  " + this.explorer_data.y)
+        //console.log(this.explorer_data.x + "  " + this.explorer_data.y)
 
         this.explorer_data.move_available.E = this.explorer_data.x < this.map_x-1
         this.explorer_data.move_available.W = this.explorer_data.x > 0
@@ -279,14 +354,44 @@ exports.Environment = class {
             "explorer_data":this.explorer_data,
             "msg":"",
         }
+        var x = this.explorer_data.x
+        var y = this.explorer_data.y
 
-        if(this.map[this.explorer_data.x][this.explorer_data.y]!=undefined){
-            var type = this.map[this.explorer_data.x][this.explorer_data.y].type
-            if(!this.map[this.explorer_data.x][this.explorer_data.y].found){
+        //撿起地上資源
+        console.log(this.map[x][y])
+        for(var r in this.map[x][y].resource){
+            this.explorer_data.resource[r] += this.map[x][y].resource[r]
+        }
+
+        if(this.map[x][y].type!="none"){
+            var type = this.map[x][y].type
+            var sub_type = this.map[x][y].sub_type
+            if(!this.map[x][y].found){
+                if(type=="castle"){
+                    report.msg = "來到了城門下"
+                }
+                if(type=="resource"){
+                    explore_event[type][sub_type].reward(this.explorer_data)
+                    report.msg = explore_reward[type][sub_type].msg
+                    this.map[x][y].found = true
+                }
+                if(type=="village"){
+                    var enemy_hp = explore_event[type][sub_type].enemy.hp
+                    var enemy_attack = explore_event[type][sub_type].enemy.attack
+                    var hp = this.explorer_data.troop.hp
+                    var attack = this.explorer_data.troop.attack
+                    if(hp/enemy_attack>attack/enemy_hp){
+                        explore_event[type][sub_type].reward(this.resource_gain)
+                        report.msg = explore_event[type][sub_type].msg
+                        this.map[x][y].found = true
+                    }
+                    else{
+                        this.map[x][y].resource = this.explorer_data.resource
+                        this.explorerInit()
+                        report.msg = "傭兵被樹人擊敗，你獨自一人狼狽地逃回城內"
+                    }
+                }
                 report["resource"] = type
-                explore_reward[type].reward(this)
-                report.msg = explore_reward[type].msg
-                this.map[this.explorer_data.x][this.explorer_data.y].found = true
             }
             else{
                 report.msg = "這裡似乎已經探索過了"
@@ -303,13 +408,14 @@ exports.Environment = class {
         this.explorer_data.is_explore = false
 
 
-
+        /*
         for(var type in this.explorer_data.troop.amount){
             this.troops_state[type].amount += this.explorer_data.troop.amount[type]
         }
+        */
         this.explorer_data.troop.hp = 0
         this.explorer_data.troop.attack = 0
-        this.explorer_data.troop = {}
+        //this.explorer_data.troop.amount = 0
 
         for(var type in this.explorer_data.resource){
             this.resource[type] += this.explorer_data.resource[type]
@@ -330,8 +436,14 @@ exports.Environment = class {
 
     deployArmy(direction, army, army_type, army_data){
         var level = this.troops_state[army_type]["level"]
-        this.roads[direction].army_location[0].push(new army(army_data[army_type][level]));
-        this.troops_state[army_type]["amount"] -= 1;
+        if(this.troops_state[army_type]["amount"]>0){
+            var data = army_data[army_type][level]
+            data.hp *= this.morale
+            data.attack *= this.morale
+            this.roads[direction].army_location[0].push(new army(data));
+            //console.log(this.roads[direction].army_location[0][0])
+            this.troops_state[army_type]["amount"] -= 1;
+        }
     }
 
     repairWall(direction, unit){

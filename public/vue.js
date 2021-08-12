@@ -184,6 +184,8 @@ var choose_basic = new Vue({
       $(".in_castle").hide();
       $(".outside").show();
       OUTSIDE=true;
+
+      //選取資源畫面
       $("#bring_resource_content").empty();
 					$("#bring_resource_pop").modal('toggle');
 					var hasThing = false;
@@ -549,8 +551,12 @@ var map = new Vue({
 var Resource = new Vue({
   el : "#resource",
   data:{
-     resources : {"wood":5000, "food":1000,"resin":0 },
+     resources : {"wood":5000, "resin":0 ,"food":1000},
      name : {"wood":"木頭" ,  "food":"食物" ,"resin":"樹脂" },
+     description : {"wood":"充滿生命能量的資源，在戰亂中成為替代貨幣的存在，可用於徵召軍隊、研發科技",
+                    "food":"基本生存所需的資源，城內軍隊存活、外出探索都會需要",
+                    "resin":"樹中能量提煉出的精華，帝國的法師與賢者似乎知道怎麼從中利用這股能量，可用於輔助法師戰鬥、研發科技"
+                    }
   },
   methods:{
      update: function(resource){

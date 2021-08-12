@@ -1,18 +1,9 @@
-exports.explore_reward = {
-    "forest":{
-        "enemy":{"hp":100, "attack":100},
-        
-        reward(Env){
-            Env.resource_gain["wood"] += 500
-        },
-        "msg":"發現了一個被樹人包圍的村落，經過一翻交戰後將樹人擊敗。當地居民為了報答，每日會朝城內運送500木頭"
-    },
-
-    "shoe":{
-        reward(Env){
-            Env.explorer_mobility += 3
-        },
-        "msg":"發現傳說中皇書親手編製的草鞋，每日移動上限增加為5"
+exports.explore_mercenary = {
+    "normal":{
+        "cost":100,
+        "hp":1000,
+        "attack":100,
+        "daily_cost":10,
     },
 }
 
@@ -26,10 +17,22 @@ exports.exlore_event = {
         },
         "shoe":{
             reward(explorer_data){
-                explorer_data.mobility = 5
+                explorer_data.mobility += 2
             },
             "msg":"發現傳說中皇書親手編製的草鞋，每日移動上限增加為5"
         },
     },
+
+    "village":{
+        "wood":{
+            "enemy":{"hp":1000, "attack":100},
+            reward(resource_gain){
+                resource_gain["wood"] += 500
+            },
+            "msg":"發現了一個被樹人包圍的村落，經過一翻交戰後將樹人擊敗。當地居民為了報答，每日會朝城內運送500木頭"
+        }
+
+        
+    }
     
 }

@@ -175,8 +175,8 @@ function roundCheck(){
 		player2HasBeenChoosen = false;
 	}
 	Env.gainResource()
-	console.log(Env.resource)
-	console.log(Env.factory_resource.resin.factory)
+	var food_msg = Env.isOutOfFood()
+	io.emit("food_report",food_msg)
 	Env.explorer_data.move_left = Env.explorer_data.mobility
 	Env.round += 1;
 }

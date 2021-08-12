@@ -333,9 +333,9 @@
 			})
 			//========  ==============================================================================	
 			
-			socket.on("food_report" , (msgs)=>{
-				for(var msg in msgs){
-					addMessage(msg);
+			socket.on("food_report" , (msg)=>{
+				for(var i in msg){
+					addMessage(msg[i]);
 				}	
 			})
 

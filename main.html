@@ -79,14 +79,27 @@
 				if(num_message>= MAX_MESSAGE){
 					$("#message div:nth-child(1)").remove();
 				}
-
-				if(num_message %2 ==0){
-					$("#message").append("<div class=\"message_div\" style=\"background-color:#F5FFFA;\">"+Text+"</div>");
-				} 
-				else{
-					$("#message").append("<div class=\"message_div\" style=\"background-color:#DCDCDC\">"+Text+"</div>");
+				var num_of_one_line = 30;
+				while(Text.length >  num_of_one_line){
+					text = Text.slice(0, num_of_one_line);
+					Text = Text.slice( num_of_one_line);
+					if(num_message %2 ==0){
+						$("#message").append("<div class=\"message_div\" style=\"background-color:#F5FFFA;\">"+text+"</div>");
+					} 
+					else{
+						$("#message").append("<div class=\"message_div\" style=\"background-color:#DCDCDC\">"+text+"</div>");
+					}
+					num_message+=1;
 				}
-				num_message+=1;
+				if(Text.length!=0){
+					if(num_message %2 ==0){
+						$("#message").append("<div class=\"message_div\" style=\"background-color:#F5FFFA;\">"+Text+"</div>");
+					} 
+					else{
+						$("#message").append("<div class=\"message_div\" style=\"background-color:#DCDCDC\">"+Text+"</div>");
+					}
+					num_message+=1;
+				}
 			}
 			
 			//標示
@@ -288,19 +301,6 @@
 			
 			socket.on("scout_report" , (msg)=>{
 				Title = "偵查報告"
-				/*
-				if (location != -1){
-					if(location!=0){
-						var msg = "你的斥侯隊告訴你在"+direct_dic[dir]+"方向"+location+"公里處有敵人";
-					}
-					else{
-						var msg = "你的斥侯隊告訴你在"+direct_dic[dir]+"方向的城門下有敵人!";
-					}
-				}
-				else{
-					var msg = "此方向尚未發現任何敵人!"
-				}
-				*/
 				addMessage(msg);
 			})
 			
@@ -308,6 +308,9 @@
 
 			// 結束一回合要做的事
 			socket.on("turn_end", (dice_result)=>{
+
+				//初始化tooltip
+				
 				// 戰報紀錄加上天數
 				combatReportOneline("=======================第"+(Env.round+1)+"天=======================<br>")
 				
@@ -323,11 +326,20 @@
 					Text="今天似乎又有驚無險的度過了..."
 				}
 				Text+="<br>趁著空檔帝國後勤隊為你運來了"+ Env.resource_gain["wood"] + "木頭";
-				console.log(Env);
+				
+			
+
 				Alert(text=Text,title="本日觀察")
 			})
 			//========  ==============================================================================	
 			
+			socket.on("food_report" , (msgs)=>{
+				for(var msg in msgs){
+					addMessage(msg);
+				}	
+			})
+
+
 			socket.on("update_troop_info" , (troop)=>{
 				recruit_troop.update(troop);
 			})
@@ -823,10 +835,17 @@
 					  </svg>
 					</button>
 				
-				<div id="resource">
-						<div v-for="(r,r_name) in resources">
-						<div >{{name[r_name]}}:
-						<span >{{r}} </span> </div>
+				<div  id="resource">
+						<div v-for="(r,r_name) in resources" >
+						
+						<div  >{{name[r_name]}}:
+						
+						<span >{{r}} </span> 
+					    <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16" data-toggle="tooltip" data-placement="right" data-html="true" :title="description[r_name]">
+							<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+							<path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+					</svg>	</span>
+						</div>
 
 						</div>
 				</div>

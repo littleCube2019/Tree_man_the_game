@@ -189,7 +189,7 @@ var player_list = {}
 var connected_list = {}
 
 io.on('connection', (socket) => {
-	var update_report = Env.updataToClient()
+	var update_report = Env.updateToClient()
 	var number = roll_the_dice(20000,10000); // 決定城號
 	io.emit("init_data", update_report, number,
 		[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
@@ -240,7 +240,7 @@ io.on('connection', (socket) => {
 			newGame();
 
 
-			var update_report = Env.updataToClient()
+			var update_report = Env.updateToClient()
 			console.log(Env.RD_list.army_upgrade.all.armor.data)
 			var research_log = {
 				"wall":[ "城牆加固", true],
@@ -294,13 +294,13 @@ io.on('connection', (socket) => {
 		//action = {"type":"research", "research_type":"factory", "direction":"resin"}
 		player_action_handle(action);
 		if(player_id==1){
-			var update_report = Env.updataToClient()
+			var update_report = Env.updateToClient()
 			io.emit("update_state", update_report);
 			io.emit("player_turn");
 		}
 		else if(player_id==-1){
 			roundCheck();
-			var update_report = Env.updataToClient()
+			var update_report = Env.updateToClient()
 			io.emit("update_state", update_report);
 			io.emit("player_turn");
 		}
@@ -311,7 +311,7 @@ io.on('connection', (socket) => {
 	})
 
 	socket.on("explore", (direction)=>{
-		var update_report = Env.updataToClient()
+		var update_report = Env.updateToClient()
 		var explore_report = Env.explore(direction)
 		io.emit("update_state", update_report);
 		io.emit("explore_report", explore_report)

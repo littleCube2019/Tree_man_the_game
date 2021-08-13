@@ -703,7 +703,7 @@ class road{
 
     roadEnemySpawn(enemy, enemy_data, day){
         for(var enemy_type in enemy_data){
-            var spawn = 0; // Math.floor(Math.random()*100);
+            var spawn = 0; // Math.floor(Math.random()*100);  單位為% ，ex 80% ,100% ..
             var init = enemy_data[enemy_type]["spawn_prob_data"]["init"]*100
             var increase_rate = enemy_data[enemy_type]["spawn_prob_data"]["increase"]*100
             var max_prob = enemy_data[enemy_type]["spawn_prob_data"]["max"]*100

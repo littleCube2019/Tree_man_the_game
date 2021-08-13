@@ -25,10 +25,11 @@ res.sendFile(__dirname + '/main.html');
 
 app.use(express.static('public'));
 
-var explore_event = require("./explore_reward").exlore_event
-var explore_mercenary = require("./explore_reward").explore_mercenary
+var explore_event = require("./explore").exlore_event
+var explore_mercenary = require("./explore").explore_mercenary
 var RD_data = require("./R&D").RD
 var army_data = require("./troop").army_data
+var enemy_data = require("./troop").enemy_data
 exports.Environment = class {
     //環境變數
     constructor(){
@@ -147,11 +148,22 @@ exports.Environment = class {
 
         //============================================
 
+        //圖鑑========================================
+        this.enemy_collection = {}
+        this.enemyCollectionInit
+        //============================================
+
         this.dict = {
             "N":"北方", "E":"東方", "W":"西方", "S":"南方", "all":"", "castle":"城堡",
             "wood":"木頭", "shoe":"草鞋(皇叔編的那種)",
             "armor":"步兵", "archer":"弓箭手", "ranger":"騎兵", "wizard":"法師", "defence":"防禦部隊",
             "tree_man":"普通樹人", "big_tree_man":"大型樹人", "stick_man":"樹枝噴吐者",
+        }
+    }
+
+    enemyCollectionInit(){
+        for(var type in enemy_data){
+            this.enemy_collection[type] = {"valid":false, "description":enemy_data[type].description, "eliminate":0}
         }
     }
 
@@ -372,7 +384,7 @@ exports.Environment = class {
                 }
                 if(type=="resource"){
                     explore_event[type][sub_type].reward(this.explorer_data)
-                    report.msg = explore_reward[type][sub_type].msg
+                    report.msg = explore_event[type][sub_type].msg
                     this.map[x][y].found = true
                 }
                 if(type=="village"){
@@ -435,14 +447,19 @@ exports.Environment = class {
     }
 
     deployArmy(direction, army, army_type, army_data){
-        var level = this.troops_state[army_type]["level"]
-        if(this.troops_state[army_type]["amount"]>0){
-            var data = army_data[army_type][level]
-            data.hp *= this.morale
-            data.attack *= this.morale
-            this.roads[direction].army_location[0].push(new army(data));
-            //console.log(this.roads[direction].army_location[0][0])
-            this.troops_state[army_type]["amount"] -= 1;
+        for(var type in troop){
+            var level = this.troops_state[type]["level"]
+            var amount = troop[type]
+            if(this.troops_state[army_type]["amount"]>=amount){
+                var data = army_data[army_type][level]
+                data.hp *= this.morale
+                data.attack *= this.morale
+                for(var i=0; i<amount; i++){
+                    this.roads[direction].army_location[0].push(new army(data));
+                }
+                //console.log(this.roads[direction].army_location[0][0])
+                this.troops_state[army_type]["amount"] -= amount;
+            }
         }
     }
 
@@ -560,7 +577,7 @@ exports.Environment = class {
     combat(defender_data){
         var report = []
         for(var d in this.roads){
-            report.push(this.roads[d].combat(this.resource, defender_data, this.morale, this.dict))
+            report.push(this.roads[d].combat(this.resource, defender_data, this.morale, this.dict, this.enemy_collection))
         }
         return report
     }
@@ -704,11 +721,13 @@ class road{
         ----一回合內只會有最前線的單位受到傷害
         ----return 戰報 
     */
-    combat(Env_resource, defender_data, morale, dict){
+    combat(Env_resource, defender_data, morale, dict, enemy_collection){
   
         var army_attack = {"armor":0, "archer":0, "ranger":0, "defence":0};
+        var army_killed = {"armor":0, "archer":0, "ranger":0, "defence":0}
         var army_total_damage = 0
         var enemy_attack = {"tree_man":0, "big_tree_man":0, "stick_man":0};
+        var enemy_killed = {"tree_man":0, "big_tree_man":0, "stick_man":0}
         var enemy_total_damage = 0
         var isCombat = false;
         var farest_army = this.farest_army;

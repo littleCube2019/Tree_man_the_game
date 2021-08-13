@@ -90,7 +90,7 @@ exports.RD = {
                     return next_level
                 }
             }
-        ]
+        ],
     },
 
     //半成品加工===========================
@@ -126,11 +126,13 @@ exports.RD = {
                 "description":"實行屯田制，增加糧食日產量500<br>研究難度:10點<br>花費1000木頭可隨機升級1-3點",
 
                 research_done(Env, dir){
-                    Env.resource.food += 500
+                    Env.resource_gain.food += 500
                     var next_level = -1
                     return next_level
                 }
-            }
+            },
+
+
         ]
     },
 

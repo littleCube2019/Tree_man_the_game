@@ -384,7 +384,7 @@ exports.Environment = class {
                 }
                 if(type=="resource"){
                     explore_event[type][sub_type].reward(this.explorer_data)
-                    report.msg = explore_reward[type][sub_type].msg
+                    report.msg = explore_event[type][sub_type].msg
                     this.map[x][y].found = true
                 }
                 if(type=="village"){
@@ -724,8 +724,10 @@ class road{
     combat(Env_resource, defender_data, morale, dict, enemy_collection){
   
         var army_attack = {"armor":0, "archer":0, "ranger":0, "defence":0};
+        var army_killed = {"armor":0, "archer":0, "ranger":0, "defence":0}
         var army_total_damage = 0
         var enemy_attack = {"tree_man":0, "big_tree_man":0, "stick_man":0};
+        var enemy_killed = {"tree_man":0, "big_tree_man":0, "stick_man":0}
         var enemy_total_damage = 0
         var isCombat = false;
         var farest_army = this.farest_army;

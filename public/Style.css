@@ -188,3 +188,7 @@ div {
 	display: block;
 	clear: both;
   }
+
+  svg {
+	pointer-events: none;
+  }

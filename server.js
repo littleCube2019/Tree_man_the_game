@@ -167,16 +167,16 @@ function roundCheck(){
 	var reports = Env.combat(defender_data)
 	io.emit("combat_report", reports);
 
-	io.emit("turn_end",roll_the_dice()); //告知user此回合結束，並傳一個機率結果給接收端,先於game over才不會鎖住player2的按鈕
+	Env.gainResource()
+	var food_msg = Env.isOutOfFood()
+	
+	io.emit("turn_end",roll_the_dice() ,food_msg); //告知user此回合結束，並傳一個機率結果給接收端,先於game over才不會鎖住player2的按鈕
 	if(Env.isGameover()){
 		io.emit("gameover")
 		player_list = {}
 		player1HasBeenChoosen = false;
 		player2HasBeenChoosen = false;
 	}
-	Env.gainResource()
-	var food_msg = Env.isOutOfFood()
-	io.emit("food_report",food_msg)
 	Env.explorer_data.move_left = Env.explorer_data.mobility
 	Env.round += 1;
 }

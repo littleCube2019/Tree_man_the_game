@@ -104,8 +104,8 @@ exports.defender_data = {
 exports.enemy_data = {
     "tree_man" : {
         "type" : "tree_man",
-        "hp" : 600,
-        "attack" : 50,
+        "hp" : 1,
+        "attack" : 1,
         "attack_range" : 0,
         "mobility" : 10,
         "spawn_prob_data":{
@@ -120,8 +120,8 @@ exports.enemy_data = {
 
     "stick_man" : {
         "type" : "stick_man",
-        "hp" : 500,
-        "attack" : 200,
+        "hp" : 1,
+        "attack" : 1,
         "attack_range" : 3,
         "mobility" : 1,
         "spawn_prob_data":{
@@ -136,8 +136,8 @@ exports.enemy_data = {
 
     "big_tree_man" : {
         "type" : "big_tree_man",
-        "hp" : 3000,
-        "attack" : 500,
+        "hp" : 1,
+        "attack" : 1,
         "attack_range" : 0,
         "mobility" : 1,
         "spawn_prob_data":{

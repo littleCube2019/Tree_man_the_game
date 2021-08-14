@@ -19,7 +19,7 @@ exports.exlore_event = {
             reward(explorer_data){
                 explorer_data.mobility += 2
             },
-            "msg":"發現傳說中皇書親手編製的草鞋，每日移動上限增加為5"
+            "msg":"發現傳說中皇叔親手編製的草鞋，每日移動上限增加為5"
         },
     },
 

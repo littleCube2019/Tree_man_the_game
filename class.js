@@ -56,21 +56,8 @@ exports.Environment = class {
             this.map[i] = new Array(this.map_y)
         }
 
-        this.explorer_data = {
-            "is_explore":false,
-            "x":Math.floor(this.map_x/2), 
-            "y":Math.floor(this.map_y/2),
-            "mobility":3,
-            "move_left":3,
-            "move_available":{
-                "N":true,
-                "E":true,
-                "W":true,
-                "S":true,
-            },
-            "troop":{"hp":0, "attack":0, "daily_cost":0},
-            "resource":{"food":0, "wood":0}
-        };
+        this.explorer_data = {}
+        this.explorerInit()
 
         this.resource_point = {"wood":3,"shoe":1}
 
@@ -150,7 +137,6 @@ exports.Environment = class {
 
         //圖鑑========================================
         this.enemy_collection = {}
-        this.enemyCollectionInit
         //============================================
 
         this.dict = {
@@ -161,10 +147,15 @@ exports.Environment = class {
         }
     }
 
-    enemyCollectionInit(){
-        for(var type in enemy_data){
-            this.enemy_collection[type] = {"valid":false, "description":enemy_data[type].description, "eliminate":0}
+    enemyCollectionUpdate(enemy_type, eliminate){
+        console.log(enemy_type + eliminate)
+        if(!(enemy_type in this.enemy_collection)){
+            this.enemy_collection[enemy_type] = {"description":enemy_data[enemy_type].description, "eliminate":0}
         }
+        if(eliminate){
+            this.enemy_collection[enemy_type].eliminate += 1
+        }
+        console.log(this.enemy_collection)
     }
 
     updateToClient(){
@@ -183,6 +174,7 @@ exports.Environment = class {
             "troops_state":this.troops_state,
             "RD_title":this.RD_title,
             "RD_list":this.RD_list,
+            "enemy_collection":this.enemy_collection,
             "dict":this.dict,
         }
 
@@ -447,6 +439,7 @@ exports.Environment = class {
     }
 
     deployArmy(direction, army, army_type, army_data){
+        /*
         for(var type in troop){
             var level = this.troops_state[type]["level"]
             var amount = troop[type]
@@ -460,6 +453,16 @@ exports.Environment = class {
                 //console.log(this.roads[direction].army_location[0][0])
                 this.troops_state[army_type]["amount"] -= amount;
             }
+        }
+        */
+        var level = this.troops_state[army_type]["level"]
+        if(this.troops_state[army_type]["amount"]>0){
+            var data = army_data[army_type][level]
+            data.hp *= this.morale
+            data.attack *= this.morale
+            this.roads[direction].army_location[0].push(new army(data));
+            //console.log(this.roads[direction].army_location[0][0])
+            this.troops_state[army_type]["amount"] -= 1;
         }
     }
 
@@ -475,7 +478,7 @@ exports.Environment = class {
         
         if(distance!=-1){
             var enemy_type = this.roads[direction].enemy_location[distance][0].type
-            console.log(enemy_type)
+            this.enemyCollectionUpdate(enemy_type, false)
             if(distance>=5){
                 msg += "隱隱約約看見一隻"
             }
@@ -577,7 +580,7 @@ exports.Environment = class {
     combat(defender_data){
         var report = []
         for(var d in this.roads){
-            report.push(this.roads[d].combat(this.resource, defender_data, this.morale, this.dict, this.enemy_collection))
+            report.push(this.roads[d].combat(this, defender_data))
         }
         return report
     }
@@ -675,7 +678,7 @@ class road{
         for(var i=0; i<this.max_distance; i++){
             if(this.enemy_location[i].length){
                 for(var j=0; j<this.enemy_location[i].length;){
-                    var move_to = Math.max(0, this.farest_army + this.enemy_location[i][j].attack_range, i-this.enemy_location[i][j].mobility); 
+                    var move_to = Math.max(0, Math.min(this.max_distance-1, this.farest_army + this.enemy_location[i][j].attack_range), i-this.enemy_location[i][j].mobility); 
                     if(move_to!=i){
                     this.enemy_location[move_to].push(this.enemy_location[i][j]); 
                     this.enemy_location[i].splice(j, 1);
@@ -703,7 +706,7 @@ class road{
 
     roadEnemySpawn(enemy, enemy_data, day){
         for(var enemy_type in enemy_data){
-            var spawn = 0; // Math.floor(Math.random()*100);  單位為% ，ex 80% ,100% ..
+            var spawn = Math.floor(Math.random()*100) ;  // 生成機率為 [0,100]
             var init = enemy_data[enemy_type]["spawn_prob_data"]["init"]*100
             var increase_rate = enemy_data[enemy_type]["spawn_prob_data"]["increase"]*100
             var max_prob = enemy_data[enemy_type]["spawn_prob_data"]["max"]*100
@@ -721,7 +724,7 @@ class road{
         ----一回合內只會有最前線的單位受到傷害
         ----return 戰報 
     */
-    combat(Env_resource, defender_data, morale, dict, enemy_collection){
+    combat(Env, defender_data){
   
         var army_attack = {"armor":0, "archer":0, "ranger":0, "defence":0};
         var army_killed = {"armor":0, "archer":0, "ranger":0, "defence":0}
@@ -753,7 +756,6 @@ class road{
     
             for(var defence_type in this.defence){
                 if(this.defence[defence_type]["valid"] && nearest_enemy<=defender_data[defence_type]["attack_range"]){
-                    army_attack["defence"] += defender_data[defence_type]["attack"]*morale;
                 }
             }
             for(var i in army_attack){
@@ -786,7 +788,7 @@ class road{
         var damage_msg = ""
         var hp_msg = ""
         if(isCombat){
-            msg = "<b>" + dict[this.direction] + "</b>的城牆外傳來打鬥的聲音<br><br>"
+            msg = "<b>" + Env.dict[this.direction] + "</b>的城牆外傳來打鬥的聲音<br><br>"
             if(farest_army==-1 && enemy_total_damage!=0){
                 this.wallhp = Math.max(0, this.wallhp-enemy_total_damage);
                 wall_msg = "城牆正在被攻擊!!    受到"+enemy_total_damage+"點傷害<br>"
@@ -809,21 +811,20 @@ class road{
     
             if(farest_army_hp==0){
                 this.army_location[farest_army].splice(0, 1);
-                morale = Math.max(0.5, morale-0.1)
             }
             
         
             if(nearest_enemy_hp==0){
                 for(var i in this.enemy_location[nearest_enemy][0].reward){
-                    Env_resource[i] += this.enemy_location[nearest_enemy][0].reward[i];
+                    Env.resource[i] += this.enemy_location[nearest_enemy][0].reward[i];
                 }
+                Env.enemyCollectionUpdate(this.enemy_location[nearest_enemy][0].type, true)
                 this.enemy_location[nearest_enemy].splice(0, 1);
-                morale = Math.min(1.5, morale+0.1)
             }
             damage_msg += "我方部隊造成的傷害:<br>"
             for(var army_type in army_attack){
                 if(army_attack[army_type]){
-                    damage_msg += "--" + dict[army_type] + "造成"+army_attack[army_type]+"點傷害<br>" 
+                    damage_msg += "--" + Env.dict[army_type] + "造成"+army_attack[army_type]+"點傷害<br>" 
                 }
             }
             if(damage_msg=="我方部隊造成的傷害:<br>"){
@@ -833,7 +834,7 @@ class road{
             damage_msg += "<br>敵方部隊造成的傷害:<br>"
             for(var enemy_type in enemy_attack){   
                 if(enemy_attack[enemy_type]){
-                    damage_msg += "--" + dict[enemy_type] + "造成"+enemy_attack[enemy_type]+"點傷害<br>" 
+                    damage_msg += "--" + Env.dict[enemy_type] + "造成"+enemy_attack[enemy_type]+"點傷害<br>" 
                 }
             }
             hp_msg += "最前線的敵人剩下"+nearest_enemy_hp+"點血量    該戰場剩下敵人數:"+this.enemy_location[nearest_enemy].length+"<br>"

@@ -284,25 +284,7 @@
 				// ==============================
 				
 				
-				// 創造視窗
-				createModal("start_game" , "" , "森林之母已怒不可遏，樹木之罰將降於貪婪之人<br>\
-				神木教教徒今天也如是說道<br>\
-				就在你不以為然的同時<br>\
-				城外遠處的森林傳來了數聲巨響<br>\
-				接著是護城弓箭隊的回報<br>\
-				仿佛傳說中遠古巨人般的<br>\
-				眾多樹型妖怪正在逼近你的城市.....<br>\
-				你必須當機立斷的竭全城之力才有可能活下去!<br>" ,large=false ,Ok="Game start");
 				
-				createModal("bring_resource" , "資源補充"  ,"" , large=true);	
-
-				createModal("research_report" , "研究報告"  ,"");
-			
-				createModal("combat_report"  , "交戰記錄"  , "=======================第1天=======================");
-
-				createModal("alert" , ""  , "...");
-
-				createModal("enemy_book" , "敵人紀錄圖鑑" , "紀錄敵人的特性，方便下一次應對!")
 				// ==============================
 				
 				round = 1;
@@ -517,6 +499,29 @@
 
 			// jQuery , 按鈕與互動  ========================================================================
 			$(document).ready(()=>{
+
+
+				// 創造視窗
+				createModal("start_game" , "" , "森林之母已怒不可遏，樹木之罰將降於貪婪之人<br>\
+				神木教教徒今天也如是說道<br>\
+				就在你不以為然的同時<br>\
+				城外遠處的森林傳來了數聲巨響<br>\
+				接著是護城弓箭隊的回報<br>\
+				仿佛傳說中遠古巨人般的<br>\
+				眾多樹型妖怪正在逼近你的城市.....<br>\
+				你必須當機立斷的竭全城之力才有可能活下去!<br>" ,large=false ,Ok="Game start");
+				
+				createModal("bring_resource" , "資源補充"  ,"" , large=true);	
+
+				createModal("research_report" , "研究報告"  ,"");
+			
+				createModal("combat_report"  , "交戰記錄"  , "=======================第1天=======================");
+
+				createModal("alert" , ""  , "...");
+
+				createModal("enemy_book" , "敵人圖鑑" , "紀錄敵人的特性，方便下一次應對!")
+
+
 				//初始化tooltip 訊息
 				$(function () {
 					$('[data-toggle="tooltip"]').tooltip()
@@ -537,31 +542,27 @@
 			/*	$("#bring_out_resource").click(()=>{
 					
 				}) */  
-
+				$("#bring_resource_ok" ).ready(()=>{
 				$("#bring_resource_ok").click(()=>{
-					
-				
-
-					$("#bring_resource_pop").modal('toggle');
-
-					//event
-					var food = parseInt(document.getElementById("food_selection_out").value) * 100;
-					var troops = {}
-
-					for(var troop_type in Env.troops_state){
-						if(Env.troops_state[troop_type].amount != 0 && parseInt(document.getElementById(troop_type+"_selection_out").value) != 0){
-							troops[troop_type] = parseInt(document.getElementById(troop_type+"_selection_out").value);
-						}
-					}
-
-					
-				
-						
 						
 					
-					
-					socket.emit("explore_prepare" , food , troops);
+						console.log("blablabla");
+						$("#bring_resource_pop").modal('toggle');
 
+						
+						//event
+						var food = parseInt(document.getElementById("food_selection_out").value) * 100;
+					
+
+						
+					
+							
+							
+						
+							
+						socket.emit("explore_prepare" , food );
+
+					})
 				})
 				
 				$("#go-back ").click(()=>{

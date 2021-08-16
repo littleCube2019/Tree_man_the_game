@@ -847,7 +847,9 @@ class road{
                 }
             }
             for(var type in enemy_killed){
-                Env.enemyCollectionUpdate(type, enemy_killed[type])
+                if(enemy_killed[type]>0){
+                    Env.enemyCollectionUpdate(type, enemy_killed[type])
+                }
             }
             /*
             nearest_enemy_hp = Math.max(0, nearest_enemy_hp - army_total_damage);

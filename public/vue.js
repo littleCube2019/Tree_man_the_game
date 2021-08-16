@@ -188,6 +188,8 @@ var choose_basic = new Vue({
       //選取資源畫面
       $("#bring_resource_content").empty();
 					$("#bring_resource_pop").modal('toggle');
+
+          /*
 					var hasThing = false;
 				
 					for(var troop_type in Env.troops_state){
@@ -206,15 +208,17 @@ var choose_basic = new Vue({
 							hasThing = true;
 						}
 					}
+          
 					if(!hasThing){
 						$("#bring_resource_content").append("沒有可外出的軍隊<br>");
 					}
-					$("#bring_resource_content").append("<br>================================================================================================================================<br>");
 
+					$("#bring_resource_content").append("<br>================================================================================================================================<br>");
+          */
 					$("#bring_resource_content").append("(以百為單位)可帶出的食物:"+Math.floor(Env.resource.food/100));
 					$("#bring_resource_content").append("<select class=\"form-control\" id=\"food_selection_out\"></select>")
 							for(var i=0; i<= Math.floor(Env.resource.food/100) ; i++){
-								$("#food_selection_out").append("<option type=\""+troop_type+"\" value=\""+i+"\">"+i+"</option>") 
+								$("#food_selection_out").append("<option  value=\""+i+"\">"+i+"</option>") 
 					}	
 
     }
@@ -461,19 +465,22 @@ var research = new Vue({
       }
       can_research = true;
       // 看條件
-
-      if( Env.resource["wood"]   >=  this.details[research_type][dir][sub_type].data.cost.wood  ){
+      for (var r in Env.resource){
+        if(this.details[research_type][dir][sub_type].data.cost[r]){
+          if( Env.resource[r]   >=  this.details[research_type][dir][sub_type].data.cost[r] ){
         
-        action = new research(research_type,  sub_type  , dir,);
-        research_name=  this.details[research_type][dir][sub_type].data.name ;
+            action = new research(research_type,  sub_type  , dir,);
+            research_name=  this.details[research_type][dir][sub_type].data.name ;
+        }
+        else{
+          Alert(text="資源不足研究");
+          can_research=false;
+        }
         
+         }
       }
-      
 
-      else{
-        Alert(text="木頭不足研究");
-        can_research=false;
-      }
+     
       
       if(can_research){
         var msg = "你開始研究了"+research_name+"!";

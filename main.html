@@ -544,7 +544,6 @@
 
 					$("#bring_resource_pop").modal('toggle');
 
-					
 					//event
 					var food = parseInt(document.getElementById("food_selection_out").value) * 100;
 					var troops = {}
@@ -560,7 +559,7 @@
 						
 						
 					
-						
+					
 					socket.emit("explore_prepare" , food , troops);
 
 				})

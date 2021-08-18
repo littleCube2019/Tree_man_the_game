@@ -532,11 +532,20 @@
 				$("#go-back-castle ").click(()=>{
 
 					$(".in_castle").show();
-     				 $(".outside").hide();
-					  $("#choose_basic_action").show();
-					  $("#go-back").hide();
-					  OUTSIDE=false;
-					 socket.emit("explore_end");
+     				$(".outside").hide();
+					$("#choose_basic_action").show();
+					$("#go-back").hide();
+					OUTSIDE=false;
+					socket.emit("explore_end");
+
+					class skip {
+						constructor(){
+							this.type ='skip';
+						}
+					}
+					action = new skip();
+					var msg="你決定回城整頓物資與戰利品，結束這一天的工作";
+					socket.emit("action_done" , PLAYER_ID , action, msg);
 				})
 
 			/*	$("#bring_out_resource").click(()=>{

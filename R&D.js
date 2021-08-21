@@ -78,7 +78,7 @@ exports.RD = {
         "armor":[
             {
                 "name":"厚木裝甲",
-                "cost" : {"wood":500},
+                "cost" : {"food":500},
                 "difficulty" : 5,
                 "max_research_speed" : 3,
 
@@ -135,6 +135,24 @@ exports.RD = {
 
         ]
     },
+
+    //
+    "explore":{
+        "lead":[
+            {
+                "name":"領導1",
+                "cost":{"food":500},
+                "difficulty":5,
+                "max_research_speed":3,
+
+                "description":"外出時攜帶傭兵樹提升為2<br>研究難度:10點<br>花費500糧食可隨機升級1-3點",
+
+                research_done(Env, dir){
+                    Env.explore_lead = 2
+                }
+            },
+        ]
+    }
 
 }
 

@@ -241,7 +241,6 @@ io.on('connection', (socket) => {
 
 
 			var update_report = Env.updateToClient()
-			console.log(Env.RD_list.army_upgrade.all.armor.data)
 			var research_log = {
 				"wall":[ "城牆加固", true],
 				"army_upgrade":[ "士兵升級", false],
@@ -306,8 +305,8 @@ io.on('connection', (socket) => {
 		}
 	});
 
-	socket.on("explore_prepare",(food, troop)=>{
-		Env.explorePrepare(food,troop)
+	socket.on("explore_prepare",(food)=>{
+		Env.explorePrepare(food)
 	})
 
 	socket.on("explore", (direction)=>{

@@ -189,6 +189,11 @@ div {
 	clear: both;
   }
 
-  svg {
+
+.no_event_svg {
 	pointer-events: none;
-  }
+ }
+
+ path {
+	pointer-events: none;
+ }

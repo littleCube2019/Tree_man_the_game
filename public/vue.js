@@ -87,9 +87,10 @@ var wall_status = new Vue({
 })
 
 
-//軍隊訊息
+//軍隊訊息  城內數量 & 城外分布
 var troop_status = new Vue({
   el: '#troop_state',
+  
   
 
   data: {
@@ -99,14 +100,28 @@ var troop_status = new Vue({
      "ranger" : {  name: '騎兵' , num:0 , valid:true},
      "wizard" : {  name: '法師' , num:0 , valid:false}
     },
+    
+    directions:[
+      ["E","東"],
+      ["S","南"],
+      ["W","西"],
+      ["N","北"],
+    ],
 
+    max_road:10,
+    army_location : {
+      "E":[[],[],[],[],[],[],[],[],[],[]],
+      "S":[[],[],[],[],[],[],[],[],[],[]],
+      "W":[[],[],[],[],[],[],[],[],[],[]],
+      "N":[[],[],[],[],[],[],[],[],[],[]],
+    }
   },
 
   methods: {
-    update : function(troops_state){ //每回合更新 wall 資料
+    update : function(troops_state , roads){ //每回合更新 troop 資料
     
-      
-      if(troops_state){ //一定一開遊戲就會呼叫，這時roads還是NLL，會出錯
+     
+      if(troops_state){ //一定一開遊戲就會呼叫，這時還是NLL，會出錯
           
           var dirs = Object.keys(this.troops);
           for(var i = 0; i< dirs.length; i++){
@@ -117,8 +132,33 @@ var troop_status = new Vue({
           }
 
       }
+
+      if(roads){
+        for(var d in this.army_location){
+          this.army_location[d] = roads[d].army_location;
+        }
+      }
       
+    },
+
+    icon: function(dir , n){
+      n = parseInt(n);
+      n = n-1;
+   
+      if(n ==0){
+        return "[門]"
+      }
+      
+      if(this.army_location[dir][n].length == 0){
+        return "[ ]";
+      }
+      else{
+        return "[*]";
+      }
     }
+
+
+
   }
 
 
@@ -244,6 +284,7 @@ var recruit_troop = new Vue({
 
   data: {
     
+
     troops:{
       "archer":[0,"弓箭"],
 
@@ -644,10 +685,10 @@ var Report  = new Vue({
   methods:{
     Click: function(e){
       var ID = e.target.getAttribute("id");
+      console.log(e);
       
-      console.log(ID,this.records,this.records[ID]);
       $("#"+ID).empty();
-      $("#"+ID).append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi "+this.records[ID].bi_type + "\" viewBox=\"0 0 16 16\"> \
+      $("#"+ID).append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi "+this.records[ID].bi_type + " no_event_svg \" viewBox=\"0 0 16 16\"> \
       <path d=\""+this.records[ID].url + "\"/>\
       </svg>" );
       $("#"+ID+"_pop").modal('toggle');

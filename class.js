@@ -891,6 +891,20 @@ class road{
             
             msg += wall_msg + damage_msg + hp_msg + "<br>******************************<br>"
         }
+        this.farest_army = -1
+        for(var i=this.max_distance-1; i>=0; i--){
+            if(this.army_location[i].length>0){
+                this.farest_army = i
+                break
+            }
+        }
+        this.nearest_enemy = -1;
+        for(var i=0; i<this.max_distance; i++){
+            if(this.enemy_location[i].length){
+                this.nearest_enemy = i;
+                break;
+            }
+        }
         return(msg)
     }
 

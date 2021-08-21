@@ -127,6 +127,7 @@ function player_action_handle(action){
 	}
 	else if(action.type=='retreat'){
 		Env.armyRetreat(action.direction)
+
 	}
 	else if(action.type=="research"){
 		var report = Env.research(RD, action.research_type, action.direction, action.sub_type) //action = {"type":"research", "research_type":"factory", "sub_type":"resin"}
@@ -165,6 +166,7 @@ function roundCheck(){
 	Env.armyMove()
 	Env.enemyMove()
 	var reports = Env.combat(defender_data)
+
 	io.emit("combat_report", reports);
 
 	Env.gainResource()

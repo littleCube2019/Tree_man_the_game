@@ -154,7 +154,6 @@
 			function update_enemy_collection(collections){
 				
 				for( var c in collections){
-					console.log(c);
 					$("#enemy_book_content #"+c).empty();
 					$("#enemy_book_content").append("<div id=\""+c+"\"> <br>"+collections[c].description+" <br> 已消滅數量:"+collections[c].eliminate+"</div>");
 					

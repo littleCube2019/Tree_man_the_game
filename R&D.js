@@ -149,6 +149,8 @@ exports.RD = {
 
                 research_done(Env, dir){
                     Env.explore_lead = 2
+                    var next_level = -1
+                    return next_level
                 }
             },
         ]

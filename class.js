@@ -559,7 +559,7 @@ exports.Environment = class {
             research_report.progress = this.RD_list[type][dir][sub_type]["progress"]
             research_report.msg = "你研發了" + this.RD_list[type][dir][sub_type].data.name + ": 進度"+research_report.progress+"/"+difficulty
         }
-
+        console.log(this.RD_list)
         return research_report
     }
 

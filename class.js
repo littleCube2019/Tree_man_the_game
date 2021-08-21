@@ -146,6 +146,7 @@ exports.Environment = class {
 
         //圖鑑========================================
         this.enemy_collection = {}
+        this.enemyCollectionInit()
         //============================================
 
         this.dict = {
@@ -155,10 +156,15 @@ exports.Environment = class {
             "tree_man":"普通樹人", "big_tree_man":"大型樹人", "stick_man":"樹枝噴吐者",
         }
     }
+    enemyCollectionInit(){
+        for(var type in enemy_data){
+            this.enemy_collection[type] = {"description":"尚未發現此樹人", "eliminate":""}
+        }
+    }
 
     enemyCollectionUpdate(enemy_type, eliminate){
         console.log(enemy_type + eliminate)
-        if(!(enemy_type in this.enemy_collection)){
+        if(this.enemy_collection[enemy_type].description=="尚未發現此樹人"){
             this.enemy_collection[enemy_type] = {"description":enemy_data[enemy_type].description, "eliminate":0}
         }
         if(eliminate!=0){

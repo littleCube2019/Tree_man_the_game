@@ -356,11 +356,11 @@
 				combatReportOneline("=======================第"+(Env.round+1)+"天=======================<br>")
 				
 				// 食物訊息
-				/*
-				for(var i in msg){
-					addMessage(msg[i]);
+				
+				for(var i in food_msg){
+					addMessage(food_msg[i]);
 				}	
-				*/
+				
 
 
 				//遊戲文本
@@ -531,11 +531,20 @@
 				$("#go-back-castle ").click(()=>{
 
 					$(".in_castle").show();
-     				 $(".outside").hide();
-					  $("#choose_basic_action").show();
-					  $("#go-back").hide();
-					  OUTSIDE=false;
-					 socket.emit("explore_end");
+     				$(".outside").hide();
+					$("#choose_basic_action").show();
+					$("#go-back").hide();
+					OUTSIDE=false;
+					socket.emit("explore_end");
+
+					class skip {
+						constructor(){
+							this.type ='skip';
+						}
+					}
+					action = new skip();
+					var msg="你決定回城整頓物資與戰利品，結束這一天的工作";
+					socket.emit("action_done" , PLAYER_ID , action, msg);
 				})
 
 			/*	$("#bring_out_resource").click(()=>{
@@ -569,54 +578,7 @@
 					$("#choose_basic_action").show();
 				})
 				//========  ==============================================================================	
-				// move troop button =====================================================================
 				
-				$(".troop_move").click(function(e){
-					
-					var troop_type = e.target.getAttribute("Type");
-					var dir = e.target.getAttribute("dir");
-					var Act = e.target.getAttribute("action");
-					troop_name = "沒有";
-					console.log(troop_type , dir)
-					dir_name = "X";
-					class move_troop {
-						constructor(Act,troop_type,dir){
-							this.type = Act;
-							this.troop_type = troop_type ;
-							this.direction = dir
-						}
-					}
-				
-					can_move = true;
-					if(troop_type == "archer" && Env.troops_state["archer"].amount > 0   ){
-						action = new move_troop(Act,troop_type,dir);
-						troop_name= "弓箭";
-						dir_name = direct_dic[dir];
-						
-					}
-					else if(troop_type == "armor" && Env.troops_state["armor"].amount > 0   ){
-						action = new move_troop(Act,troop_type,dir);
-						troop_name="重甲步兵";
-						dir_name = direct_dic[dir];
-					}
-					else if(troop_type == "ranger" && Env.troops_state["ranger"].amount > 0  ){
-						action = new move_troop(Act,troop_type,dir);
-						troop_name="騎兵";
-						dir_name = direct_dic[dir];
-					}
-					else{
-						Alert(text="你沒有可移動的士兵");
-						can_move=false;
-					}
-					
-					if(can_move){
-						var msg = "你調動了一隊"+troop_name+"隊前往"+dir_name+"方";
-						socket.emit("action_done" , PLAYER_ID , action,msg);
-					}
-					
-				})
-
-				//========================================================================================
 
 				//  偵查 button  ================================================================================
 				$(".scout_dir ").click(function(e){
@@ -1090,13 +1052,13 @@
                 <input type="range" class="custom-range" min="1" max="2"  value="1" id="customRange2" @change="updateRangeValue($event)">
 				<div v-if="type==1">
 				<div>選擇派出兵種  </div>  
-				<div style="width:100% ; height:20%" v-for="troop in troops"> 
+				<div style="width:100% ; height:15%" v-for="troop in troops"> 
 				<div>
 				{{troop[2]}}隊
 				<br>
 				<div class="float"  style="width:5% ; height:30%"    v-for="direction in directions" > 
 					
-					<button  type="button" class="btn btn-success  troop_move" :dir="direction[0]"  :Type="troop[1]" action="move_army"  >{{direction[1]}}</button>   
+					<button  type="button" class="btn btn-success  troop_move" :dir="direction[0]"  :Type="troop[1]" action="move_army"  v-on:click="Click" >{{direction[1]}}</button>   
 					
 				</div>
 				</div>
@@ -1106,18 +1068,19 @@
 				
 				<div v-if="type==2">
 				<div>選擇撤退兵種  </div>  
-				<div style="width:100% ; height:20%" v-for="troop in troops"> 
+				<div style="width:100% ; height:15%" > 	
 				<div>
-				{{troop[2]}}隊
+				
 				<br>
 				<div class="float"  style="width:5% ; height:30%"    v-for="direction in directions" > 
 					
-					<button  type="button" class="btn btn-success  troop_move" :dir="direction[0]"  :Type="troop[1]" action="retreat"  >{{direction[1]}}</button>   
+					<button  type="button" class="btn btn-success  troop_move" :dir="direction[0]"  Type="xx" action="retreat"  v-on:click="Click" >{{direction[1]}}</button>   
 					
 				</div>
 				</div>
-				
 				</div>
+				
+			
 		
 				</div>
 

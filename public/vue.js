@@ -407,7 +407,62 @@ var move_troop = new Vue({
     else if(this.type ==2){
       this.type_name = "通知軍隊撤退";
     }
+  },
+
+  Click: function(e){
+					
+    var troop_type = e.target.getAttribute("Type");
+    var dir = e.target.getAttribute("dir");
+    var Act = e.target.getAttribute("action");
+    troop_name = "沒有";
+    console.log(troop_type , dir)
+    dir_name = "X";
+    class move_troop {
+      constructor(Act,troop_type,dir){
+        this.type = Act;
+        this.troop_type = troop_type ;
+        this.direction = dir
+      }
+    }
+    
+    if(Act == "retreat"){
+      action = new move_troop(Act,troop_type,dir);
+      dir_name = direct_dic[dir];
+      var msg = "你對"+dir_name+"方下達了撤退命令";
+      socket.emit("action_done" , PLAYER_ID , action,msg);
+    }
+
+    else{
+      can_move = true;
+      if(troop_type == "archer" && Env.troops_state["archer"].amount > 0   ){
+        action = new move_troop(Act,troop_type,dir);
+        troop_name= "弓箭";
+        dir_name = direct_dic[dir];
+        
+      }
+      else if(troop_type == "armor" && Env.troops_state["armor"].amount > 0   ){
+        action = new move_troop(Act,troop_type,dir);
+        troop_name="重甲步兵";
+        dir_name = direct_dic[dir];
+      }
+      else if(troop_type == "ranger" && Env.troops_state["ranger"].amount > 0  ){
+      
+        action = new move_troop(Act,troop_type,dir);
+        troop_name="騎兵";
+        dir_name = direct_dic[dir];
+      }
+      else{
+        Alert(text="你沒有可移動的士兵");
+        can_move=false;
+      }
+      
+      if(can_move){
+        var msg = "你調動了一隊"+troop_name+"隊前往"+dir_name+"方";
+        socket.emit("action_done" , PLAYER_ID , action,msg);
+      }
+    }
   }
+
 
   }
 

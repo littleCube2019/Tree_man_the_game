@@ -31,9 +31,14 @@ var RD_data = require("./R&D").RD
 var army_data = require("./troop").army_data
 var defender_data = require("./troop").defender_data
 var enemy_data = require("./troop").enemy_data
+var action_button = require("./button").action_button
 exports.Environment = class {
     //環境變數
     constructor(){
+        //玩家=======================
+        this.player1 = {"button":action_button[0]}
+        this.player2 = {"button":action_button[1]}
+
         this.roads = {
             "E":new road("E") ,  
             "S":new road("S") ,

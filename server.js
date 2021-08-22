@@ -229,19 +229,19 @@ io.on('connection', (socket) => {
 	socket.on("choose_character", (id)=>{
 
 		chooseCharacter(id);
-		if(id==1){
-			io.to(socked.id).emit("choose_action_button_update", button[0])
+		if(id==1){//之眼
+			io.to(socket.id).emit("choose_action_button_update", Env.player1.button)
 		}
-		else if(id==-1){
-			io.to(socked.id).emit("choose_action_button_update", button[1])
+		else if(id==-1){//賢者
+			io.to(socket.id).emit("choose_action_button_update", Env.player2.button)
 		}
 		player_list[socket.id] = socket.id;
 		if(player1HasBeenChoosen && player2HasBeenChoosen){
 
 			//把沒選角的剔掉=====
-			for(var sockedId in connected_list){
-				if(!(sockedId in player_list)){
-					io.to(sockedId).emit("gameover");//觀戰or其他處理(暫定gameover)
+			for(var socketId in connected_list){
+				if(!(socketId in player_list)){
+					io.to(socketId).emit("gameover");//觀戰or其他處理(暫定gameover)
 				}
 			}
 			//====================

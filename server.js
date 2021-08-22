@@ -20,6 +20,7 @@ var army_data = require("./troop").army_data
 var defender_data = require("./troop").defender_data
 var enemy_data = require("./troop").enemy_data
 var RD = require("./R&D").RD
+var button = require("./button").button
 
 // ========================== header end ========================================// 
 
@@ -197,6 +198,7 @@ io.on('connection', (socket) => {
 		[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
 		Env.RD_title,
 		Env.RD_list,
+		button
 	)
 	io.emit("update_state", update_report);
 	/*
@@ -227,7 +229,12 @@ io.on('connection', (socket) => {
 	socket.on("choose_character", (id)=>{
 
 		chooseCharacter(id);
-
+		if(id==1){
+			io.to(socked.id).emit("choose_action_button_update", button[0])
+		}
+		else if(id==-1){
+			io.to(socked.id).emit("choose_action_button_update", button[1])
+		}
 		player_list[socket.id] = socket.id;
 		if(player1HasBeenChoosen && player2HasBeenChoosen){
 

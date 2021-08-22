@@ -183,13 +183,13 @@ var choose_basic = new Vue({
   
 
   data: {
-    contents:{  "choose_scout":"偵查",
+    contents:{  /*"choose_scout":"偵查",
                 "choose_troop_move":"調度軍隊",
                 "choose_recruit_troop":"招募士兵",
                 "choose_repair_wall":"修築城牆",
                 "choose_research":"研發",
                 "choose_go_out":"外出",
-                "skip":"跳過這回合"},
+                "skip":"跳過這回合"*/},
     pid:0
   },
 

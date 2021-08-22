@@ -860,7 +860,7 @@
 					  </svg>
 					</button>
 				
-				<div  id="resource">
+				<div  id="resource"> 資源管理
 						<div v-for="(r,r_name) in resources" >
 						
 						<div  >{{name[r_name]}}:
@@ -873,6 +873,10 @@
 						</div>
 
 						</div>
+				</div>
+				
+				<div id="status_tab" > 城中情況  <br>
+					<span v-for="for tab in check()"   class="good-state">{{tab}}</span>
 				</div>
 
 			   </div>

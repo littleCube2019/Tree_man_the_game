@@ -699,6 +699,30 @@ var Resource = new Vue({
 })
 
 
+//顯示城中狀態
+var status_tab = new Vue({
+  el : "#status_tab",
+  data:{
+
+  },
+  methods:{
+     Check:function(){
+       res = [];
+       if( Env.moriality < 1){
+          res.push("缺乏食物");
+       }
+       else{
+          res.push("正常");
+       }
+       return res;
+     }
+  }
+
+})
+
+
+
+
 // 顯示報告書
 var Report  = new Vue({
   el : "#reports",

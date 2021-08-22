@@ -188,7 +188,7 @@ function roundCheck(){
 
 
 
-var player_list = {}
+var player_list = []
 var connected_list = {}
 
 io.on('connection', (socket) => {
@@ -217,7 +217,7 @@ io.on('connection', (socket) => {
 		socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
 	})
 
-	if(Object.keys(player_list).length<2){
+	if(player_list.length()<2){
 		socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
 	}
 	else{
@@ -231,11 +231,12 @@ io.on('connection', (socket) => {
 		chooseCharacter(id);
 		if(id==1){//之眼
 			io.to(socket.id).emit("choose_action_button_update", Env.player1.button)
+			player_list[0] = socket.id;
 		}
 		else if(id==-1){//賢者
 			io.to(socket.id).emit("choose_action_button_update", Env.player2.button)
+			player_list[1] = socket.id;
 		}
-		player_list[socket.id] = socket.id;
 		if(player1HasBeenChoosen && player2HasBeenChoosen){
 
 			//把沒選角的剔掉=====
@@ -250,11 +251,7 @@ io.on('connection', (socket) => {
 
 
 			var update_report = Env.updateToClient()
-			var research_log = {
-				"wall":[ "城牆加固", true],
-				"army_upgrade":[ "士兵升級", false],
-				"factory":[ "半成品加工", false]
-			}
+
 			var number = roll_the_dice(20000,10000); // 決定城號
 			io.emit("start_game", update_report, number,
 				[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
@@ -282,13 +279,12 @@ io.on('connection', (socket) => {
 	socket.on('disconnect', () => {
 		console.log('Client disconnected')
 		if(socket.id in player_list){
-			player_list = {}
+			player_list = []
 			player1HasBeenChoosen = false;
 			player2HasBeenChoosen = false;
 			io.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
 			console.log("有人跳game")
 		}
-		delete player_list[socket.id];
 		delete connected_list[socket.id];
 	});
 
@@ -302,16 +298,15 @@ io.on('connection', (socket) => {
 		//action = {"type":"research", "research_type":"factory", "direction":"resin"}
 		player_action_handle(action);
 		if(player_id==1){
-			var update_report = Env.updateToClient()
-			io.emit("update_state", update_report);
-			io.emit("player_turn");
 		}
 		else if(player_id==-1){
 			roundCheck();
-			var update_report = Env.updateToClient()
-			io.emit("update_state", update_report);
-			io.emit("player_turn");
 		}
+		var update_report = Env.updateToClient()
+		io.emit("update_state", update_report);
+		io.to(player_list[0]).emit("choose_action_button_update", Env.player1.button)
+		io.to(player_list[1]).emit("choose_action_button_update", Env.player2.button)
+		io.emit("player_turn");
 	});
 
 	socket.on("explore_prepare",(food)=>{

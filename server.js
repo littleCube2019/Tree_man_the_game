@@ -188,7 +188,7 @@ function roundCheck(){
 
 
 
-var player_list = []
+var player_list = [0, 0]
 var connected_list = {}
 
 io.on('connection', (socket) => {
@@ -216,8 +216,7 @@ io.on('connection', (socket) => {
 	socket.on('new_game', ()=>{
 		socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
 	})
-
-	if(player_list.length()<2){
+	if(player_list.find(element => element==0)!=undefined){
 		socket.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);
 	}
 	else{
@@ -241,7 +240,7 @@ io.on('connection', (socket) => {
 
 			//把沒選角的剔掉=====
 			for(var socketId in connected_list){
-				if(!(socketId in player_list)){
+				if(player_list.find(element => element==socketId)==undefined){
 					io.to(socketId).emit("gameover");//觀戰or其他處理(暫定gameover)
 				}
 			}
@@ -278,8 +277,8 @@ io.on('connection', (socket) => {
 
 	socket.on('disconnect', () => {
 		console.log('Client disconnected')
-		if(socket.id in player_list){
-			player_list = []
+		if(player_list.find(element => element == socket.id)){
+			player_list = [0, 0]
 			player1HasBeenChoosen = false;
 			player2HasBeenChoosen = false;
 			io.emit("welcome", player1HasBeenChoosen , player2HasBeenChoosen);

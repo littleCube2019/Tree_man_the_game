@@ -265,6 +265,16 @@ var choose_basic = new Vue({
         $("#factory").show();
       }
 
+      if(event.target.getAttribute("id")=="skip"){
+        class skip {
+          constructor(){
+            this.type ='skip';
+          }
+        }
+        action = new skip();
+        var msg="你覺得養精蓄銳比較重要，於是這半天休息";
+        socket.emit("action_done" , PLAYER_ID , action, msg);
+      }
 
     $("#go-back").show();
   } ,

@@ -183,15 +183,13 @@ var choose_basic = new Vue({
   
 
   data: {
-    contents:[
-      ["choose_scout","偵查",0],
-      ["choose_troop_move","調度軍隊",0],
-      ["choose_recruit_troop","招募士兵",0],
-      ["choose_repair_wall","修築城牆",0],
-      ["choose_research","研發",-1],
-      ["choose_go_out","外出",1],
-      ["skip","跳過這回合",0],
-    ],
+    contents:{  "choose_scout":"偵查",
+                "choose_troop_move":"調度軍隊",
+                "choose_recruit_troop":"招募士兵",
+                "choose_repair_wall":"修築城牆",
+                "choose_research":"研發",
+                "choose_go_out":"外出",
+                "skip":"跳過這回合"},
     pid:0
   },
 
@@ -261,19 +259,50 @@ var choose_basic = new Vue({
 								$("#food_selection_out").append("<option  value=\""+i+"\">"+i+"</option>") 
 					}	
 
-    }
+       }
+
+       if(event.target.getAttribute("id")=="choose_factory"){
+        $("#factory").show();
+      }
+
 
     $("#go-back").show();
   } ,
 
   update_pid(pid){
     this.pid = pid;
+  },
+
+  update_buttons(buttons){
+    this.contents=buttons;
   }
 
   }
 
 
 })
+
+
+var factory = new Vue({
+  el: '#factory' ,
+  data: {
+    factories : {
+      resin: "resin"
+
+    }
+
+
+  },
+  methods:{
+
+
+
+  },
+
+
+})
+
+
 
 
 //"招募" 按鈕

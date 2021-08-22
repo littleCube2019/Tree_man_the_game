@@ -107,6 +107,8 @@ exports.RD = {
                 research_done(Env, dir){
                     Env.factory_resource["resin"].factory.upgrade(Env.resource, resin_factory[0])
                     var next_level = -1
+                    Env.player2.button["choose_factory"] = "工廠"
+                    
                     return next_level
                 }
             }

@@ -31,9 +31,14 @@ var RD_data = require("./R&D").RD
 var army_data = require("./troop").army_data
 var defender_data = require("./troop").defender_data
 var enemy_data = require("./troop").enemy_data
+var action_button = require("./button").action_button
 exports.Environment = class {
     //環境變數
     constructor(){
+        //玩家=======================
+        this.player1 = {"button":action_button[0]}
+        this.player2 = {"button":action_button[1]}
+
         this.roads = {
             "E":new road("E") ,  
             "S":new road("S") ,
@@ -170,7 +175,7 @@ exports.Environment = class {
         if(eliminate!=0){
             this.enemy_collection[enemy_type].eliminate += eliminate
         }
-        console.log(this.enemy_collection)
+        //console.log(this.enemy_collection)
     }
 
     updateToClient(){
@@ -258,7 +263,7 @@ exports.Environment = class {
             this.explorerInit()
             msg.push("錯估了探索的進度...傭兵們因糧食不足一個個倒下，只剩你獨自一人逃回城內...")
         }
-        console.log(msg)
+        //console.log(msg)
         return msg
     }
 
@@ -631,8 +636,10 @@ class road{
         for(var i=this.max_distance-1; i>=0; i--){
             for(var j=0; j<this.army_location[i].length; ){
                 if(!this.army_location[i][j].retreat){
-                    var move_to = Math.min(i + this.army_location[i][j].mobility, this.max_distance-1, this.nearest_enemy-this.army_location[i][j].attack_range); 
-                    move_to = Math.max(move_to, 0);
+                    var move_to = Math.min(i + this.army_location[i][j].mobility, this.max_distance-1); 
+                    if(this.nearest_enemy!=-1){
+                        move_to = Math.max(move_to, this.nearest_enemy-this.army_location[i][j].attack_range, 0)
+                    }
                     if(move_to!=i){
                         this.army_location[move_to].push(this.army_location[i][j]);
                         this.army_location[i].splice(j, 1);
@@ -668,6 +675,7 @@ class road{
                 break
             }
         }
+        console.log(this.army_location)
     }
 
     armyRetreat(){
@@ -683,7 +691,10 @@ class road{
         for(var i=0; i<this.max_distance; i++){
             if(this.enemy_location[i].length){
                 for(var j=0; j<this.enemy_location[i].length;){
-                    var move_to = Math.max(0, Math.min(this.max_distance-1, this.farest_army + this.enemy_location[i][j].attack_range), i-this.enemy_location[i][j].mobility); 
+                    var move_to = Math.max(0, i-this.enemy_location[i][j].mobility); 
+                    if(this.farest_army!=-1){
+                        move_to = Math.min(move_to, this.max_distance-1, this.farest_army + this.enemy_location[i][j].attack_range)
+                    }
                     if(move_to!=i){
                     this.enemy_location[move_to].push(this.enemy_location[i][j]); 
                     this.enemy_location[i].splice(j, 1);

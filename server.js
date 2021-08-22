@@ -20,6 +20,7 @@ var army_data = require("./troop").army_data
 var defender_data = require("./troop").defender_data
 var enemy_data = require("./troop").enemy_data
 var RD = require("./R&D").RD
+var button = require("./button").button
 
 // ========================== header end ========================================// 
 
@@ -197,6 +198,7 @@ io.on('connection', (socket) => {
 		[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
 		Env.RD_title,
 		Env.RD_list,
+		button
 	)
 	io.emit("update_state", update_report);
 	/*
@@ -227,14 +229,19 @@ io.on('connection', (socket) => {
 	socket.on("choose_character", (id)=>{
 
 		chooseCharacter(id);
-
+		if(id==1){//之眼
+			io.to(socket.id).emit("choose_action_button_update", Env.player1.button)
+		}
+		else if(id==-1){//賢者
+			io.to(socket.id).emit("choose_action_button_update", Env.player2.button)
+		}
 		player_list[socket.id] = socket.id;
 		if(player1HasBeenChoosen && player2HasBeenChoosen){
 
 			//把沒選角的剔掉=====
-			for(var sockedId in connected_list){
-				if(!(sockedId in player_list)){
-					io.to(sockedId).emit("gameover");//觀戰or其他處理(暫定gameover)
+			for(var socketId in connected_list){
+				if(!(socketId in player_list)){
+					io.to(socketId).emit("gameover");//觀戰or其他處理(暫定gameover)
 				}
 			}
 			//====================

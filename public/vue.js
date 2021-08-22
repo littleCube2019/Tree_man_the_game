@@ -265,6 +265,16 @@ var choose_basic = new Vue({
         $("#factory").show();
       }
 
+      if(event.target.getAttribute("id")=="skip"){
+        class skip {
+          constructor(){
+            this.type ='skip';
+          }
+        }
+        action = new skip();
+        var msg="你覺得養精蓄銳比較重要，於是這半天休息";
+        socket.emit("action_done" , PLAYER_ID , action, msg);
+      }
 
     $("#go-back").show();
   } ,
@@ -697,6 +707,30 @@ var Resource = new Vue({
   }
 
 })
+
+
+//顯示城中狀態
+var status_tab = new Vue({
+  el : "#status_tab",
+  data:{
+
+  },
+  methods:{
+     Check:function(){
+       res = [];
+       if( Env.moriality < 1){
+          res.push("缺乏食物");
+       }
+       else{
+          res.push("正常");
+       }
+       return res;
+     }
+  }
+
+})
+
+
 
 
 // 顯示報告書

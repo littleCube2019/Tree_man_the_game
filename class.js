@@ -168,14 +168,12 @@ exports.Environment = class {
     }
 
     enemyCollectionUpdate(enemy_type, eliminate){
-        console.log(enemy_type + eliminate)
         if(this.enemy_collection[enemy_type].description=="尚未發現此樹人"){
             this.enemy_collection[enemy_type] = {"description":enemy_data[enemy_type].description, "eliminate":0}
         }
         if(eliminate!=0){
             this.enemy_collection[enemy_type].eliminate += eliminate
         }
-        //console.log(this.enemy_collection)
     }
 
     updateToClient(){
@@ -328,7 +326,7 @@ exports.Environment = class {
 
 
     explorePrepare(food){
-        console.log("food"+food)
+        //console.log("food"+food)
         this.explorer_data.is_explore = true
 
         this.explorer_data.resource.food = food
@@ -414,7 +412,7 @@ exports.Environment = class {
         else{
             report.msg = "甚麼都沒有發現..."
         }
-        console.log(report)
+        //console.log(report)
         return report
     }
 
@@ -445,7 +443,7 @@ exports.Environment = class {
             this.resource[r] -= army_data[army_type][level]["cost"][r];
         }
         this.troops_state[army_type]["amount"] += 1;
-        console.log("招募了一對" + army_type)
+        //console.log("招募了一對" + army_type)
     }
 
     deployArmy(direction, army, army_type, army_data){
@@ -564,7 +562,7 @@ exports.Environment = class {
             research_report.progress = this.RD_list[type][dir][sub_type]["progress"]
             research_report.msg = "你研發了" + this.RD_list[type][dir][sub_type].data.name + ": 進度"+research_report.progress+"/"+difficulty
         }
-        console.log(this.RD_list)
+        //console.log(this.RD_list)
         return research_report
     }
 
@@ -675,7 +673,7 @@ class road{
                 break
             }
         }
-        console.log(this.army_location)
+        //console.log(this.army_location)
     }
 
     armyRetreat(){
@@ -684,7 +682,7 @@ class road{
                 this.army_location[i][j].retreat = true;
             }
         }
-        console.log( this.direction + "方向的部隊開始撤退")
+        //console.log( this.direction + "方向的部隊開始撤退")
     }
 
     enemyMove(){

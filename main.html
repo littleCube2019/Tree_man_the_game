@@ -415,7 +415,7 @@
 
 				wall_status.update(env.roads);
 				
-				
+				status_tab.update(env.morale);
 				Resource.update(env.resource);
 				
 				troop_status.update(env.troops_state , env.roads);
@@ -436,7 +436,7 @@
 				
 				if(report.length>0){
 					$("#combat_report").empty();
-					$("#combat_report").append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-bar-chart-line\" viewBox=\"0 0 16 16\">\
+					$("#combat_report").append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-bar-chart-line no_event_svg\" viewBox=\"0 0 16 16\">\
 								<path d=\"M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2z\"/>\
 					</svg>")
 				}
@@ -463,7 +463,7 @@
 				//{"research_type":research_type, "direction":dir, "done":false, "progress":this.RD[research_type][dir]["progress"], "total":difficulty, "msg":"", "level":this.RD[research_type][dir]["level"]}
 				
 				$("#research_report").empty();
-				$("#research_report").append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-bar-chart-line\" viewBox=\"0 0 16 16\">\
+				$("#research_report").append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-bar-chart-line no_event_svg\" viewBox=\"0 0 16 16\">\
 								<path d=\"M8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z\"/>\
 					</svg>")
 				researchReportOneline(report.msg);
@@ -866,9 +866,12 @@
 						</div>
 				</div>
 				
-				<div id="status_tab" > 城中情況  <br>
-					<span v-for="for tab in check()"   class="good-state">{{tab}}</span>
+				<div id="status_tab">
+					<span v-for="tab in tabs"   :class="tab[1]">{{tab[0]}}</span>
+
 				</div>
+				
+				
 
 			   </div>
 			   <br>
@@ -1185,6 +1188,13 @@
 
 			<div class= "detail_choose" id="factory">
 				
+				<div class="form-group">
+					  <label for="exampleInputEmail1">放入多少木頭以換取樹指</label>
+					  <input id="resin_wood" class="form-control"  placeholder="Enter num of wood">
+					  <small  class="form-text text-muted">樹脂擁有強大的力量，要細心製造</small>
+					</div>
+				<button  class="btn btn-primary" v-on:click="Click()">送出</button>
+			
 			
 			</div>
 

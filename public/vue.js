@@ -2,6 +2,9 @@
 /*
 Note : 可以使用Global variable、socket 等等主檔的變數 (限function , Data 不行)
 */
+
+
+
 // 主畫面
 var main =  new Vue({
   el: '#Main',
@@ -297,14 +300,38 @@ var factory = new Vue({
   el: '#factory' ,
   data: {
     factories : {
-      resin: "resin"
+      resin: {name:"resin"},
 
-    }
+    },
 
 
   },
-  methods:{
+  methods:{ //factory_replenishment
+     Click:function(){
+        var rw = document.getElementById("resin_wood").value;
+        alert(rw);
+        if(rw > Env.resource["wood"]){
+          Alert(text="木頭不足!", title="通知");
+        }   
+        else{
+          
+          class factory{
+              constructor(){
+                this.type = "factory_replenishment";
+                this.factory_type = "resin";
+                this.replenishment = {
+                    "wood": rw
+                }
+              }
+          }
+          
+          action = new factory();
+          var msg="你重新分配了工廠製造比例";
+          socket.emit("action_done" , PLAYER_ID , action, msg);
 
+
+        }
+     }
 
 
   },
@@ -713,18 +740,20 @@ var Resource = new Vue({
 var status_tab = new Vue({
   el : "#status_tab",
   data:{
-
+   tabs : []
   },
   methods:{
-     Check:function(){
+     update:function(morale){
        res = [];
-       if( Env.moriality < 1){
-          res.push("缺乏食物");
+       if( morale < 1){
+          res.push(["缺乏食物","bad-state"]);
        }
        else{
-          res.push("正常");
+          res.push(["正常","good-state"]);
        }
-       return res;
+       console.log(this.tabs)
+       this.tabs = res;
+      
      }
   }
 

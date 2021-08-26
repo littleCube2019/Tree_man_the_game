@@ -47,7 +47,7 @@ exports.Environment = class {
         }
         
         this.round = 1 ; 
-        this.resource = {"wood":5000, "resin":0, "food":100000} ;
+        this.resource = {"wood":5000, "resin":0, "food":100} ;
         this.resource_gain = {"wood":500, "resin":0, "food":0} //回合結束可獲得的資源
 
         this.factory_resource = {

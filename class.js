@@ -200,7 +200,6 @@ exports.Environment = class {
     }
 
     gainResource(){
-        var msg = ""
         //每日自動獲得資源
         for(var r in this.resource_gain){
             this.resource[r] += this.resource_gain[r]
@@ -560,7 +559,7 @@ exports.Environment = class {
         }
         else{
             research_report.progress = this.RD_list[type][dir][sub_type]["progress"]
-            research_report.msg = "你研發了" + this.RD_list[type][dir][sub_type].data.name + ": 進度"+research_report.progress+"/"+difficulty
+            research_report.msg = "研發了" + this.RD_list[type][dir][sub_type].data.name + ": 進度"+research_report.progress+"/"+difficulty
         }
         //console.log(this.RD_list)
         return research_report

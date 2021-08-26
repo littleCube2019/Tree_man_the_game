@@ -221,7 +221,7 @@ io.on('connection', (socket) => {
 	}
 	else{
 		socket.emit("gameover")//觀戰or其他處理(暫定gameover)
-		console.log("人滿囉")
+		console.log("玩家已滿")
 	}
 
 	// 選角  =============================================

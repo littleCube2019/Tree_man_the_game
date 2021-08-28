@@ -2,7 +2,7 @@ exports.explore_mercenary = {
     "normal":{
         "hp":1000,
         "attack":100,
-        "daily_cost":10,
+        "daily_cost":100,
     },
 }
 

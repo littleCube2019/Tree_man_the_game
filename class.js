@@ -824,7 +824,7 @@ class road{
                         }
                     }
                     else{
-                        hp_msg += "<br>先鋒部隊全數被消滅"
+                        hp_msg += "<br>先鋒部隊全數被消滅<br>"
                         break
                     }
                 }

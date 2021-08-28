@@ -746,7 +746,7 @@ var status_tab = new Vue({
      update:function(morale){
        res = [];
        if( morale < 1){
-          res.push(["缺乏食物","bad-state"]);
+          res.push(["士氣低迷","bad-state"]);
        }
        else{
           res.push(["沒有異常","good-state"]);

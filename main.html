@@ -597,20 +597,16 @@
 						var food = parseInt(document.getElementById("food_selection_out").value) * 100;
 						
 
-						// I should warp theses in a funciton :(
-						$("#move_left").text(env.explorer_data.move_left);
-						$("#remaining_food").text(env.explorer_data.resource.food);
-						$("#gain_wood").text(env.explorer_data.resource.wood);
-						$("#out_troop_hp").text(env.explorer_data.troop.hp);
-						$("#out_troop_atk").text(env.explorer_data.troop.attack);
-						$("#out_troop_cost").text(env.explorer_data.troop.daily_cost);
+					
 							
 					
 							
 							
-						
+						console.log(food);
 							
 						socket.emit("explore_prepare" , food );
+
+						
 
 					})
 				})

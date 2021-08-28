@@ -48,7 +48,7 @@ exports.Environment = class {
         
         this.round = 1 ; 
         this.resource = {"wood":5000, "resin":0, "food":100} ;
-        this.resource_gain = {"wood":500, "resin":0, "food":0} //回合結束可獲得的資源
+        this.resource_gain = {"wood":500, "resin":0, "food":200} //回合結束可獲得的資源
 
         this.factory_resource = {
             "resin":{"valid":false, "factory":new factory()}
@@ -228,7 +228,7 @@ exports.Environment = class {
         }
         
         //console.log(this.explorer_data)
-        //console.log(this.resource)
+        console.log(this.resource)
     }
 
     isOutOfFood(){
@@ -331,7 +331,7 @@ exports.Environment = class {
         this.explorer_data.resource.food = food
         this.resource.food -= food
         
-        this.resource.food -= this.explore_lead * explore_mercenary.normal.cost
+        //this.resource.food -= this.explore_lead * explore_mercenary.normal.cost
         this.explorer_data.troop.hp = this.explore_lead * explore_mercenary.normal.hp
         this.explorer_data.troop.attack = this.explore_lead * explore_mercenary.normal.attack
         this.explorer_data.troop.daily_cost = this.explore_lead * explore_mercenary.normal.daily_cost

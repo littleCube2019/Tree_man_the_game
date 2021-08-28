@@ -749,7 +749,7 @@ var status_tab = new Vue({
           res.push(["缺乏食物","bad-state"]);
        }
        else{
-          res.push(["正常","good-state"]);
+          res.push(["沒有異常","good-state"]);
        }
        console.log(this.tabs)
        this.tabs = res;

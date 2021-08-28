@@ -1,6 +1,5 @@
 exports.explore_mercenary = {
     "normal":{
-        "cost":100,
         "hp":1000,
         "attack":100,
         "daily_cost":10,
@@ -25,7 +24,7 @@ exports.exlore_event = {
 
     "village":{
         "wood":{
-            "enemy":{"hp":1000, "attack":100},
+            "enemy":{"hp":500, "attack":100},
             reward(resource_gain){
                 resource_gain["wood"] += 500
             },

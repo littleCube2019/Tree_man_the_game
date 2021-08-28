@@ -250,6 +250,11 @@
 				//console.log(env.roads)
 				$("#round").text(env.round);
 				$("#move_left").text(env.explorer_data.move_left);
+				$("#remaining_food").text(env.explorer_data.resource.food);
+				$("#gain_wood").text(env.explorer_data.resource.wood);
+				$("#out_troop_hp").text(env.explorer_data.troop.hp);
+				$("#out_troop_atk").text(env.explorer_data.troop.attack);
+				$("#out_troop_cost").text(env.explorer_data.troop.daily_cost);
 
 				wall_status.update(env.roads);
 				research.update_all(research_log,research_level);
@@ -411,8 +416,8 @@
 				
 				// 基本數值更新區
 				$("#round").text(env.round);
-				$("#move_left").text(env.explorer_data.move_left);
-
+				
+				
 				wall_status.update(env.roads);
 				
 				status_tab.update(env.morale);
@@ -499,7 +504,14 @@
 				var x = report["explorer_data"].x;
 				var y = report["explorer_data"].y;
 				
+				$("#move_left").text(report.explorer_data.move_left);
 
+	
+				$("#remaining_food").text(report.explorer_data.resource.food);
+				$("#gain_wood").text(report.explorer_data.resource.wood);
+				$("#out_troop_hp").text(report.explorer_data.troop.hp);
+				$("#out_troop_atk").text(report.explorer_data.troop.attack);
+				$("#out_troop_cost").text(report.explorer_data.troop.daily_cost);
 				/*
 				if(report.resource != ''){
 					var table = {
@@ -583,9 +595,16 @@
 						
 						//event
 						var food = parseInt(document.getElementById("food_selection_out").value) * 100;
-					
-
 						
+
+						// I should warp theses in a funciton :(
+						$("#move_left").text(env.explorer_data.move_left);
+						$("#remaining_food").text(env.explorer_data.resource.food);
+						$("#gain_wood").text(env.explorer_data.resource.wood);
+						$("#out_troop_hp").text(env.explorer_data.troop.hp);
+						$("#out_troop_atk").text(env.explorer_data.troop.attack);
+						$("#out_troop_cost").text(env.explorer_data.troop.daily_cost);
+							
 					
 							
 							
@@ -985,7 +1004,14 @@
 		</div>
 
 		<div >
-			移動剩餘次數 <span id="move_left"> </span>
+			<div>移動剩餘次數: <span id="move_left"> </span></div>
+			<div>剩餘食物: <span id="remaining_food"></span></div>
+				<div>獲得木頭: <span id="gain_wood"> </span></div>
+
+			軍隊資訊
+			<div>HP:<span id="out_troop_hp"> </span></div>
+			<div>ATK:<span id="out_troop_atk"> </span></div>
+			<div>每日消耗食物:<span id="out_troop_cost"> </span></div>
 		</div>
 
 		<div id="outside_item">已發現道具

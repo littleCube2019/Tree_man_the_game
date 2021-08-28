@@ -228,7 +228,7 @@ exports.Environment = class {
         }
         
         //console.log(this.explorer_data)
-        console.log(this.resource)
+        //console.log(this.resource)
     }
 
     isOutOfFood(){
@@ -325,7 +325,7 @@ exports.Environment = class {
 
 
     explorePrepare(food){
-        //console.log("food"+food)
+        console.log("food"+food)
         this.explorer_data.is_explore = true
 
         this.explorer_data.resource.food = food

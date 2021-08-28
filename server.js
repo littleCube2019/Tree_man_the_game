@@ -310,6 +310,8 @@ io.on('connection', (socket) => {
 
 	socket.on("explore_prepare",(food)=>{
 		Env.explorePrepare(food)
+		var explore_report = Env.explore("")
+		io.emit("explore_report", explore_report)
 	})
 
 	socket.on("explore", (direction)=>{

@@ -1,6 +1,6 @@
 
 /*
-Note : 可以使用Global variable、socket 等等主檔的變數 (限function , Data 不行)
+Note : 可以使用Global vaiable、socket 等等主檔的變數 (限function , Data 不行)
 */
 
 
@@ -135,11 +135,13 @@ var troop_status = new Vue({
           }
 
       }
-
+      console.log(this.army_location);
       if(roads){
-        
-        //this.army_location = roads.troop_location;
-        
+        for(var d in roads){
+          
+            this.army_location[d] = roads[d].troop_location;
+          
+        }
       }
       
     },
@@ -152,7 +154,7 @@ var troop_status = new Vue({
         return "[門]"
       }
       
-      if(this.army_location[dir][n] == 0){
+      if(this.army_location[dir][n] == 0 || this.army_location[dir][n] == null ){
         return "[ ]";
       }
       else if(this.army_location[dir][n] == 1){
@@ -164,6 +166,7 @@ var troop_status = new Vue({
       else if(this.army_location[dir][n] == 3){
         return "[X]";
       }
+   
     }
 
 

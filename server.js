@@ -166,6 +166,7 @@ function roundCheck(){
 	Env.enemySpawn(enemy, enemy_data)
 	Env.armyMove()
 	Env.enemyMove()
+	Env.updateTroopLocation()
 	var reports = Env.combat(defender_data)
 
 	io.emit("combat_report", reports);

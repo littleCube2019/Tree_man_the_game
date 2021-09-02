@@ -16,8 +16,9 @@ exports.army_data = {
             "attack_range" : 0,
             "mobility" : 1,
             "retreat" : false,
-        },
 
+            "description":"",
+        },
         {
             "type" : "armor",
             "cost" : {"wood":500},
@@ -27,6 +28,8 @@ exports.army_data = {
             "attack_range" : 0,
             "mobility" : 1,
             "retreat" : false,
+
+            "description":"",
         },
     ],
 
@@ -43,6 +46,20 @@ exports.army_data = {
             "attack_range" : 0,
             "mobility" : 3,
             "retreat" : false,
+
+            "description":"",
+        },
+        {
+            "type" : "ranger",
+            "cost" : {"wood":2000},
+            "daily_cost":{"food":100},
+            "hp" : 600,
+            "attack" : 400,
+            "attack_range" : 0,
+            "mobility" : 3,
+            "retreat" : false,
+
+            "description":"",
         },
 
     ],
@@ -59,7 +76,22 @@ exports.army_data = {
             "attack_range" : 3,
             "mobility" : 1,
             "retreat" : false,
+
+            "description":"",
         },
+        {
+            "type" : "archer",
+            "cost" : {"wood":1000},
+            "daily_cost":{"food":100},
+            "hp" : 250,
+            "attack" : 200,
+            "attack_range" : 3,
+            "mobility" : 1,
+            "retreat" : false,
+
+            "description":"",
+        },
+
 
     ],
 
@@ -76,6 +108,8 @@ exports.army_data = {
             "attack_range" : 3,
             "mobility" : 1,
             "retreat" : false,
+
+            "description":"",
         },
 
     ],

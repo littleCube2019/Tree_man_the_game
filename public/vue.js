@@ -113,10 +113,10 @@ var troop_status = new Vue({
 
     max_road:10,
     army_location : {
-      "E":[[],[],[],[],[],[],[],[],[],[]],
-      "S":[[],[],[],[],[],[],[],[],[],[]],
-      "W":[[],[],[],[],[],[],[],[],[],[]],
-      "N":[[],[],[],[],[],[],[],[],[],[]],
+      "E":[0,0,0,0,0,0,0,0,0,0],
+      "S":[0,0,0,0,0,0,0,0,0,0],
+      "W":[0,0,0,0,0,0,0,0,0,0],
+      "N":[0,0,0,0,0,0,0,0,0,0],
     }
   },
 
@@ -137,9 +137,9 @@ var troop_status = new Vue({
       }
 
       if(roads){
-        for(var d in this.army_location){
-          this.army_location[d] = roads[d].army_location;
-        }
+        
+        //this.army_location = roads.troop_location;
+        
       }
       
     },
@@ -152,11 +152,17 @@ var troop_status = new Vue({
         return "[門]"
       }
       
-      if(this.army_location[dir][n].length == 0){
+      if(this.army_location[dir][n] == 0){
         return "[ ]";
       }
-      else{
+      else if(this.army_location[dir][n] == 1){
         return "[*]";
+      }
+      else if(this.army_location[dir][n] == 2){
+        return "[e]";
+      }
+      else if(this.army_location[dir][n] == 3){
+        return "[X]";
       }
     }
 
@@ -361,9 +367,9 @@ var recruit_troop = new Vue({
     },
     
     state:{
-      "archer":{"hp":1 ,"attack":2 , "cost":1000, "mobility":4 ,"range":5 },
-      "armor":{"hp":1 ,"attack":2 , "cost":500 , "mobility":4 ,"range":5 },
-      "ranger":{"hp":1 ,"attack":555 , "cost":2000 , "mobility":4 ,"range":5 },
+      "archer":{"hp":1 ,"attack":2 , "cost":1000, "mobility":4 ,"range":5 ,"daily_cost":0 },
+      "armor":{"hp":1 ,"attack":2 , "cost":500 , "mobility":4 ,"range":5 ,"daily_cost":0},
+      "ranger":{"hp":1 ,"attack":555 , "cost":2000 , "mobility":4 ,"range":5, daily_cost:0},
 
     },
    
@@ -412,6 +418,7 @@ var recruit_troop = new Vue({
      
      for(var i =0 ;i < troop.length ; i++){
        this.state[troop[i]["type"]]= troop[i];
+       console.log(troop[i]);
        $("#"+troop[i]["type"]).attr('data-original-title',this.description(this.troops[troop[i]["type"]][0]));
      }
      
@@ -420,17 +427,17 @@ var recruit_troop = new Vue({
 
   description: function(n){
     if(n==0){
-      return "需要: "+this.state["archer"]["cost"]["wood"]+"木頭 <br> 射程:"+this.state["archer"]["attack_range"]+"公里 <br> 每隊攻擊力:"+this.state["archer"]["attack"]+"<br> 移動能力:日行"+this.state["archer"]["mobility"]+"公里<br>承受傷害能力:"+this.state["archer"]["hp"]+"<br> 敘述:由平民組成的弓箭隊，準度不佳，\
+      return "需要: "+this.state["archer"]["cost"]["wood"]+"木頭 <br> 每日消耗: "+this.state["archer"]["daily_cost"]["food"]+"食物<br> 射程:"+this.state["archer"]["attack_range"]+"公里 <br> 每隊攻擊力:"+this.state["archer"]["attack"]+"<br> 移動能力:日行"+this.state["archer"]["mobility"]+"公里<br>承受傷害能力:"+this.state["archer"]["hp"]+"<br> 敘述:由平民組成的弓箭隊，準度不佳，\
       但至少會拉弓，木頭大部分用於製作木箭"
     }
 
     else if(n==1){
-      return "需要: "+this.state["armor"]["cost"]["wood"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["armor"]["attack"]+" <br> 移動能力:日行"+this.state["armor"]["mobility"]+"公里<br> 承受傷害能力:"+this.state["armor"]["hp"]+" <br> 敘述:由平民組成的步兵隊\
+      return "需要: "+this.state["armor"]["cost"]["wood"]+"木頭 <br> 每日消耗: "+this.state["armor"]["daily_cost"]["food"]+"食物<br> 射程:近戰 <br> 每隊攻擊力:"+this.state["armor"]["attack"]+" <br> 移動能力:日行"+this.state["armor"]["mobility"]+"公里<br> 承受傷害能力:"+this.state["armor"]["hp"]+" <br> 敘述:由平民組成的步兵隊\
       ，拿著草叉、斧頭...工具就出征了，你不相信他們能擊殺敵人，但相信他們能拖延敵人，木頭幾乎用在製作木製鎧甲"
       }
     
     else if(n==2){
-      return "需要: "+this.state["ranger"]["cost"]["wood"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["ranger"]["attack"]+" <br> 移動能力:日行"+this.state["ranger"]["mobility"]+"公里\
+      return "需要: "+this.state["ranger"]["cost"]["wood"]+"木頭 <br> 每日消耗: "+this.state["ranger"]["daily_cost"]["food"]+"食物<br> 射程:近戰 <br> 每隊攻擊力:"+this.state["ranger"]["attack"]+" <br> 移動能力:日行"+this.state["ranger"]["mobility"]+"公里\
       <br> 承受傷害能力:"+this.state["ranger"]["hp"]+" <br> 敘述:前帝國軍隊士兵組成，至少有基本的戰鬥技巧與騎術，還有之前留下的鏽跡斑斑的武器"
 
     }

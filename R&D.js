@@ -78,7 +78,7 @@ exports.RD = {
         "armor":[
             {
                 "name":"厚木裝甲",
-                "cost" : {"food":500},
+                "cost" : {"wood":500},
                 "difficulty" : 5,
                 "max_research_speed" : 3,
 
@@ -86,6 +86,58 @@ exports.RD = {
 
                 research_done(Env, dir){
                     Env.troops_state["armor"]["level"] = 1;
+                    var next_level = -1
+                    return next_level
+                }
+            }
+        ],
+
+        "archer":[
+            {
+                "name":"反曲弓",
+                "cost" : {"wood":500},
+                "difficulty" : 5,
+                "max_research_speed" : 3,
+
+                "description":"弓箭手攻擊力增加100<br>研究難度:5點<br>花費500木頭可隨機升級1-3點",
+
+                research_done(Env, dir){
+                    Env.troops_state["archer"]["level"] = 1;
+                    var next_level = -1
+                    return next_level
+                }
+            }
+        ],
+
+        "ranger":[
+            {
+                "name":"木製馬鎧",
+                "cost" : {"wood":500},
+                "difficulty" : 5,
+                "max_research_speed" : 3,
+
+                "description":"騎兵血量增加100攻擊增加100<br>研究難度:5點<br>花費500木頭可隨機升級1-3點",
+
+                research_done(Env, dir){
+                    Env.troops_state["ranger"]["level"] = 1;
+                    var next_level = -1
+                    return next_level
+                }
+            }
+        ],
+
+        "wizard":[
+            {
+                "name":"魔法學校",
+                "cost" : {"resin":300},
+                "difficulty" : 5,
+                "max_research_speed" : 3,
+
+                "description":"可以招募法師<br>研究難度:5點<br>花費300樹脂可隨機升級1-3點",
+
+                research_done(Env, dir){
+                    Env.troops_state["wizard"]["valid"] = true;
+                    Env.troops_state["armor"]["level"] = 0;
                     var next_level = -1
                     return next_level
                 }
@@ -107,6 +159,26 @@ exports.RD = {
                 research_done(Env, dir){
                     Env.factory_resource["resin"].factory.upgrade(Env.resource, resin_factory[0])
                     Env.factory_resource["resin"].valid = true
+                    var next_level = -1
+                    Env.player2.button["choose_factory"] = "工廠"
+                    
+                    return next_level
+                }
+            }
+        ],
+
+        "coal":[
+            {
+                "name":"煤窯",
+                "cost" : {"wood":500},
+                "difficulty" : 5,
+                "max_research_speed" : 3,
+
+                "description":"興建煤窯，可以將木頭燒成煤碳<br>研究難度:10點<br>花費1000木頭可隨機升級1-3點",
+
+                research_done(Env, dir){
+                    Env.factory_resource["coal"].factory.upgrade(Env.resource, resin_factory[0])
+                    Env.factory_resource["coal"].valid = true
                     var next_level = -1
                     Env.player2.button["choose_factory"] = "工廠"
                     

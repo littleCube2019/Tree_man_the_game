@@ -14,9 +14,13 @@ exports.exlore_event = {
             },
             "msg":"路過一處遍布樹枝的區域，獲得了100木頭"
         },
+        
+    },
+
+    "item":{
         "shoe":{
-            reward(explorer_data){
-                explorer_data.mobility += 2
+            reward(Env){
+                Env.explorer_mobility += 2
             },
             "msg":"發現傳說中皇叔親手編製的草鞋，每日移動上限增加為5"
         },

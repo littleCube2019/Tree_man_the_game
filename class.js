@@ -47,11 +47,13 @@ exports.Environment = class {
         }
         
         this.round = 1 ; 
-        this.resource = {"wood":5000, "resin":0, "food":100} ;
+        this.resource = {"wood":5000, "resin":0, "food":100, "coal":0} ;
         this.resource_gain = {"wood":500, "resin":0, "food":200} //回合結束可獲得的資源
+        this.resource_daily_cost = {"food":0}
 
         this.factory_resource = {
-            "resin":{"valid":false, "factory":new factory()}
+            "resin":{"valid":false, "factory":new factory()},
+            "coal":{"valid":false, "factory":new factory()}
         }
 
         //==探索地圖=============================
@@ -62,14 +64,15 @@ exports.Environment = class {
             this.map[i] = new Array(this.map_y)
         }
 
-        this.explorer_data = {}
+        this.explorer_mobility = 3
         this.explore_lead = 1
         this.explorerInit()
 
         this.resource_point = {"wood":3,"shoe":1}
 
         this.explore_event = {
-            "resource":{"stick":10,"shoe":1},
+            "resource":{"stick":10},
+            "item":{"shoe":1},
             "village":{"wood":10},
         }
         
@@ -122,12 +125,16 @@ exports.Environment = class {
             "army_upgrade":{
                 "all":{
                     "armor":{"level":0, "progress":0, "data":{}},
+                    "archer":{"level":0, "progress":0, "data":{}},
+                    "ranger":{"level":0, "progress":0, "data":{}},
+                    "wizard":{"level":0, "progress":0, "data":{}},
                 }
             },
 
             "factory":{
                 "all":{
                     "resin":{"level":0, "progress":0, "data":{}},
+                    "coal":{"level":0, "progress":0, "data":{}},
                 }
             },
 
@@ -150,6 +157,7 @@ exports.Environment = class {
         //============================================
 
         //圖鑑========================================
+        this.scout_distance = 5
         this.enemy_collection = {}
         this.enemyCollectionInit()
         //============================================
@@ -161,6 +169,8 @@ exports.Environment = class {
             "tree_man":"普通樹人", "big_tree_man":"大型樹人", "stick_man":"樹枝噴吐者",
         }
     }
+    //=====================================================================================================
+
     enemyCollectionInit(){
         for(var type in enemy_data){
             this.enemy_collection[type] = {"description":"尚未發現此樹人", "eliminate":""}
@@ -215,11 +225,18 @@ exports.Environment = class {
             }
         }
         //每日糧食消耗
+
+        for(var type in this.resource_daily_cost){
+            this.resource_daily_cost[type] = 0
+        }
         for(var type in this.troops_state){
             var level = this.troops_state[type].level
             for(var r in army_data[type][level].daily_cost){
-                this.resource[r] = Math.max(this.resource[r]-army_data[type][level].daily_cost[r]*this.troops_state[type].amount, 0)
+                this.resource_daily_cost[r] += army_data[type][level].daily_cost[r]*this.troops_state[type].amount
             }
+        }
+        for(var r in this.resource_daily_cost){
+            this.resource[r] = Math.max(this.resource[r]-this.resource_daily_cost[r], 0)
         }
 
         //探索部隊消耗
@@ -228,7 +245,7 @@ exports.Environment = class {
         }
         
         //console.log(this.explorer_data)
-        //console.log(this.resource)
+        console.log(this.resource)
     }
 
     isOutOfFood(){
@@ -276,8 +293,8 @@ exports.Environment = class {
             "is_explore":false,
             "x":Math.floor(this.map_x/2), 
             "y":Math.floor(this.map_y/2),
-            "mobility":300,
-            "move_left":300,
+            "mobility":this.explorer_mobility,
+            "move_left":3,
             "move_available":{
                 "N":true,
                 "E":true,
@@ -386,6 +403,11 @@ exports.Environment = class {
                     report.msg = explore_event[type][sub_type].msg
                     this.map[x][y].found = true
                 }
+                if(type=="item"){
+                    explore_event[type][sub_type].reward(this)
+                    report.msg = explore_event[type][sub_type].msg
+                    this.map[x][y].found = true
+                }
                 if(type=="village"){
                     var enemy_hp = explore_event[type][sub_type].enemy.hp
                     var enemy_attack = explore_event[type][sub_type].enemy.attack
@@ -393,6 +415,7 @@ exports.Environment = class {
                     var attack = this.explorer_data.troop.attack
                     if(hp/enemy_attack>attack/enemy_hp){
                         explore_event[type][sub_type].reward(this.resource_gain)
+                        this.explorer_data.troop.hp -= (attack/enemy_hp) * enemy_attack
                         report.msg = explore_event[type][sub_type].msg
                         this.map[x][y].found = true
                     }
@@ -483,10 +506,11 @@ exports.Environment = class {
         var msg = ""
         var distance = this.roads[direction].nearest_enemy
         
-        if(distance!=-1){
+        if(distance!=-1 && distance<=this.scout_distance){
             var enemy_type = this.roads[direction].enemy_location[distance][0].type
             this.enemyCollectionUpdate(enemy_type, 0)
-            if(distance>=5){
+            if(distance<=this.scout_distance){
+                this.roads[direction].troop_location[distance] = 2
                 msg += "隱隱約約看見一隻"
             }
             else{
@@ -592,6 +616,12 @@ exports.Environment = class {
         return report
     }
 
+    updateTroopLocation(){
+        for(var i in this.roads){
+            this.roads[i].updateTroopLocation()
+        }
+    }
+
 
     isGameover(){
         return(this.roads["E"].wallhp<=0 || this.roads["W"].wallhp<=0 || this.roads["N"].wallhp<=0 || this.roads["S"].wallhp<=0)
@@ -610,13 +640,16 @@ class road{
         }
         this.max_distance = 10;
         this.nearest_enemy = -1;
-        this.farest_army = -1; 
+        this.farest_army = -1;
+        this.basic_scout_distance = 3
+        this.action_scout_distance = 5 
         this.army_location = [];  //二維陣列，紀錄各位置上有多少部隊or敵人
         this.enemy_location = [];
         for(var i=0; i<this.max_distance; i++){
             this.army_location[i] = [];
             this.enemy_location[i] = [];
         }
+        this.troop_location = new Array(10)
     }
 
     /*
@@ -635,7 +668,8 @@ class road{
                 if(!this.army_location[i][j].retreat){
                     var move_to = Math.min(i + this.army_location[i][j].mobility, this.max_distance-1); 
                     if(this.nearest_enemy!=-1){
-                        move_to = Math.max(move_to, this.nearest_enemy-this.army_location[i][j].attack_range, 0)
+                        move_to = Math.min(move_to, this.nearest_enemy-this.army_location[i][j].attack_range)
+                        move_to = Math.max(move_to, 0)
                     }
                     if(move_to!=i){
                         this.army_location[move_to].push(this.army_location[i][j]);
@@ -690,7 +724,8 @@ class road{
                 for(var j=0; j<this.enemy_location[i].length;){
                     var move_to = Math.max(0, i-this.enemy_location[i][j].mobility); 
                     if(this.farest_army!=-1){
-                        move_to = Math.min(move_to, this.max_distance-1, this.farest_army + this.enemy_location[i][j].attack_range)
+                        move_to = Math.max(move_to, this.farest_army + this.enemy_location[i][j].attack_range)
+                        move_to = Math.min(move_to, this.max_distance-1)
                     }
                     if(move_to!=i){
                     this.enemy_location[move_to].push(this.enemy_location[i][j]); 
@@ -725,7 +760,11 @@ class road{
             var max_prob = enemy_data[enemy_type]["spawn_prob_data"]["max"]*100
             var minimum_day = enemy_data[enemy_type]["spawn_prob_data"]["minimum_day"]
             var spawn_rate = Math.min(max_prob, init + increase_rate + increase_rate*day)
+<<<<<<< HEAD
             if(day>=minimum_day && spawn<=spawn_rate){
+=======
+            if(day>=minimum_day && spawn_rate>=spawn){
+>>>>>>> a38958f99494257a034950c1ac9d39542024dd7a
                 this.enemy_location[this.max_distance-1].push(new enemy(enemy_data[enemy_type]));
             }
         }  
@@ -775,9 +814,11 @@ class road{
                 var enemy_type = this.enemy_location[i][j].type
                 if(farest_army==-1 && i - this.enemy_location[i][j].attack_range <= 0){ //no army
                     enemy_attack[enemy_type] += this.enemy_location[i][j].attack;
+                    this.troop_location[i] = 2
                 }
                 else if(farest_army!=-1 && i - this.enemy_location[i][j].attack_range <= farest_army){
                     enemy_attack[enemy_type] += this.enemy_location[i][j].attack;
+                    this.troop_location[i] = 2
                 }
             }
         }
@@ -806,6 +847,7 @@ class road{
                 }
                 else{
                     wall_msg = "距城門"+farest_army+"公里處發生戰爭<br>"
+                    this.troop_location[farest_army] = 3
                 }
                 var enemy_damage_remain = enemy_total_damage
                 while(enemy_damage_remain>0){
@@ -916,6 +958,20 @@ class road{
         return(msg)
     }
 
+    updateTroopLocation(){
+        for(var i=0; i<this.troop_location.length; i++){
+            this.troop_location[i] = 0
+            if(this.army_location[i].length!=0){
+                this.troop_location[i] = 1
+            }
+        }
+        for(var i=0; i<this.basic_scout_distance; i++){
+            if(this.enemy_location[i].length!=0){
+                this.troop_location[i] = 2
+            }
+        }
+        console.log(this.troop_location)
+    }
 }
 
 

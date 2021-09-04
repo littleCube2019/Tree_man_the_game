@@ -28,11 +28,8 @@ app.use(express.static('public'));
 var explore_event = require("./explore").exlore_event
 var explore_mercenary = require("./explore").explore_mercenary
 var RD_data = require("./R&D").RD
-var army_data = require("./troop").army_data
-var defender_data = require("./troop").defender_data
-var enemy_data = require("./troop").enemy_data
 var action_button = require("./button").action_button
-exports.Environment = class {
+exports.Environment = class{
     //環境變數
     constructor(){
         //玩家=======================
@@ -47,7 +44,7 @@ exports.Environment = class {
         }
         
         this.round = 1 ; 
-        this.resource = {"wood":5000, "resin":0, "food":100, "coal":0} ;
+        this.resource = {"wood":5000, "resin":0, "food":500, "coal":0} ;
         this.resource_gain = {"wood":500, "resin":0, "food":200} //回合結束可獲得的資源
         this.resource_daily_cost = {"food":0}
 
@@ -75,6 +72,9 @@ exports.Environment = class {
             "item":{"shoe":1},
             "village":{"wood":10},
         }
+        this.boss_detected = false
+        this.boss_detected_day = 0
+        this.boss_direction = "unknown"
         
         this.createExploreEvent()
         //=======================================
@@ -92,6 +92,10 @@ exports.Environment = class {
 
             "wizard":{"valid":false, "level":0, "amount":0},
         }
+        this.army_data = require("./troop").army_data
+        this.defender_data = require("./troop").defender_data
+        this.enemy_data = require("./troop").enemy_data
+        this.boss_data = require("./troop").boss_data
 
         this.RD_title = { //{type:[name, isDir, show]}
             "wall":["城牆加固", true, true],
@@ -167,23 +171,25 @@ exports.Environment = class {
             "wood":"木頭", "shoe":"草鞋(皇叔編的那種)",
             "armor":"步兵", "archer":"弓箭手", "ranger":"騎兵", "wizard":"法師", "defence":"防禦部隊",
             "tree_man":"普通樹人", "big_tree_man":"大型樹人", "stick_man":"樹枝噴吐者",
+            "little_boss":"小樹人王", "final_boss":"終極樹人王",
         }
     }
     //=====================================================================================================
 
     enemyCollectionInit(){
-        for(var type in enemy_data){
+        for(var type in this.enemy_data){
+            this.enemy_collection[type] = {"description":"尚未發現此樹人", "eliminate":""}
+        }
+        for(var type in this.boss_data){
             this.enemy_collection[type] = {"description":"尚未發現此樹人", "eliminate":""}
         }
     }
 
     enemyCollectionUpdate(enemy_type, eliminate){
         if(this.enemy_collection[enemy_type].description=="尚未發現此樹人"){
-            this.enemy_collection[enemy_type] = {"description":enemy_data[enemy_type].description, "eliminate":0}
+            this.enemy_collection[enemy_type] = {"description":this.enemy_data[enemy_type].description, "eliminate":0}
         }
-        if(eliminate!=0){
-            this.enemy_collection[enemy_type].eliminate += eliminate
-        }
+        this.enemy_collection[enemy_type].eliminate += eliminate
     }
 
     updateToClient(){
@@ -231,8 +237,8 @@ exports.Environment = class {
         }
         for(var type in this.troops_state){
             var level = this.troops_state[type].level
-            for(var r in army_data[type][level].daily_cost){
-                this.resource_daily_cost[r] += army_data[type][level].daily_cost[r]*this.troops_state[type].amount
+            for(var r in this.army_data[type][level].daily_cost){
+                this.resource_daily_cost[r] += this.army_data[type][level].daily_cost[r]*this.troops_state[type].amount
             }
         }
         for(var r in this.resource_daily_cost){
@@ -294,7 +300,7 @@ exports.Environment = class {
             "x":Math.floor(this.map_x/2), 
             "y":Math.floor(this.map_y/2),
             "mobility":this.explorer_mobility,
-            "move_left":3,
+            "move_left":this.explorer_mobility,
             "move_available":{
                 "N":true,
                 "E":true,
@@ -318,6 +324,15 @@ exports.Environment = class {
             }
         }
         this.map[Math.floor(this.map_x/2)][Math.floor(this.map_y/2)].type = "castle"
+        var boss_dir = Math.floor(Math.random()*4)
+        var boss_loc = Math.floor(Math.random()*Math.max(this.map_x,this.map_y))
+        var x = 0
+        var y = 0
+        if(boss_dir==0){x = 0, y = boss_loc, this.boss_direction = "W"}
+        if(boss_dir==1){x = this.map_x-1, y =boss_loc, this.boss_direction = "E"}
+        if(boss_dir==2){x = boss_loc, y = 0, this.boss_direction = "S"}
+        if(boss_dir==3){x = boss_loc, y = this.map_y-1, this.boss_direction = "N"}
+        this.map[x][y].type = "boss"
         for(var type in this.explore_event){
             for(var sub_type in this.explore_event[type]){
                 for(var i=0; i<this.explore_event[type][sub_type];){
@@ -413,9 +428,9 @@ exports.Environment = class {
                     var enemy_attack = explore_event[type][sub_type].enemy.attack
                     var hp = this.explorer_data.troop.hp
                     var attack = this.explorer_data.troop.attack
-                    if(hp/enemy_attack>attack/enemy_hp){
+                    if(hp/enemy_attack>enemy_hp/attack){
                         explore_event[type][sub_type].reward(this.resource_gain)
-                        this.explorer_data.troop.hp -= (attack/enemy_hp) * enemy_attack
+                        this.explorer_data.troop.hp -= (enemy_hp/attack) * enemy_attack
                         report.msg = explore_event[type][sub_type].msg
                         this.map[x][y].found = true
                     }
@@ -424,6 +439,12 @@ exports.Environment = class {
                         this.explorerInit()
                         report.msg = "傭兵被樹人擊敗，你獨自一人狼狽地逃回城內"
                     }
+                }
+                if(type=="boss"){
+                    this.boss_detected = true
+                    this.boss_detected_day = this.round
+                    report.msg = "發現了樹人王巢穴!"
+                    this.map[x][y].found = true
                 }
                 report["resource"] = type
             }
@@ -459,40 +480,31 @@ exports.Environment = class {
 
 
     
-    recruit(army_type, army_data){
+    recruit(army_type){
         var level = this.troops_state[army_type].level
-        for(var r in army_data[army_type][level]["cost"]){
-            this.resource[r] -= army_data[army_type][level]["cost"][r];
+        for(var r in this.army_data[army_type][level]["cost"]){
+            this.resource[r] -= this.army_data[army_type][level]["cost"][r];
         }
         this.troops_state[army_type]["amount"] += 1;
         //console.log("招募了一對" + army_type)
     }
 
-    deployArmy(direction, army, army_type, army_data){
-        /*
-        for(var type in troop){
-            var level = this.troops_state[type]["level"]
-            var amount = troop[type]
-            if(this.troops_state[army_type]["amount"]>=amount){
-                var data = army_data[army_type][level]
-                data.hp *= this.morale
-                data.attack *= this.morale
-                for(var i=0; i<amount; i++){
-                    this.roads[direction].army_location[0].push(new army(data));
-                }
-                //console.log(this.roads[direction].army_location[0][0])
-                this.troops_state[army_type]["amount"] -= amount;
-            }
-        }
-        */
+    deployArmy(action){
+        var direction = action.direction
+        var army_type = action.troop_type
+        var num = action.num
+        console.log(action)
+        console.log(this.troops_state[army_type])
         var level = this.troops_state[army_type]["level"]
-        if(this.troops_state[army_type]["amount"]>0){
-            var data = army_data[army_type][level]
+        if(this.troops_state[army_type]["amount"]>=num){
+            var data = this.army_data[army_type][level]
             data.hp *= this.morale
             data.attack *= this.morale
-            this.roads[direction].army_location[0].push(new army(data));
+            for(var i=0; i<num; i++){
+                this.roads[direction].army_location[0].push(new army(data));
+            }
             //console.log(this.roads[direction].army_location[0][0])
-            this.troops_state[army_type]["amount"] -= 1;
+            this.troops_state[army_type]["amount"] -= num;
         }
     }
 
@@ -547,7 +559,7 @@ exports.Environment = class {
         ----return research_report = {done, msg}
     */
 
-    research(RD, type, dir, sub_type){
+    research(type, dir, sub_type){
         var max_research_speed = this.RD_list[type][dir][sub_type].data.max_research_speed
         var difficulty = this.RD_list[type][dir][sub_type].data.difficulty
         var cost = this.RD_list[type][dir][sub_type].data.cost
@@ -590,9 +602,19 @@ exports.Environment = class {
     }
 
 
-    enemySpawn(enemy, enemy_data){
+    enemySpawn(){
         for(var d in this.roads){
-            this.roads[d].roadEnemySpawn(enemy, enemy_data, this.round)
+            this.roads[d].roadEnemySpawn(this.enemy_data, this.round)
+        }
+    }
+
+    bossSpawn(){
+        if(this.boss_detected){
+            for(var boss_type in this.boss_data){
+                if(this.boss_data[boss_type].spawn_day+this.boss_detected_day==this.round){
+                    this.roads[this.boss_direction].roadBossSpawn(this.boss_data[boss_type])
+                }
+            }  
         }
     }
 
@@ -752,7 +774,7 @@ class road{
         ----同一回合四個方向均有機率生成多個敵人
     */
 
-    roadEnemySpawn(enemy, enemy_data, day){
+    roadEnemySpawn(enemy_data, day){
         for(var enemy_type in enemy_data){
             var spawn = Math.floor(Math.random()*100) ;  // 生成機率為 [0,100]
             var init = enemy_data[enemy_type]["spawn_prob_data"]["init"]*100
@@ -765,7 +787,13 @@ class road{
 
                 this.enemy_location[this.max_distance-1].push(new enemy(enemy_data[enemy_type]));
             }
-        }  
+        }
+    }
+
+    roadBossSpawn(boss_data){
+        this.enemy_location[this.max_distance-1].push(new boss(boss_data));
+        console.log(this.direction)
+        console.log(this.enemy_location)
     }
 
     /*
@@ -776,11 +804,11 @@ class road{
     */
     combat(Env){
   
-        var army_attack = {"armor":0, "archer":0, "ranger":0, "defence":0};
+        var army_attack = {/*"armor":0, "archer":0, "ranger":0, "defence":0*/};
         var army_killed = {"armor":0, "archer":0, "ranger":0, "defence":0}
         var army_total_damage = 0
-        var enemy_attack = {"tree_man":0, "big_tree_man":0, "stick_man":0};
-        var enemy_killed = {"tree_man":0, "big_tree_man":0, "stick_man":0}
+        var enemy_attack = {"tree_man":0, "big_tree_man":0, "stick_man":0, "little_boss":0, "final_boss":0};
+        var enemy_killed = {"tree_man":0, "big_tree_man":0, "stick_man":0, "little_boss":0, "final_boss":0}
         var enemy_total_damage = 0
         var isCombat = false;
         var farest_army = this.farest_army;
@@ -791,14 +819,17 @@ class road{
                 for(var j=0; j<this.army_location[i].length; j++){
                     if(this.army_location[i][j].attack_range + i >= nearest_enemy){
                         var army_type = this.army_location[i][j].type
+                        if(!(army_type in army_attack)){
+                            army_attack[army_type] = 0
+                        }
                         army_attack[army_type] += this.army_location[i][j].attack;
                     }
                 }
             }
-    
+            army_attack["defence"] = 0
             for(var defence_type in this.defence){
-                if(this.defence[defence_type]["valid"] && nearest_enemy<=defender_data[defence_type]["attack_range"]){
-                    army_attack["defence"] += defender_data[defence_type].attack
+                if(this.defence[defence_type]["valid"] && nearest_enemy<=Env.defender_data[defence_type]["attack_range"]){
+                    army_attack["defence"] += Env.defender_data[defence_type].attack
                 }
             }
             for(var i in army_attack){
@@ -810,6 +841,9 @@ class road{
         for(var i=0; i<this.max_distance; i++){
             for(var j=0; j<this.enemy_location[i].length; j++){
                 var enemy_type = this.enemy_location[i][j].type
+                if(!(enemy_type in enemy_attack)){
+                    enemy_attack[enemy_type] = 0
+                }
                 if(farest_army==-1 && i - this.enemy_location[i][j].attack_range <= 0){ //no army
                     enemy_attack[enemy_type] += this.enemy_location[i][j].attack;
                     this.troop_location[i] = 2
@@ -885,6 +919,9 @@ class road{
                         enemy_killed[this.enemy_location[nearest_enemy][0].type] += 1
                         for(var i in this.enemy_location[nearest_enemy][0].reward){
                             Env.resource[i] += this.enemy_location[nearest_enemy][0].reward[i];
+                        }
+                        if(this.enemy_location[nearest_enemy][0].type=="final_boss"){
+                            console.log("you win")
                         }
                         this.enemy_location[nearest_enemy].splice(0, 1);
                     }
@@ -968,7 +1005,6 @@ class road{
                 this.troop_location[i] = 2
             }
         }
-        console.log(this.troop_location)
     }
 }
 
@@ -1030,37 +1066,48 @@ class factory{
 
 
 // ====================單位"種類"樣版區 start =================================// 
-exports.army = class {
+class army{
     constructor(data){
-        this.type = data.type;
-        this.cost = data.cost;
+        this.type = data.type
+        this.cost = data.cost
         this.daily_cost = data.daily_cost
-        this.hp = data.hp;
-        this.attack = data.attack;
-        this.attack_range = data.attack_range;
-        this.mobility = data.mobility;
-        this.retreat = data.retreat;
+        this.hp = data.hp
+        this.attack = data.attack
+        this.attack_range = data.attack_range
+        this.mobility = data.mobility
+        this.retreat = data.retreat
     }
 }
 
-exports.defender = class {
+class defender{
     constructor(data){
-        this.type = data[Object.keys(data)[0]];
-        this.cost = data[Object.keys(data)[1]];
-        this.attack = data[Object.keys(data)[2]];
-        this.attack_range = data[Object.keys(data)[3]];
+        this.type = data.type
+        this.cost = data.cost
+        this.attack = data.attact
+        this.attack_range = data.attack_range
     }
 }
 
-exports.enemy = class {
+class enemy{
     constructor(data){
-        this.type = data[Object.keys(data)[0]];
-        this.hp = data[Object.keys(data)[1]];
-        this.attack = data[Object.keys(data)[2]];
-        this.attack_range = data[Object.keys(data)[3]];
-        this.mobility = data[Object.keys(data)[4]];
-        this.spawm_prob = data[Object.keys(data)[5]];
-        this.reward = data[Object.keys(data)[6]];
+        this.type = data.type
+        this.hp = data.hp
+        this.attack = data.attack
+        this.attack_range = data.attack_range
+        this.mobility = data.mobility
+        this.spawm_prob = data.spawm_prob
+        this.reward = data.reward
+    }
+}
+
+class boss{
+    constructor(data){
+        this.type = data.type
+        this.hp = data.hp
+        this.attack = data.attack
+        this.attack_range = data.attack_range
+        this.mobility = data.mobility
+        this.reward = data.reward
     }
 }
 // ====================單位"種類"樣版區 end ==================================// 

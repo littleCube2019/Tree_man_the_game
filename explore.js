@@ -36,6 +36,5 @@ exports.exlore_event = {
         }
 
         
-    }
-    
+    },
 }

@@ -16,10 +16,10 @@ console.log('listening on *:3000');
 app.use(express.static('public'));
 
 
-var army_data = require("./troop").army_data
-var defender_data = require("./troop").defender_data
-var enemy_data = require("./troop").enemy_data
-var RD = require("./R&D").RD
+//var army_data = require("./troop").army_data
+//var defender_data = require("./troop").defender_data
+//var enemy_data = require("./troop").enemy_data
+//var RD = require("./R&D").RD
 var button = require("./button").button
 
 // ========================== header end ========================================// 
@@ -35,10 +35,6 @@ var Environment = require("./class.js").Environment
 
 
 // 單位"種類"樣版區 ， 以class為單位start ========================================// 
-var army = require("./class.js").army
-var defender = require("./class.js").defender
-var enemy = require("./class.js").enemy
-
 
 // 單位"種類"樣版區 ， 以class為單位start ========================================//
 
@@ -115,10 +111,10 @@ function newGame(){
 function player_action_handle(action){
 	console.log(action);
 	if(action.type=='recruit'){
-		Env.recruit(action.troop_type, army_data)
+		Env.recruit(action.troop_type)
 	}
 	else if(action.type=='move_army'){
-		Env.deployArmy(action.direction, army, action.troop_type, army_data)
+		Env.deployArmy(action)
 	}
 	else if(action.type=='repair_wall'){
 		Env.repairWall(action.direction, action.unit)
@@ -131,12 +127,12 @@ function player_action_handle(action){
 
 	}
 	else if(action.type=="research"){
-		var report = Env.research(RD, action.research_type, action.direction, action.sub_type) //action = {"type":"research", "research_type":"factory", "sub_type":"resin"}
+		var report = Env.research(action.research_type, action.direction, action.sub_type) //action = {"type":"research", "research_type":"factory", "sub_type":"resin"}
 		io.emit("research_report", report, Env.RD_list)
 		if(report.done){
 			//io.emit("research_done", action.research_type, action.sub_type, report.level+1)
 			if(action.research_type == "army_upgrade"){
-			io.emit("update_troop_info", [army_data["armor"][Env.troops_state["armor"]["level"]]])
+			io.emit("update_troop_info", [Env.army_data["armor"][Env.troops_state["armor"]["level"]]])
 			}
 		}
 	}
@@ -163,11 +159,11 @@ function roll_the_dice(lo=0 ,range=100){
 
 function roundCheck(){
 	
-	Env.enemySpawn(enemy, enemy_data)
+	Env.enemySpawn()
 	Env.armyMove()
 	Env.enemyMove()
 	Env.updateTroopLocation()
-	var reports = Env.combat(defender_data)
+	var reports = Env.combat()
 
 	io.emit("combat_report", reports);
 
@@ -196,7 +192,7 @@ io.on('connection', (socket) => {
 	var update_report = Env.updateToClient()
 	var number = roll_the_dice(20000,10000); // 決定城號
 	io.emit("init_data", update_report, number,
-		[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
+		[Env.army_data["archer"][Env.troops_state.archer.level], Env.army_data["armor"][Env.troops_state.armor.level], Env.army_data["ranger"][Env.troops_state.ranger.level]],
 		Env.RD_title,
 		Env.RD_list,
 		button
@@ -252,12 +248,14 @@ io.on('connection', (socket) => {
 
 			var update_report = Env.updateToClient()
 
-			var number = roll_the_dice(20000,10000); // 決定城號
+			//var number = roll_the_dice(20000,10000); // 決定城號
+			/*
 			io.emit("start_game", update_report, number,
 				[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
 				Env.RD_title,
 				Env.RD_list,
 			);
+			*/
 			io.emit("update_state", update_report);
 
 // 為了不讓"研發" 留下來，以後要改進

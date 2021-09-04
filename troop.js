@@ -138,8 +138,8 @@ exports.defender_data = {
 exports.enemy_data = {
     "tree_man" : {
         "type" : "tree_man",
-        "hp" : 600,
-        "attack" : 50,
+        "hp" : 1,
+        "attack" : 1,
         "attack_range" : 0,
         "mobility" : 1,
         "spawn_prob_data":{
@@ -154,8 +154,8 @@ exports.enemy_data = {
 
     "stick_man" : {
         "type" : "stick_man",
-        "hp" : 500,
-        "attack" : 200,
+        "hp" : 1,
+        "attack" : 1,
         "attack_range" : 3,
         "mobility" : 1,
         "spawn_prob_data":{
@@ -170,8 +170,8 @@ exports.enemy_data = {
 
     "big_tree_man" : {
         "type" : "big_tree_man",
-        "hp" : 3000,
-        "attack" : 500,
+        "hp" : 1,
+        "attack" : 1,
         "attack_range" : 0,
         "mobility" : 1,
         "spawn_prob_data":{
@@ -183,6 +183,27 @@ exports.enemy_data = {
         "reward" : {"wood":10000},
         "description":"突變的超大型樹人，血量:3000，攻擊力:500，攻擊距離:0，移動能力:1，擊殺可獲得10000木頭",
     },
+}
+exports.boss_data = {
+    "little_boss":{
+        "type" : "little_boss",
+        "hp" : 1,
+        "attack" : 1,
+        "attack_range" : 0,
+        "mobility" : 1,
+        "spawn_day":5,
+        "reward" : {"wood":10000},
+        "description":"小boss，血量:3000，攻擊力:500，攻擊距離:0，移動能力:1，擊殺可獲得10000木頭",
+    },
 
-    
+    "final_boss":{
+        "type" : "final_boss",
+        "hp" : 1,
+        "attack" : 1,
+        "attack_range" : 0,
+        "mobility" : 1,
+        "spawn_day":10,
+        "reward" : {"wood":10000},
+        "description":"大boss，血量:3000，攻擊力:500，攻擊距離:0，移動能力:1，擊殺可獲得10000木頭",
+    },
 }

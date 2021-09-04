@@ -422,8 +422,8 @@
 				
 				status_tab.update(env.morale);
 				Resource.update(env.resource);
-				
-				troop_status.update(env.troops_state , env.roads);
+			
+				troop_status.update(env.troops_state ,env.roads);
 				
 				update_enemy_collection(env.enemy_collection);
 			}
@@ -597,20 +597,15 @@
 						var food = parseInt(document.getElementById("food_selection_out").value) * 100;
 						
 
-						// I should warp theses in a funciton :(
-						$("#move_left").text(Env.explorer_data.move_left);
-						$("#remaining_food").text(Env.explorer_data.resource.food);
-						$("#gain_wood").text(Env.explorer_data.resource.wood);
-						$("#out_troop_hp").text(Env.explorer_data.troop.hp);
-						$("#out_troop_atk").text(Env.explorer_data.troop.attack);
-						$("#out_troop_cost").text(Env.explorer_data.troop.daily_cost);
 							
 					
 							
 							
-						
+						console.log(food);
 							
 						socket.emit("explore_prepare" , food );
+
+						
 
 					})
 				})
@@ -697,7 +692,7 @@
 					else{
 						$('#repair_wall_pop').modal('toggle');
 						$("#repair_wall_select").empty()
-						console.log(Env.roads[WALL_DIR].max_wallhp )
+						
 						for(var i=1; i<= parseInt((Env.roads[WALL_DIR].max_wallhp-Env.roads[WALL_DIR].wallhp)/100) ; i++){
 						 	$("#repair_wall_select").append("<option value=\""+i+"\">"+i+"</option>") 
 						}
@@ -1069,18 +1064,23 @@
                 <input type="range" class="custom-range" min="1" max="2"  value="1" id="customRange2" @change="updateRangeValue($event)">
 				<div v-if="type==1">
 				<div>選擇派出兵種  </div>  
-				<div style="width:100% ; height:15%" v-for="troop in troops"> 
-				<div>
-				{{troop[2]}}隊
-				<br>
-				<div class="float"  style="width:5% ; height:30%"    v-for="direction in directions" > 
+				<div style="width:100% ; height:30%" v-for="troop in troops"> 
+					<div>
+					{{troop[2]}}隊
+					<select class="form-control"  style="width:20% ; height:25%" :id="troop[1]+'_select'">
+						  <!--按下 按鈕會由jQuery 生成合法選項-->
+					</select>
+					<br>
+					<div style="float: left;"  style="width:5% ; height:30%"    v-for="direction in directions" > 
+			
+						
+		
+						<button  type="button" class="btn btn-success  troop_move" :dir="direction[0]"  :Type="troop[1]" action="move_army"  v-on:click="Click" >{{direction[1]}}</button>  
+						
+					</div>
+					</div>
 					
-					<button  type="button" class="btn btn-success  troop_move" :dir="direction[0]"  :Type="troop[1]" action="move_army"  v-on:click="Click" >{{direction[1]}}</button>   
-					
-				</div>
-				</div>
-				
-				</div>
+					</div>
 				</div>
 				
 				<div v-if="type==2">
@@ -1157,7 +1157,7 @@
 								<select class="form-control" id="repair_wall_select">
 								  <!--按下 按鈕會由jQuery 生成合法選項-->
 								</select>
-							  </div>
+							</div>
 						</div>
 						<div class="modal-footer">
 						  <button type="button" class="btn btn-primary" data-dismiss="modal" id="submit_repair_wall">送出並結束回合</button>

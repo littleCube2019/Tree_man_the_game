@@ -778,7 +778,9 @@ class road{
             var max_prob = enemy_data[enemy_type]["spawn_prob_data"]["max"]*100
             var minimum_day = enemy_data[enemy_type]["spawn_prob_data"]["minimum_day"]
             var spawn_rate = Math.min(max_prob, init + increase_rate + increase_rate*day)
+
             if(day>=minimum_day && spawn_rate>=spawn){
+
                 this.enemy_location[this.max_distance-1].push(new enemy(enemy_data[enemy_type]));
             }
         }

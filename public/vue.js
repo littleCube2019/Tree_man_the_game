@@ -1,6 +1,6 @@
 
 /*
-Note : 可以使用Global variable、socket 等等主檔的變數 (限function , Data 不行)
+Note : 可以使用Global vaiable、socket 等等主檔的變數 (限function , Data 不行)
 */
 
 
@@ -113,10 +113,10 @@ var troop_status = new Vue({
 
     max_road:10,
     army_location : {
-      "E":[[],[],[],[],[],[],[],[],[],[]],
-      "S":[[],[],[],[],[],[],[],[],[],[]],
-      "W":[[],[],[],[],[],[],[],[],[],[]],
-      "N":[[],[],[],[],[],[],[],[],[],[]],
+      "E":[0,0,0,0,0,0,0,0,0,0],
+      "S":[0,0,0,0,0,0,0,0,0,0],
+      "W":[0,0,0,0,0,0,0,0,0,0],
+      "N":[0,0,0,0,0,0,0,0,0,0],
     }
   },
 
@@ -135,10 +135,12 @@ var troop_status = new Vue({
           }
 
       }
-
+      console.log(this.army_location);
       if(roads){
-        for(var d in this.army_location){
-          this.army_location[d] = roads[d].army_location;
+        for(var d in roads){
+          
+            this.army_location[d] = roads[d].troop_location;
+          
         }
       }
       
@@ -152,12 +154,19 @@ var troop_status = new Vue({
         return "[門]"
       }
       
-      if(this.army_location[dir][n].length == 0){
+      if(this.army_location[dir][n] == 0 || this.army_location[dir][n] == null ){
         return "[ ]";
       }
-      else{
+      else if(this.army_location[dir][n] == 1){
         return "[*]";
       }
+      else if(this.army_location[dir][n] == 2){
+        return "[e]";
+      }
+      else if(this.army_location[dir][n] == 3){
+        return "[X]";
+      }
+   
     }
 
 
@@ -193,7 +202,8 @@ var choose_basic = new Vue({
                 "choose_research":"研發",
                 "choose_go_out":"外出",
                 "skip":"跳過這回合"*/},
-    pid:0
+    pid:0,
+    troop_names : [ "archer","armor","ranger",] // for move troop generate selections
   },
 
   methods:{
@@ -201,7 +211,15 @@ var choose_basic = new Vue({
       $("#choose_basic_action").hide();
       
      if(event.target.getAttribute("id")=="choose_troop_move"){
-        $("#move_troop").show();
+
+       for(var j = 0 ; j < choose_basic.troop_names.length ; j++){
+          $("#"+choose_basic.troop_names[j] + "_select").empty()
+         
+          for(var i=0; i<= Env.troops_state[choose_basic.troop_names[j]].amount ; i++){
+            $("#"+choose_basic.troop_names[j] + "_select").append("<option value=\""+i+"\">"+i+"</option>") 
+          }
+         $("#move_troop").show();
+       }
      }
      
      if(event.target.getAttribute("id")=="choose_recruit_troop"){
@@ -361,9 +379,9 @@ var recruit_troop = new Vue({
     },
     
     state:{
-      "archer":{"hp":1 ,"attack":2 , "cost":1000, "mobility":4 ,"range":5 },
-      "armor":{"hp":1 ,"attack":2 , "cost":500 , "mobility":4 ,"range":5 },
-      "ranger":{"hp":1 ,"attack":555 , "cost":2000 , "mobility":4 ,"range":5 },
+      "archer":{"hp":1 ,"attack":2 , "cost":1000, "mobility":4 ,"range":5 ,"daily_cost":0 },
+      "armor":{"hp":1 ,"attack":2 , "cost":500 , "mobility":4 ,"range":5 ,"daily_cost":0},
+      "ranger":{"hp":1 ,"attack":555 , "cost":2000 , "mobility":4 ,"range":5, daily_cost:0},
 
     },
    
@@ -412,6 +430,7 @@ var recruit_troop = new Vue({
      
      for(var i =0 ;i < troop.length ; i++){
        this.state[troop[i]["type"]]= troop[i];
+       console.log(troop[i]);
        $("#"+troop[i]["type"]).attr('data-original-title',this.description(this.troops[troop[i]["type"]][0]));
      }
      
@@ -420,17 +439,17 @@ var recruit_troop = new Vue({
 
   description: function(n){
     if(n==0){
-      return "需要: "+this.state["archer"]["cost"]["wood"]+"木頭 <br> 射程:"+this.state["archer"]["attack_range"]+"公里 <br> 每隊攻擊力:"+this.state["archer"]["attack"]+"<br> 移動能力:日行"+this.state["archer"]["mobility"]+"公里<br>承受傷害能力:"+this.state["archer"]["hp"]+"<br> 敘述:由平民組成的弓箭隊，準度不佳，\
+      return "需要: "+this.state["archer"]["cost"]["wood"]+"木頭 <br> 每日消耗: "+this.state["archer"]["daily_cost"]["food"]+"食物<br> 射程:"+this.state["archer"]["attack_range"]+"公里 <br> 每隊攻擊力:"+this.state["archer"]["attack"]+"<br> 移動能力:日行"+this.state["archer"]["mobility"]+"公里<br>承受傷害能力:"+this.state["archer"]["hp"]+"<br> 敘述:由平民組成的弓箭隊，準度不佳，\
       但至少會拉弓，木頭大部分用於製作木箭"
     }
 
     else if(n==1){
-      return "需要: "+this.state["armor"]["cost"]["wood"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["armor"]["attack"]+" <br> 移動能力:日行"+this.state["armor"]["mobility"]+"公里<br> 承受傷害能力:"+this.state["armor"]["hp"]+" <br> 敘述:由平民組成的步兵隊\
+      return "需要: "+this.state["armor"]["cost"]["wood"]+"木頭 <br> 每日消耗: "+this.state["armor"]["daily_cost"]["food"]+"食物<br> 射程:近戰 <br> 每隊攻擊力:"+this.state["armor"]["attack"]+" <br> 移動能力:日行"+this.state["armor"]["mobility"]+"公里<br> 承受傷害能力:"+this.state["armor"]["hp"]+" <br> 敘述:由平民組成的步兵隊\
       ，拿著草叉、斧頭...工具就出征了，你不相信他們能擊殺敵人，但相信他們能拖延敵人，木頭幾乎用在製作木製鎧甲"
       }
     
     else if(n==2){
-      return "需要: "+this.state["ranger"]["cost"]["wood"]+"木頭 <br> 射程:近戰 <br> 每隊攻擊力:"+this.state["ranger"]["attack"]+" <br> 移動能力:日行"+this.state["ranger"]["mobility"]+"公里\
+      return "需要: "+this.state["ranger"]["cost"]["wood"]+"木頭 <br> 每日消耗: "+this.state["ranger"]["daily_cost"]["food"]+"食物<br> 射程:近戰 <br> 每隊攻擊力:"+this.state["ranger"]["attack"]+" <br> 移動能力:日行"+this.state["ranger"]["mobility"]+"公里\
       <br> 承受傷害能力:"+this.state["ranger"]["hp"]+" <br> 敘述:前帝國軍隊士兵組成，至少有基本的戰鬥技巧與騎術，還有之前留下的鏽跡斑斑的武器"
 
     }
@@ -521,6 +540,7 @@ var move_troop = new Vue({
     var troop_type = e.target.getAttribute("Type");
     var dir = e.target.getAttribute("dir");
     var Act = e.target.getAttribute("action");
+    var num = parseInt(document.getElementById(troop_type+ "_select").value);
     troop_name = "沒有";
     console.log(troop_type , dir)
     dir_name = "X";
@@ -528,7 +548,8 @@ var move_troop = new Vue({
       constructor(Act,troop_type,dir){
         this.type = Act;
         this.troop_type = troop_type ;
-        this.direction = dir
+        this.direction = dir;
+        this.num = num;
       }
     }
     
@@ -564,8 +585,8 @@ var move_troop = new Vue({
       }
       
       if(can_move){
-        var msg = "你調動了一隊"+troop_name+"隊前往"+dir_name+"方";
-        socket.emit("action_done" , PLAYER_ID , action,msg);
+        var msg = "你調動了"+num+"隊"+troop_name+"隊前往"+dir_name+"方";
+        socket.emit("action_done" , PLAYER_ID , action ,  msg);
       }
     }
   }
@@ -746,7 +767,7 @@ var status_tab = new Vue({
      update:function(morale){
        res = [];
        if( morale < 1){
-          res.push(["缺乏食物","bad-state"]);
+          res.push(["士氣低迷","bad-state"]);
        }
        else{
           res.push(["沒有異常","good-state"]);

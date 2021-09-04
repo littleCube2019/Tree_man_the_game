@@ -202,7 +202,8 @@ var choose_basic = new Vue({
                 "choose_research":"研發",
                 "choose_go_out":"外出",
                 "skip":"跳過這回合"*/},
-    pid:0
+    pid:0,
+    troop_names : [ "archer","armor","ranger",] // for move troop generate selections
   },
 
   methods:{
@@ -210,7 +211,15 @@ var choose_basic = new Vue({
       $("#choose_basic_action").hide();
       
      if(event.target.getAttribute("id")=="choose_troop_move"){
-        $("#move_troop").show();
+
+       for(var j = 0 ; j < choose_basic.troop_names.length ; j++){
+          $("#"+choose_basic.troop_names[j] + "_select").empty()
+         
+          for(var i=0; i<= Env.troops_state[choose_basic.troop_names[j]].amount ; i++){
+            $("#"+choose_basic.troop_names[j] + "_select").append("<option value=\""+i+"\">"+i+"</option>") 
+          }
+         $("#move_troop").show();
+       }
      }
      
      if(event.target.getAttribute("id")=="choose_recruit_troop"){
@@ -531,6 +540,7 @@ var move_troop = new Vue({
     var troop_type = e.target.getAttribute("Type");
     var dir = e.target.getAttribute("dir");
     var Act = e.target.getAttribute("action");
+    var num = parseInt(document.getElementById(troop_type+ "_select").value);
     troop_name = "沒有";
     console.log(troop_type , dir)
     dir_name = "X";
@@ -538,7 +548,8 @@ var move_troop = new Vue({
       constructor(Act,troop_type,dir){
         this.type = Act;
         this.troop_type = troop_type ;
-        this.direction = dir
+        this.direction = dir;
+        this.num = num;
       }
     }
     
@@ -574,8 +585,8 @@ var move_troop = new Vue({
       }
       
       if(can_move){
-        var msg = "你調動了一隊"+troop_name+"隊前往"+dir_name+"方";
-        socket.emit("action_done" , PLAYER_ID , action,msg);
+        var msg = "你調動了"+num+"隊"+troop_name+"隊前往"+dir_name+"方";
+        socket.emit("action_done" , PLAYER_ID , action ,  msg);
       }
     }
   }

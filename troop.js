@@ -138,8 +138,8 @@ exports.defender_data = {
 exports.enemy_data = {
     "tree_man" : {
         "type" : "tree_man",
-        "hp" : 1,
-        "attack" : 1,
+        "hp" : 300,
+        "attack" : 50,
         "attack_range" : 0,
         "mobility" : 1,
         "spawn_prob_data":{
@@ -148,14 +148,14 @@ exports.enemy_data = {
             "increase":0.01,
             "max":0.2,
         },
-        "reward" : {"wood":2000},
+        "reward" : {"wood":1000},
         "description":"普通的樹人，血量:600，攻擊力:50，攻擊距離:0，移動能力:1，擊殺可獲得2000木頭",
     },
 
     "stick_man" : {
         "type" : "stick_man",
-        "hp" : 1,
-        "attack" : 1,
+        "hp" : 200,
+        "attack" : 50,
         "attack_range" : 3,
         "mobility" : 1,
         "spawn_prob_data":{
@@ -164,14 +164,14 @@ exports.enemy_data = {
             "increase":0.01,
             "max":0.2,
         },
-        "reward" : {"wood":3000},
+        "reward" : {"wood":1500},
         "description":"樹枝噴吐者，擅長射出身上的樹枝攻擊敵人，血量:500，攻擊力:200，攻擊距離:3，移動能力:1，擊殺可獲得3000木頭",
     },
 
     "big_tree_man" : {
         "type" : "big_tree_man",
-        "hp" : 1,
-        "attack" : 1,
+        "hp" : 2500,
+        "attack" : 250,
         "attack_range" : 0,
         "mobility" : 1,
         "spawn_prob_data":{
@@ -180,15 +180,15 @@ exports.enemy_data = {
             "increase":0.001,
             "max":0.05,
         },
-        "reward" : {"wood":10000},
+        "reward" : {"wood":5000},
         "description":"突變的超大型樹人，血量:3000，攻擊力:500，攻擊距離:0，移動能力:1，擊殺可獲得10000木頭",
     },
 }
 exports.boss_data = {
     "little_boss":{
         "type" : "little_boss",
-        "hp" : 1,
-        "attack" : 1,
+        "hp" : 3000,
+        "attack" : 300,
         "attack_range" : 0,
         "mobility" : 1,
         "spawn_day":5,
@@ -198,8 +198,8 @@ exports.boss_data = {
 
     "final_boss":{
         "type" : "final_boss",
-        "hp" : 1,
-        "attack" : 1,
+        "hp" : 5000,
+        "attack" : 1000,
         "attack_range" : 0,
         "mobility" : 1,
         "spawn_day":10,

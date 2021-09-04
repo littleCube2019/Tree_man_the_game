@@ -160,6 +160,7 @@ function roll_the_dice(lo=0 ,range=100){
 function roundCheck(){
 	
 	Env.enemySpawn()
+	Env.bossSpawn()
 	Env.armyMove()
 	Env.enemyMove()
 	Env.updateTroopLocation()
@@ -200,12 +201,13 @@ io.on('connection', (socket) => {
 	io.emit("update_state", update_report);
 	/*
 	io.emit("start_game", update_report, number,
-				[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
+				[Env.army_data["archer"][Env.troops_state.archer.level], Env.army_data["armor"][Env.troops_state.armor.level], Env.army_data["ranger"][Env.troops_state.ranger.level]],
 				Env.RD_title,
 				Env.RD_list,
 			);
-	io.emit("update_state", update_report);
 	*/
+	//io.emit("update_state", update_report);
+	
 
 	console.log('Client connected');
 	connected_list[socket.id] = socket.id;
@@ -249,16 +251,16 @@ io.on('connection', (socket) => {
 			var update_report = Env.updateToClient()
 
 			//var number = roll_the_dice(20000,10000); // 決定城號
-			/*
+			
 			io.emit("start_game", update_report, number,
-				[army_data["archer"][Env.troops_state.archer.level], army_data["armor"][Env.troops_state.armor.level], army_data["ranger"][Env.troops_state.ranger.level]],
+				[Env.army_data["archer"][Env.troops_state.archer.level], Env.army_data["armor"][Env.troops_state.armor.level], Env.army_data["ranger"][Env.troops_state.ranger.level]],
 				Env.RD_title,
 				Env.RD_list,
 			);
-			*/
-			io.emit("update_state", update_report);
+			
+			//io.emit("update_state", update_report);
 
-// 為了不讓"研發" 留下來，以後要改進
+			// 為了不讓"研發" 留下來，以後要改進
 			io.emit("player_turn");
 			io.emit("player_turn");
 			

@@ -44,7 +44,7 @@ exports.Environment = class{
         }
         
         this.round = 1 ; 
-        this.resource = {"wood":5000, "resin":0, "food":100, "coal":0} ;
+        this.resource = {"wood":5000, "resin":0, "food":500, "coal":0} ;
         this.resource_gain = {"wood":500, "resin":0, "food":200} //回合結束可獲得的資源
         this.resource_daily_cost = {"food":0}
 
@@ -171,6 +171,7 @@ exports.Environment = class{
             "wood":"木頭", "shoe":"草鞋(皇叔編的那種)",
             "armor":"步兵", "archer":"弓箭手", "ranger":"騎兵", "wizard":"法師", "defence":"防禦部隊",
             "tree_man":"普通樹人", "big_tree_man":"大型樹人", "stick_man":"樹枝噴吐者",
+            "little_boss":"小樹人王", "final_boss":"終極樹人王",
         }
     }
     //=====================================================================================================
@@ -179,15 +180,16 @@ exports.Environment = class{
         for(var type in this.enemy_data){
             this.enemy_collection[type] = {"description":"尚未發現此樹人", "eliminate":""}
         }
+        for(var type in this.boss_data){
+            this.enemy_collection[type] = {"description":"尚未發現此樹人", "eliminate":""}
+        }
     }
 
     enemyCollectionUpdate(enemy_type, eliminate){
         if(this.enemy_collection[enemy_type].description=="尚未發現此樹人"){
             this.enemy_collection[enemy_type] = {"description":this.enemy_data[enemy_type].description, "eliminate":0}
         }
-        if(eliminate!=0){
-            this.enemy_collection[enemy_type].eliminate += eliminate
-        }
+        this.enemy_collection[enemy_type].eliminate += eliminate
     }
 
     updateToClient(){
@@ -236,7 +238,7 @@ exports.Environment = class{
         for(var type in this.troops_state){
             var level = this.troops_state[type].level
             for(var r in this.army_data[type][level].daily_cost){
-                this.resource_daily_cost[r] += rhis.army_data[type][level].daily_cost[r]*this.troops_state[type].amount
+                this.resource_daily_cost[r] += this.army_data[type][level].daily_cost[r]*this.troops_state[type].amount
             }
         }
         for(var r in this.resource_daily_cost){
@@ -323,7 +325,7 @@ exports.Environment = class{
         }
         this.map[Math.floor(this.map_x/2)][Math.floor(this.map_y/2)].type = "castle"
         var boss_dir = Math.floor(Math.random()*4)
-        var boss_loc = Math.floor(Math.rangom()*Math.max(this.map_x,this.map_y))
+        var boss_loc = Math.floor(Math.random()*Math.max(this.map_x,this.map_y))
         var x = 0
         var y = 0
         if(boss_dir==0){x = 0, y = boss_loc, this.boss_direction = "W"}
@@ -426,9 +428,9 @@ exports.Environment = class{
                     var enemy_attack = explore_event[type][sub_type].enemy.attack
                     var hp = this.explorer_data.troop.hp
                     var attack = this.explorer_data.troop.attack
-                    if(hp/enemy_attack>attack/enemy_hp){
+                    if(hp/enemy_attack>enemy_hp/attack){
                         explore_event[type][sub_type].reward(this.resource_gain)
-                        this.explorer_data.troop.hp -= (attack/enemy_hp) * enemy_attack
+                        this.explorer_data.troop.hp -= (enemy_hp/attack) * enemy_attack
                         report.msg = explore_event[type][sub_type].msg
                         this.map[x][y].found = true
                     }
@@ -488,9 +490,11 @@ exports.Environment = class{
     }
 
     deployArmy(action){
-        direction = action.direction
-        army_type = action.army_type
-        num = action.num
+        var direction = action.direction
+        var army_type = action.troop_type
+        var num = action.num
+        console.log(action)
+        console.log(this.troops_state[army_type])
         var level = this.troops_state[army_type]["level"]
         if(this.troops_state[army_type]["amount"]>=num){
             var data = this.army_data[army_type][level]
@@ -788,6 +792,8 @@ class road{
 
     roadBossSpawn(boss_data){
         this.enemy_location[this.max_distance-1].push(new boss(boss_data));
+        console.log(this.direction)
+        console.log(this.enemy_location)
     }
 
     /*
@@ -798,11 +804,11 @@ class road{
     */
     combat(Env){
   
-        var army_attack = {"armor":0, "archer":0, "ranger":0, "defence":0};
+        var army_attack = {/*"armor":0, "archer":0, "ranger":0, "defence":0*/};
         var army_killed = {"armor":0, "archer":0, "ranger":0, "defence":0}
         var army_total_damage = 0
-        var enemy_attack = {"tree_man":0, "big_tree_man":0, "stick_man":0};
-        var enemy_killed = {"tree_man":0, "big_tree_man":0, "stick_man":0}
+        var enemy_attack = {"tree_man":0, "big_tree_man":0, "stick_man":0, "little_boss":0, "final_boss":0};
+        var enemy_killed = {"tree_man":0, "big_tree_man":0, "stick_man":0, "little_boss":0, "final_boss":0}
         var enemy_total_damage = 0
         var isCombat = false;
         var farest_army = this.farest_army;
@@ -813,14 +819,17 @@ class road{
                 for(var j=0; j<this.army_location[i].length; j++){
                     if(this.army_location[i][j].attack_range + i >= nearest_enemy){
                         var army_type = this.army_location[i][j].type
+                        if(!(army_type in army_attack)){
+                            army_attack[army_type] = 0
+                        }
                         army_attack[army_type] += this.army_location[i][j].attack;
                     }
                 }
             }
-    
+            army_attack["defence"] = 0
             for(var defence_type in this.defence){
-                if(this.defence[defence_type]["valid"] && nearest_enemy<=this.defender_data[defence_type]["attack_range"]){
-                    army_attack["defence"] += this.defender_data[defence_type].attack
+                if(this.defence[defence_type]["valid"] && nearest_enemy<=Env.defender_data[defence_type]["attack_range"]){
+                    army_attack["defence"] += Env.defender_data[defence_type].attack
                 }
             }
             for(var i in army_attack){
@@ -832,6 +841,9 @@ class road{
         for(var i=0; i<this.max_distance; i++){
             for(var j=0; j<this.enemy_location[i].length; j++){
                 var enemy_type = this.enemy_location[i][j].type
+                if(!(enemy_type in enemy_attack)){
+                    enemy_attack[enemy_type] = 0
+                }
                 if(farest_army==-1 && i - this.enemy_location[i][j].attack_range <= 0){ //no army
                     enemy_attack[enemy_type] += this.enemy_location[i][j].attack;
                     this.troop_location[i] = 2
@@ -993,7 +1005,6 @@ class road{
                 this.troop_location[i] = 2
             }
         }
-        console.log(this.troop_location)
     }
 }
 

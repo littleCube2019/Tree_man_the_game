@@ -42,7 +42,7 @@ exports.Environment = class{
             "W":new road("W") ,
             "N":new road("N") , 
         }
-        
+        this.win = false
         this.round = 1 ; 
         this.resource = {"wood":5000, "resin":0, "food":500, "coal":0} ;
         this.resource_gain = {"wood":500, "resin":0, "food":200} //回合結束可獲得的資源
@@ -96,65 +96,17 @@ exports.Environment = class{
         this.defender_data = require("./troop").defender_data
         this.enemy_data = require("./troop").enemy_data
         this.boss_data = require("./troop").boss_data
-
+        this.RD_data = require("./R&D").RD
         this.RD_title = { //{type:[name, isDir, show]}
             "wall":["城牆加固", true, true],
             "army_upgrade":[ "士兵升級", false, true],
-            "factory":[ "半成品加工", false, true],
+            "factory":["自動化工業", false, true],
             "resource":["資源升級", false, true],
-            "explore":["外出", false, true]
+            "explore":["外出", false, true],
+            "scout":["偵查", false, true],
         }
 
-        this.RD_list = {
-            "wall":{
-                "N":{
-                    "upgrade":{"level":0, "progress":0, "data":{}},
-                    "defence":{"level":0, "progress":0, "data":{}},
-                },
-                "E":{
-                    "upgrade":{"level":0, "progress":0, "data":{}},
-                    "defence":{"level":0, "progress":0, "data":{}},
-                },
-                "W":{
-                    "upgrade":{"level":0, "progress":0, "data":{}},
-                    "defence":{"level":0, "progress":0, "data":{}},
-                },
-                "S":{
-                    "upgrade":{"level":0, "progress":0, "data":{}},
-                    "defence":{"level":0, "progress":0, "data":{}},
-                },
-            },
-
-
-            "army_upgrade":{
-                "all":{
-                    "armor":{"level":0, "progress":0, "data":{}},
-                    "archer":{"level":0, "progress":0, "data":{}},
-                    "ranger":{"level":0, "progress":0, "data":{}},
-                    "wizard":{"level":0, "progress":0, "data":{}},
-                }
-            },
-
-            "factory":{
-                "all":{
-                    "resin":{"level":0, "progress":0, "data":{}},
-                    "coal":{"level":0, "progress":0, "data":{}},
-                }
-            },
-
-            "resource":{
-                "all":{
-                    "food":{"level":0, "progress":0, "data":{}},
-                }
-            },
-            
-            "explore":{
-                "all":{
-                    "lead":{"level":0, "progress":0, "data":{}},
-                }
-            }
-
-        }
+        this.RD_list = {}
 
         this.researchInit()
 
@@ -203,7 +155,7 @@ exports.Environment = class{
             "map_y":this.map_y,
             "map":this.map,
             "explorer_data":this.explorer_data,
-            "resource_point":this.resource_point,
+            //"resource_point":this.resource_point,
             "morale":this.morale,
             "troops_state":this.troops_state,
             "RD_title":this.RD_title,
@@ -226,7 +178,12 @@ exports.Environment = class{
             if(this.factory_resource[r].valid){
                 var product = this.factory_resource[r].factory.active()
                 for(var p in product){
-                    this.resource[p] += product[p]
+                    if(p in this.resource){
+                        this.resource[p] += product[p]
+                    }
+                    if(p in this.troops_state){
+                        this.troops_state[p].amount += product[p]
+                    }
                 }
             }
         }
@@ -249,9 +206,6 @@ exports.Environment = class{
         if(this.explorer_data.is_explore){
             this.explorer_data.resource.food -= this.explorer_data.troop.daily_cost
         }
-        
-        //console.log(this.explorer_data)
-        console.log(this.resource)
     }
 
     isOutOfFood(){
@@ -270,7 +224,6 @@ exports.Environment = class{
             }
         }
         this.morale = Math.round(this.morale*100)/100
-        //console.log(this.morale)
 
         if(this.morale==0){
             for(var type in this.troops_state){
@@ -283,7 +236,6 @@ exports.Environment = class{
             this.explorerInit()
             msg.push("錯估了探索的進度...傭兵們因糧食不足一個個倒下，只剩你獨自一人逃回城內...")
         }
-        //console.log(msg)
         return msg
     }
 
@@ -346,7 +298,6 @@ exports.Environment = class{
                 }
             }   
         }
-        //console.log(this.map)
     }
 
     /*
@@ -357,7 +308,6 @@ exports.Environment = class{
 
 
     explorePrepare(food){
-        console.log("food"+food)
         this.explorer_data.is_explore = true
 
         this.explorer_data.resource.food = food
@@ -373,8 +323,14 @@ exports.Environment = class{
 
 
     explore(direction){
+        var report = {
+            "explorer_data":this.explorer_data,
+            "msg":"",
+        }
 
-        if(direction=="N" && this.explorer_data.move_available.N){
+        if(direction==""){
+            return report
+        }else if(direction=="N" && this.explorer_data.move_available.N){
             this.explorer_data.y += 1
         }else if(direction=="S" && this.explorer_data.move_available.S){
             this.explorer_data.y -= 1
@@ -384,24 +340,17 @@ exports.Environment = class{
             this.explorer_data.x -= 1
         }
 
-        //console.log(this.explorer_data.x + "  " + this.explorer_data.y)
 
         this.explorer_data.move_available.E = this.explorer_data.x < this.map_x-1
         this.explorer_data.move_available.W = this.explorer_data.x > 0
         this.explorer_data.move_available.N = this.explorer_data.y < this.map_y-1
         this.explorer_data.move_available.S = this.explorer_data.y > 0
         this.explorer_data.move_left -= 1
-
-        var report = {
-            "resource":"", 
-            "explorer_data":this.explorer_data,
-            "msg":"",
-        }
+        report.explorer_data = this.explorer_data
         var x = this.explorer_data.x
         var y = this.explorer_data.y
 
         //撿起地上資源
-         //console.log(this.map[x][y])
         for(var r in this.map[x][y].resource){
             this.explorer_data.resource[r] += this.map[x][y].resource[r]
         }
@@ -446,7 +395,6 @@ exports.Environment = class{
                     report.msg = "發現了樹人王巢穴!"
                     this.map[x][y].found = true
                 }
-                report["resource"] = type
             }
             else{
                 report.msg = "這裡似乎已經探索過了"
@@ -455,7 +403,6 @@ exports.Environment = class{
         else{
             report.msg = "甚麼都沒有發現..."
         }
-        //console.log(report)
         return report
     }
 
@@ -486,15 +433,12 @@ exports.Environment = class{
             this.resource[r] -= this.army_data[army_type][level]["cost"][r];
         }
         this.troops_state[army_type]["amount"] += 1;
-        //console.log("招募了一對" + army_type)
     }
 
     deployArmy(action){
         var direction = action.direction
         var army_type = action.troop_type
         var num = action.num
-        console.log(action)
-        console.log(this.troops_state[army_type])
         var level = this.troops_state[army_type]["level"]
         if(this.troops_state[army_type]["amount"]>=num){
             var data = this.army_data[army_type][level]
@@ -503,7 +447,6 @@ exports.Environment = class{
             for(var i=0; i<num; i++){
                 this.roads[direction].army_location[0].push(new army(data));
             }
-            //console.log(this.roads[direction].army_location[0][0])
             this.troops_state[army_type]["amount"] -= num;
         }
     }
@@ -521,8 +464,8 @@ exports.Environment = class{
         if(distance!=-1 && distance<=this.scout_distance){
             var enemy_type = this.roads[direction].enemy_location[distance][0].type
             this.enemyCollectionUpdate(enemy_type, 0)
-            if(distance<=this.scout_distance){
-                this.roads[direction].troop_location[distance] = 2
+            this.roads[direction].troop_location[distance] = 2
+            if(distance>=5){
                 msg += "隱隱約約看見一隻"
             }
             else{
@@ -531,7 +474,7 @@ exports.Environment = class{
             msg += this.dict[enemy_type] + "位於" + this.dict[direction] + distance + "公里處"
         }
         else{
-            msg = this.dict[direction] + "的道路上很安全，沒有任何敵人"
+            msg = this.dict[direction] + "的道路上沒有發現敵人"
         }
         
         return msg
@@ -543,6 +486,26 @@ exports.Environment = class{
     }
 
     researchInit(){
+        var dir = ["N","E","W","S"]
+        for(var type in this.RD_title){
+            this.RD_list[type] = {}
+            if(this.RD_title[type][1]){
+                for(var d in dir){
+                    this.RD_list[type][dir[d]] = {}
+                    for(var sub_type in this.RD_data[type]){
+                        this.RD_list[type][dir[d]][sub_type] = {"level":0, "progress":0, "data":this.RD_data[type][sub_type][0]}
+                    }
+                }
+            }
+            else{
+                this.RD_list[type]["all"] = {}
+                for(var sub_type in this.RD_data[type]){
+                    this.RD_list[type]["all"][sub_type] = {"level":0, "progress":0, "data":this.RD_data[type][sub_type][0]}
+                }
+            }
+            
+        }
+        /*
         for(var type in this.RD_list){
             for(var dir in this.RD_list[type]){
                 for(var sub_type in this.RD_list[type][dir]){
@@ -551,6 +514,7 @@ exports.Environment = class{
                 }
             }
         }
+        */
     }
 
     /*
@@ -597,7 +561,6 @@ exports.Environment = class{
             research_report.progress = this.RD_list[type][dir][sub_type]["progress"]
             research_report.msg = "研發了" + this.RD_list[type][dir][sub_type].data.name + ": 進度"+research_report.progress+"/"+difficulty
         }
-        //console.log(this.RD_list)
         return research_report
     }
 
@@ -660,9 +623,9 @@ class road{
             "crossbow":{"valid":false}, 
             "catapult":{"valid":false},
         }
-        this.max_distance = 10;
-        this.nearest_enemy = -1;
-        this.farest_army = -1;
+        this.max_distance = 10
+        this.nearest_enemy = -1
+        this.farest_army = -1
         this.basic_scout_distance = 3
         this.action_scout_distance = 5 
         this.army_location = [];  //二維陣列，紀錄各位置上有多少部隊or敵人
@@ -684,7 +647,6 @@ class road{
 
     armyMove(army_state){
         //行軍
-        //console.log(this.army_location)
         for(var i=this.max_distance-1; i>=0; i--){
             for(var j=0; j<this.army_location[i].length; ){
                 if(!this.army_location[i][j].retreat){
@@ -728,7 +690,6 @@ class road{
                 break
             }
         }
-        //console.log(this.army_location)
     }
 
     armyRetreat(){
@@ -737,7 +698,6 @@ class road{
                 this.army_location[i][j].retreat = true;
             }
         }
-        //console.log( this.direction + "方向的部隊開始撤退")
     }
 
     enemyMove(){
@@ -791,9 +751,7 @@ class road{
     }
 
     roadBossSpawn(boss_data){
-        this.enemy_location[this.max_distance-1].push(new boss(boss_data));
-        console.log(this.direction)
-        console.log(this.enemy_location)
+        this.enemy_location[this.max_distance-1].push(new boss(boss_data))
     }
 
     /*
@@ -922,6 +880,7 @@ class road{
                         }
                         if(this.enemy_location[nearest_enemy][0].type=="final_boss"){
                             console.log("you win")
+                            Env.win = true
                         }
                         this.enemy_location[nearest_enemy].splice(0, 1);
                     }
@@ -1076,15 +1035,7 @@ class army{
         this.attack_range = data.attack_range
         this.mobility = data.mobility
         this.retreat = data.retreat
-    }
-}
-
-class defender{
-    constructor(data){
-        this.type = data.type
-        this.cost = data.cost
-        this.attack = data.attact
-        this.attack_range = data.attack_range
+        this.description = data.description
     }
 }
 
@@ -1097,6 +1048,7 @@ class enemy{
         this.mobility = data.mobility
         this.spawm_prob = data.spawm_prob
         this.reward = data.reward
+        this.description = data.description
     }
 }
 
@@ -1108,6 +1060,7 @@ class boss{
         this.attack_range = data.attack_range
         this.mobility = data.mobility
         this.reward = data.reward
+        this.description = data.description
     }
 }
 // ====================單位"種類"樣版區 end ==================================// 

@@ -163,8 +163,8 @@ function roundCheck(){
 	Env.bossSpawn()
 	Env.armyMove()
 	Env.enemyMove()
-	Env.updateTroopLocation()
 	var reports = Env.combat()
+	Env.updateTroopLocation()
 
 	io.emit("combat_report", reports);
 
@@ -172,6 +172,10 @@ function roundCheck(){
 	var food_msg = Env.isOutOfFood()
 	
 	io.emit("turn_end",roll_the_dice() ,food_msg); //告知user此回合結束，並傳一個機率結果給接收端,先於game over才不會鎖住player2的按鈕
+	if(Env.win){
+		io.emit("you_win")
+		io.emit("gameover")
+	}
 	if(Env.isGameover()){
 		io.emit("gameover")
 		player_list = {}
@@ -324,6 +328,8 @@ io.on('connection', (socket) => {
 
 	socket.on("explore_end",()=>{
 		Env.exploreEnd()
+		var explore_report = Env.explore("")
+		io.emit("explore_report", explore_report)
 	})
 	//===================================================
 })

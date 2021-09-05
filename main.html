@@ -258,7 +258,7 @@
 
 				wall_status.update(env.roads);
 				research.update_all(research_log,research_level);
-				
+				factory.update(env.factory);
 				Resource.update(env.resource);
 
 				
@@ -284,6 +284,7 @@
 				research.update_all(research_log,research_level);
 				troop_status.update(env.troops_state ,  env.roads);
 				Resource.update(env.resource);
+				factory.update(env.factory);
 				
 				// ==============================
 				
@@ -424,7 +425,7 @@
 				Resource.update(env.resource);
 			
 				troop_status.update(env.troops_state ,env.roads);
-				
+				factory.update(env.factory);
 				update_enemy_collection(env.enemy_collection);
 			}
 			)
@@ -1213,14 +1214,16 @@
 
 
 			<div class= "detail_choose" id="factory">
-				
-				<div class="form-group">
-					  <label for="exampleInputEmail1">放入多少木頭以換取樹指</label>
-					  <input id="resin_wood" class="form-control"  placeholder="Enter num of wood">
-					  <small  class="form-text text-muted">樹脂擁有強大的力量，要細心製造</small>
+				<label for="exampleInputEmail1">分配資源</label>
+				<div v-for="(f , fk) in factories"  class="form-group">
+					<div v-if="f.valid">
+						<label for="exampleInputEmail1">{{f.name}}</label>
+						<input :id="fk+'_wood'" class="form-control"  placeholder="Enter num of wood">
+						<small  class="form-text text-muted">{{f.description}}</small>
+						
+					<button :id="fk+'_submit'" class="btn btn-primary" :type="fk" v-on:click="Click">送出</button>
 					</div>
-				<button  class="btn btn-primary" v-on:click="Click()">送出</button>
-			
+				</div>
 			
 			</div>
 

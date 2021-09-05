@@ -318,17 +318,25 @@ var factory = new Vue({
   el: '#factory' ,
   data: {
     factories : {
-      resin: {name:"resin"},
+      resin: {valid : true , description: "樹脂擁有強大的力量，要細心製造" , name: "樹脂工廠" },
+      III: {valid : false},
+      xxx: {valid : true , description: "轉手為攻" , name:"XXX"} ,
+      OOO : {valid : true ,description: "哭阿" , name: "OOO "},
 
     },
 
 
   },
   methods:{ //factory_replenishment
-     Click:function(){
-        var rw = document.getElementById("resin_wood").value;
-        alert(rw);
-        if(rw > Env.resource["wood"]){
+     Click:function(event){
+        
+        var type = event.target.getAttribute("type"); 
+        var woods = document.getElementById(type+"_wood").value;
+        
+        
+       
+        
+        if(woods > Env.resource["wood"]){
           Alert(text="木頭不足!", title="通知");
         }   
         else{
@@ -336,9 +344,9 @@ var factory = new Vue({
           class factory{
               constructor(){
                 this.type = "factory_replenishment";
-                this.factory_type = "resin";
+                this.factory_type = type;
                 this.replenishment = {
-                    "wood": rw
+                    "wood": woods
                 }
               }
           }
@@ -349,8 +357,12 @@ var factory = new Vue({
 
 
         }
+     },
+     update : function(factory){
+       if(factory){
+        this.factories = factory;
+       }
      }
-
 
   },
 

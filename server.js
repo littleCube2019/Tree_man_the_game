@@ -203,14 +203,14 @@ io.on('connection', (socket) => {
 		button
 	)
 	io.emit("update_state", update_report);
-	/*
+	
 	io.emit("start_game", update_report, number,
 				[Env.army_data["archer"][Env.troops_state.archer.level], Env.army_data["armor"][Env.troops_state.armor.level], Env.army_data["ranger"][Env.troops_state.ranger.level]],
 				Env.RD_title,
 				Env.RD_list,
 			);
-	*/
-	//io.emit("update_state", update_report);
+	
+	io.emit("update_state", update_report);
 	
 
 	console.log('Client connected');
@@ -262,7 +262,7 @@ io.on('connection', (socket) => {
 				Env.RD_list,
 			);
 			
-			//io.emit("update_state", update_report);
+			io.emit("update_state", update_report);
 
 			// 為了不讓"研發" 留下來，以後要改進
 			io.emit("player_turn");

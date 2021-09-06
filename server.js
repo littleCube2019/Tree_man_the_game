@@ -163,8 +163,8 @@ function roundCheck(){
 	Env.bossSpawn()
 	Env.armyMove()
 	Env.enemyMove()
-	Env.updateTroopLocation()
 	var reports = Env.combat()
+	Env.updateTroopLocation()
 
 	io.emit("combat_report", reports);
 
@@ -172,6 +172,10 @@ function roundCheck(){
 	var food_msg = Env.isOutOfFood()
 	
 	io.emit("turn_end",roll_the_dice() ,food_msg); //告知user此回合結束，並傳一個機率結果給接收端,先於game over才不會鎖住player2的按鈕
+	if(Env.win){
+		io.emit("you_win")
+		io.emit("gameover")
+	}
 	if(Env.isGameover()){
 		io.emit("gameover")
 		player_list = {}
@@ -199,14 +203,14 @@ io.on('connection', (socket) => {
 		button
 	)
 	io.emit("update_state", update_report);
-	/*
+	
 	io.emit("start_game", update_report, number,
 				[Env.army_data["archer"][Env.troops_state.archer.level], Env.army_data["armor"][Env.troops_state.armor.level], Env.army_data["ranger"][Env.troops_state.ranger.level]],
 				Env.RD_title,
 				Env.RD_list,
 			);
-	*/
-	//io.emit("update_state", update_report);
+	
+	io.emit("update_state", update_report);
 	
 
 	console.log('Client connected');
@@ -258,7 +262,7 @@ io.on('connection', (socket) => {
 				Env.RD_list,
 			);
 			
-			//io.emit("update_state", update_report);
+			io.emit("update_state", update_report);
 
 			// 為了不讓"研發" 留下來，以後要改進
 			io.emit("player_turn");
@@ -324,6 +328,8 @@ io.on('connection', (socket) => {
 
 	socket.on("explore_end",()=>{
 		Env.exploreEnd()
+		var explore_report = Env.explore("")
+		io.emit("explore_report", explore_report)
 	})
 	//===================================================
 })

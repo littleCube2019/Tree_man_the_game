@@ -201,36 +201,38 @@ exports.RD = {
             },
         ],
 
-        "armor":{
-            "name":"步兵訓練場",
-            "cost" : {"wood":500},
-            "difficulty" : 5,
-            "max_research_speed" : 2,
+        "armor":[
+            {
+                "name":"步兵訓練場",
+                "cost" : {"wood":500},
+                "difficulty" : 5,
+                "max_research_speed" : 2,
 
-            "description":"建設步兵訓練場，可以自動招募步兵<br>研究難度:5點<br>花費500木頭可隨機升級1-2點",
-            research_done(Env, dir){
-                var data = army_factory.armor[0]
-                var level = Env.troops_state.armor.level
-                var recruit_cost = Env.armor_data[level].cost
-                for(var i in recruit_cost){
-                    if(recruit_cost[i] in data.input){
-                        data.input[i] += recruit_cost[i]
+                "description":"建設步兵訓練場，可以自動招募步兵<br>研究難度:5點<br>花費500木頭可隨機升級1-2點",
+                research_done(Env, dir){
+                    var data = army_factory.armor[0]
+                    var level = Env.troops_state.armor.level
+                    var recruit_cost = Env.armor_data[level].cost
+                    for(var i in recruit_cost){
+                        if(recruit_cost[i] in data.input){
+                            data.input[i] += recruit_cost[i]
+                        }
+                        else{
+                            data.input[i] = recruit_cost[i]
+                        }
                     }
-                    else{
-                        data.input[i] = recruit_cost[i]
+                    for(var r in data.input){
+                        data.storage[i] = 0
                     }
+                    Env.factory_resource["armor"].factory.upgrade(Env.resource, data)
+                    Env.factory_resource["armor"].valid = true
+                    var next_level = -1
+                    Env.player2.button["choose_factory"] = "工廠"
+                    
+                    return next_level
                 }
-                for(var r in data.input){
-                    data.storage[i] = 0
-                }
-                Env.factory_resource["armor"].factory.upgrade(Env.resource, data)
-                Env.factory_resource["armor"].valid = true
-                var next_level = -1
-                Env.player2.button["choose_factory"] = "工廠"
-                
-                return next_level
-            }
-        }
+            },
+        ]
     },
 
 

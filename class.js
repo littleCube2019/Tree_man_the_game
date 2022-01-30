@@ -66,13 +66,6 @@ exports.Environment = class{
         this.explore_lead = 1
         this.explorerInit()
 
-        this.resource_point = {"wood":3,"shoe":1}
-
-        this.explore_event = {
-            "resource":{"stick":10},
-            "item":{"shoe":1},
-            "village":{"wood":10},
-        }
         this.boss_detected = false
         this.boss_detected_day = 0
         this.boss_direction = "unknown"
@@ -129,6 +122,7 @@ exports.Environment = class{
     }
     //=====================================================================================================
 
+    //=================圖鑑相關=====================================
     enemyCollectionInit(){
         for(var type in this.enemy_data){
             this.enemy_collection[type] = {"description":"尚未發現此樹人", "eliminate":""}
@@ -144,7 +138,10 @@ exports.Environment = class{
         }
         this.enemy_collection[enemy_type].eliminate += eliminate
     }
+    //=============================================================
 
+
+    //=================update to client============================
     updateToClient(){
         var factory_data = {}
         for(var type in this.factory_resource){
@@ -178,7 +175,9 @@ exports.Environment = class{
 
         return report
     }
+    //=============================================================
 
+    //====================食物、生產===============================
     gainResource(){
         //每日自動獲得資源
         for(var r in this.resource_gain){
@@ -257,7 +256,9 @@ exports.Environment = class{
         }
         this.factory_resource[data.factory_type].factory.replenish(data.replenishment)
     }
+    //=============================================================
 
+    //==================探索=======================================
     explorerInit(){
         this.explorer_data = {
             "is_explore":false,
@@ -281,13 +282,14 @@ exports.Environment = class{
             for(var y=0; y<this.map_y; y++){
                 this.map[x][y] = {
                     "type":"none",
-                    "sub_type":"none",
                     "found":false,
                     "resource":{}
                 }
             }
         }
         this.map[Math.floor(this.map_x/2)][Math.floor(this.map_y/2)].type = "castle"
+        Object.assign(this.map[Math.floor(this.map_x/2)][Math.floor(this.map_y/2)], {"msg":"來到了城門下"})
+        /*
         var boss_dir = Math.floor(Math.random()*4)
         var boss_loc = Math.floor(Math.random()*Math.max(this.map_x,this.map_y))
         var x = 0
@@ -297,18 +299,16 @@ exports.Environment = class{
         if(boss_dir==2){x = boss_loc, y = 0, this.boss_direction = "S"}
         if(boss_dir==3){x = boss_loc, y = this.map_y-1, this.boss_direction = "N"}
         this.map[x][y].type = "boss"
-        for(var type in this.explore_event){
-            for(var sub_type in this.explore_event[type]){
-                for(var i=0; i<this.explore_event[type][sub_type];){
-                    var x = Math.floor(Math.random()*this.map_x)
-                    var y = Math.floor(Math.random()*this.map_y)
-                    if(this.map[x][y].type=="none"){
-                        this.map[x][y].type = type
-                        this.map[x][y].sub_type = sub_type
-                        i++
-                    }
+        */
+        for(var type in explore_event){
+            for(var i=0; i<explore_event[type].amount;){
+                var x = Math.floor(Math.random()*this.map_x)
+                var y = Math.floor(Math.random()*this.map_y)
+                if(type!="blood" && this.map[x][y].type=="none"){
+                    Object.assign(this.map[x][y], explore_event[type])
+                    i++
                 }
-            }   
+            }
         }
     }
 
@@ -363,36 +363,25 @@ exports.Environment = class{
         var y = this.explorer_data.y
 
         //撿起地上資源
-        for(var r in this.map[x][y].resource){
-            this.explorer_data.resource[r] += this.map[x][y].resource[r]
+        var loc = this.map[x][y]
+        for(var r in loc.resource){
+            this.explorer_data.resource[r] += loc.resource[r]
         }
 
-        if(this.map[x][y].type!="none"){
+        if(loc.type!="none"){
             var type = this.map[x][y].type
-            var sub_type = this.map[x][y].sub_type
-            if(!this.map[x][y].found){
-                if(type=="castle"){
-                    report.msg = "來到了城門下"
-                }
-                if(type=="resource"){
-                    explore_event[type][sub_type].reward(this.explorer_data)
-                    report.msg = explore_event[type][sub_type].msg
-                    this.map[x][y].found = true
-                }
-                if(type=="item"){
-                    explore_event[type][sub_type].reward(this)
-                    report.msg = explore_event[type][sub_type].msg
-                    this.map[x][y].found = true
-                }
-                if(type=="village"){
-                    var enemy_hp = explore_event[type][sub_type].enemy.hp
-                    var enemy_attack = explore_event[type][sub_type].enemy.attack
+            if(!loc.found){
+                if(loc.enemy!=undefined){
+                    var enemy_hp = loc.enemy.hp
+                    var enemy_attack = loc.enemy.attack
                     var hp = this.explorer_data.troop.hp
                     var attack = this.explorer_data.troop.attack
                     if(hp/enemy_attack>enemy_hp/attack){
-                        explore_event[type][sub_type].reward(this.resource_gain)
+                        for(var r in loc.resoure_reward){
+                            this.resource_gain[r] += loc.resoure_reward[r]
+                        }
                         this.explorer_data.troop.hp -= (enemy_hp/attack) * enemy_attack
-                        report.msg = explore_event[type][sub_type].msg
+                        report.msg = loc.msg
                         this.map[x][y].found = true
                     }
                     else{
@@ -401,12 +390,11 @@ exports.Environment = class{
                         report.msg = "傭兵被樹人擊敗，你獨自一人狼狽地逃回城內"
                     }
                 }
-                if(type=="boss"){
-                    this.boss_detected = true
-                    this.boss_detected_day = this.round
-                    report.msg = "發現了樹人王巢穴!"
-                    this.map[x][y].found = true
+                for(var r in loc.explorer_reward){
+                    this.explorer_data.resource[r] += loc.explorer_reward[r]
                 }
+                report.msg = loc.msg
+                this.map[x][y].found = true
             }
             else{
                 report.msg = "這裡似乎已經探索過了"
@@ -436,9 +424,9 @@ exports.Environment = class{
             this.explorer_data.resource[type] = 0
         }
     }
+    //=============================================================
 
-
-    
+    //===================操控軍隊===================================
     recruit(army_type){
         var level = this.troops_state[army_type].level
         for(var r in this.army_data[army_type][level]["cost"]){
@@ -496,7 +484,9 @@ exports.Environment = class{
     armyRetreat(direction){
         this.roads[direction].armyRetreat()
     }
+    //=============================================================
 
+    //===================研發======================================
     researchInit(){
         var dir = ["N","E","W","S"]
         for(var type in this.RD_title){
@@ -575,8 +565,9 @@ exports.Environment = class{
         }
         return research_report
     }
+    //=============================================================
 
-
+    //===================敵人生成==================================
     enemySpawn(){
         for(var d in this.roads){
             this.roads[d].roadEnemySpawn(this.enemy_data, this.round)
@@ -592,7 +583,9 @@ exports.Environment = class{
             }  
         }
     }
+    //=============================================================
 
+    //==================回合結算====================================
     armyMove(){
         for(var d in this.roads){
             this.roads[d].armyMove(this.troops_state)
@@ -623,6 +616,7 @@ exports.Environment = class{
     isGameover(){
         return(this.roads["E"].wallhp<=0 || this.roads["W"].wallhp<=0 || this.roads["N"].wallhp<=0 || this.roads["S"].wallhp<=0)
     }
+    //=============================================================
 }
 
 

@@ -14,8 +14,6 @@ console.log('listening on *:3000');
 });
 
 app.use(express.static('public'));
-
-
 //var army_data = require("./troop").army_data
 //var defender_data = require("./troop").defender_data
 //var enemy_data = require("./troop").enemy_data
@@ -36,7 +34,7 @@ var Environment = require("./class.js").Environment
 
 // 單位"種類"樣版區 ， 以class為單位start ========================================// 
 
-// 單位"種類"樣版區 ， 以class為單位start ========================================//
+// 單位"種類"樣版區 ， 以class為單位end ==========================================//
 
 
 
@@ -55,20 +53,22 @@ start_game : 回傳遊戲開始訊號
 while loop
 socket.on(action_done) : 接收回家選擇行動與其選項  
 [
-scout_report : 回傳偵查情報
-combat_report : 回傳處理過後的戰報 ，為一string array
-player_msg : 回傳"訊息"給兩位玩家
+	scout_report : 回傳偵查情報
+	combat_report : 回傳處理過後的戰報 ，為一string array
+	player_msg : 回傳"訊息"給兩位玩家
+	research_report : 回傳研發進度
+	update_troop_info : 當完成研發軍隊類項目時回傳給玩家
 ]
 player_turn: 玩家其中一位結束操作時，發出的訊號
 
-
+combat_report : 回傳戰報
 turn_end : 回傳回合結束訊號， 並給一個機率值決定(每日結尾)事件
 
 update_state: env 資訊更新到前端
 
 
 
-gameover : 回傳遊戲結束訊號， 前端自己切換結束畫面
+gameover : 回傳遊戲結束訊號，前端自己切換結束畫面
 */
 
 
@@ -105,7 +105,11 @@ function newGame(){
 
 
 //============接收玩家操作指令===============
-//var player_action_fn = require("./player_action_functions")
+/*
+	recruit	move_army repair_wall scout retreat research
+	scout會回傳偵查情報
+	research回傳研發進度表，若軍隊相關研發完成回傳該研發項目
+*/
 
 
 function player_action_handle(action){
@@ -157,7 +161,7 @@ function roll_the_dice(lo=0 ,range=100){
 //回合結束會傳戰報(一天分，每條路獨立計算)
 
 
-function roundCheck(){
+function roundCheck(){ //結束後才回傳report
 	
 	Env.enemySpawn()
 	Env.bossSpawn()

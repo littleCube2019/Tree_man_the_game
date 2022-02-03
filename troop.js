@@ -139,7 +139,7 @@ exports.enemy_data = {
     "tree_man" : {
         "type" : "tree_man",
         "hp" : 300,
-        "attack" : 50,
+        "attack" : 1,
         "attack_range" : 0,
         "mobility" : 1,
         "spawn_prob_data":{
@@ -155,7 +155,7 @@ exports.enemy_data = {
     "stick_man" : {
         "type" : "stick_man",
         "hp" : 200,
-        "attack" : 50,
+        "attack" : 1,
         "attack_range" : 3,
         "mobility" : 1,
         "spawn_prob_data":{
@@ -171,7 +171,7 @@ exports.enemy_data = {
     "big_tree_man" : {
         "type" : "big_tree_man",
         "hp" : 2500,
-        "attack" : 250,
+        "attack" : 1,
         "attack_range" : 0,
         "mobility" : 1,
         "spawn_prob_data":{
@@ -184,26 +184,27 @@ exports.enemy_data = {
         "description":"突變的超大型樹人，血量:3000，攻擊力:500，攻擊距離:0，移動能力:1，擊殺可獲得10000木頭",
     },
 }
-exports.boss_data = {
-    "little_boss":{
-        "type" : "little_boss",
-        "hp" : 3000,
-        "attack" : 300,
+
+exports.elite_enemy_data = {
+    "elite_tree_man":{
+        "type" : "elite_tree_man",
+        "hp" : 1500,
+        "attack" : 1,
         "attack_range" : 0,
         "mobility" : 1,
-        "spawn_day":5,
-        "reward" : {"wood":10000},
-        "description":"小boss，血量:3000，攻擊力:500，攻擊距離:0，移動能力:1，擊殺可獲得10000木頭",
+        "spawn_prob_data":0.2,
+        "reward" : {"wood":1000},
+        "description":"菁英樹人，血量:1500，攻擊力:150，攻擊距離:0，移動能力:1，擊殺可獲得1000木頭",
     },
 
-    "final_boss":{
-        "type" : "final_boss",
-        "hp" : 5000,
-        "attack" : 1000,
-        "attack_range" : 0,
+    "elite_stick_man":{
+        "type" : "elite_stick_man",
+        "hp" : 1000,
+        "attack" : 1,
+        "attack_range" : 3,
         "mobility" : 1,
-        "spawn_day":10,
-        "reward" : {"wood":10000},
-        "description":"大boss，血量:3000，攻擊力:500，攻擊距離:0，移動能力:1，擊殺可獲得10000木頭",
+        "spawn_prob_data":0.2,
+        "reward" : {"wood":1500},
+        "description":"菁英樹枝噴吐者，血量:1000，攻擊力:200，攻擊距離:0，移動能力:1，擊殺可獲得1500木頭",
     },
 }

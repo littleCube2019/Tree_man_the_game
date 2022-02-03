@@ -68,13 +68,14 @@ exports.Environment = class{
         this.resource_point = {"wood":3,"shoe":1}
 
         this.explore_event = {
-            "resource":{"stick":10},
-            "item":{"shoe":1},
-            "village":{"wood":10},
+            "stick":10,
+            "shoe":1,
+            "wood":3,
+            "base":1,
+            "blood":4,
         }
-        this.boss_detected = false
-        this.boss_detected_day = 0
-        this.boss_direction = "unknown"
+        this.blood_eliminated = 0
+        
         
         this.createExploreEvent()
         //=======================================
@@ -95,7 +96,7 @@ exports.Environment = class{
         this.army_data = require("./troop").army_data
         this.defender_data = require("./troop").defender_data
         this.enemy_data = require("./troop").enemy_data
-        this.boss_data = require("./troop").boss_data
+        this.elite_enemy_data = require("./troop").elite_enemy_data
         this.RD_data = require("./R&D").RD
         this.RD_title = { //{type:[name, isDir, show]}
             "wall":["城牆加固", true, true],
@@ -123,16 +124,13 @@ exports.Environment = class{
             "wood":"木頭", "shoe":"草鞋(皇叔編的那種)",
             "armor":"步兵", "archer":"弓箭手", "ranger":"騎兵", "wizard":"法師", "defence":"防禦部隊",
             "tree_man":"普通樹人", "big_tree_man":"大型樹人", "stick_man":"樹枝噴吐者",
-            "little_boss":"小樹人王", "final_boss":"終極樹人王",
+            "elite_tree_man":"菁英樹人", "elite_stick_man":"菁英樹枝噴吐者",
         }
     }
     //=====================================================================================================
 
     enemyCollectionInit(){
         for(var type in this.enemy_data){
-            this.enemy_collection[type] = {"description":"尚未發現此樹人", "eliminate":""}
-        }
-        for(var type in this.boss_data){
             this.enemy_collection[type] = {"description":"尚未發現此樹人", "eliminate":""}
         }
     }
@@ -263,7 +261,7 @@ exports.Environment = class{
             "resource":{"food":0, "wood":0}
         };
     }
-
+    /*
     createExploreEvent(){
         for(var x=0; x<this.map_x; x++){
             for(var y=0; y<this.map_y; y++){
@@ -298,6 +296,54 @@ exports.Environment = class{
                 }
             }   
         }
+    }
+    */
+    createExploreEvent(){
+        for(var x=0; x<this.map_x; x++){
+            for(var y=0; y<this.map_y; y++){
+                this.map[x][y] = {
+                    "type":"none",
+                    "found":false,
+                    "resource":{}
+                }
+            }
+        }
+        this.map[Math.floor(this.map_x/2)][Math.floor(this.map_y/2)].type = "castle"
+        for(var type in this.explore_event){
+            if(type!="blood"){
+                for(var i=0; i<this.explore_event[type];){
+                    var x = Math.floor(Math.random()*this.map_x)
+                    var y = Math.floor(Math.random()*this.map_y)
+                    if(type == "base"){
+                        if(y>1 && y<9){
+                            if(y<5) y = 1
+                            else y = 9
+                        }
+                    }
+                    if(this.map[x][y].type=="none"){
+                        this.map[x][y].type = type
+                        i++
+                    }
+                } 
+            } 
+        }
+        console.log(this.map)
+    }
+
+    createExploreBlood(){
+        for(var i=0; i<4;){
+            var x = Math.floor(Math.random()*this.map_x)
+            var y = Math.floor(Math.random()*this.map_y)
+            if(this.map[x][y].type=="none"){
+                if(y>1 && y<9){
+                    if(y<5) y = 1
+                    else y = 9
+                }
+                this.map[x][y].type = "blood"
+                i++
+            }
+        }
+        console.log(this.map)
     }
 
     /*
@@ -357,43 +403,47 @@ exports.Environment = class{
 
         if(this.map[x][y].type!="none"){
             var type = this.map[x][y].type
-            var sub_type = this.map[x][y].sub_type
             if(!this.map[x][y].found){
                 if(type=="castle"){
                     report.msg = "來到了城門下"
                 }
-                if(type=="resource"){
-                    explore_event[type][sub_type].reward(this.explorer_data)
-                    report.msg = explore_event[type][sub_type].msg
+                if(type=="stick"){
+                    explore_event[type].reward(this.explorer_data)
+                    report.msg = explore_event[type].msg
                     this.map[x][y].found = true
                 }
-                if(type=="item"){
-                    explore_event[type][sub_type].reward(this)
-                    report.msg = explore_event[type][sub_type].msg
+                if(type=="shoe"){
+                    explore_event[type].reward(this.explorer_mobility)
+                    report.msg = explore_event[type].msg
                     this.map[x][y].found = true
                 }
-                if(type=="village"){
-                    var enemy_hp = explore_event[type][sub_type].enemy.hp
-                    var enemy_attack = explore_event[type][sub_type].enemy.attack
+                if(type=="base"){
+                    report.msg = explore_event[type].msg
+                    this.createExploreBlood()
+                    this.map[x][y].found = true
+                }
+                if(type=="wood" || type=="blood"){
+                    var enemy_hp = explore_event[type].enemy.hp
+                    var enemy_attack = explore_event[type].enemy.attack
                     var hp = this.explorer_data.troop.hp
                     var attack = this.explorer_data.troop.attack
                     if(hp/enemy_attack>enemy_hp/attack){
-                        explore_event[type][sub_type].reward(this.resource_gain)
                         this.explorer_data.troop.hp -= (enemy_hp/attack) * enemy_attack
-                        report.msg = explore_event[type][sub_type].msg
+                        if(type=="wood"){
+                            report.msg = explore_event[type].msg
+                            explore_event[type].reward(this.resource_gain)
+                        }
+                        else if(type=="blood"){
+                            this.blood_eliminated += 1
+                            report.msg = "消滅了第" + this.blood_eliminated + "隻血色樹人"
+                        }
                         this.map[x][y].found = true
                     }
                     else{
                         this.map[x][y].resource = this.explorer_data.resource
                         this.explorerInit()
-                        report.msg = "傭兵被樹人擊敗，你獨自一人狼狽地逃回城內"
+                        report.msg = "傭兵被擊敗，你獨自一人狼狽地逃回城內"
                     }
-                }
-                if(type=="boss"){
-                    this.boss_detected = true
-                    this.boss_detected_day = this.round
-                    report.msg = "發現了樹人王巢穴!"
-                    this.map[x][y].found = true
                 }
             }
             else{
@@ -567,10 +617,10 @@ exports.Environment = class{
 
     enemySpawn(){
         for(var d in this.roads){
-            this.roads[d].roadEnemySpawn(this.enemy_data, this.round)
+            this.roads[d].roadEnemySpawn(this.enemy_data, this.elite_enemy_data, this.round, this.blood_eliminated)
         }
     }
-
+    /*
     bossSpawn(){
         if(this.boss_detected){
             for(var boss_type in this.boss_data){
@@ -580,6 +630,7 @@ exports.Environment = class{
             }  
         }
     }
+    */
 
     armyMove(){
         for(var d in this.roads){
@@ -626,7 +677,7 @@ class road{
         this.max_distance = 10
         this.nearest_enemy = -1
         this.farest_army = -1
-        this.basic_scout_distance = 3
+        this.basic_scout_distance = 10
         this.action_scout_distance = 5 
         this.army_location = [];  //二維陣列，紀錄各位置上有多少部隊or敵人
         this.enemy_location = [];
@@ -734,26 +785,37 @@ class road{
         ----同一回合四個方向均有機率生成多個敵人
     */
 
-    roadEnemySpawn(enemy_data, day){
-        for(var enemy_type in enemy_data){
-            var spawn = Math.floor(Math.random()*100) ;  // 生成機率為 [0,100]
-            var init = enemy_data[enemy_type]["spawn_prob_data"]["init"]*100
-            var increase_rate = enemy_data[enemy_type]["spawn_prob_data"]["increase"]*100
-            var max_prob = enemy_data[enemy_type]["spawn_prob_data"]["max"]*100
-            var minimum_day = enemy_data[enemy_type]["spawn_prob_data"]["minimum_day"]
-            var spawn_rate = Math.min(max_prob, init + increase_rate + increase_rate*day)
+    roadEnemySpawn(enemy_data, elite_enemy_data, day, blood){
+        if(blood==0){
+            for(var enemy_type in enemy_data){
+                var spawn = Math.floor(Math.random()*100) ;  // 生成機率為 [0,100]
+                var init = enemy_data[enemy_type]["spawn_prob_data"]["init"]*100
+                var increase_rate = enemy_data[enemy_type]["spawn_prob_data"]["increase"]*100
+                var max_prob = enemy_data[enemy_type]["spawn_prob_data"]["max"]*100
+                var minimum_day = enemy_data[enemy_type]["spawn_prob_data"]["minimum_day"]
+                var spawn_rate = Math.min(max_prob, init + increase_rate + increase_rate*day)
 
-            if(day>=minimum_day && spawn_rate>=spawn){
+                if(day>=minimum_day && spawn_rate>=spawn){
+                    this.enemy_location[this.max_distance-1].push(new enemy(enemy_data[enemy_type]));
+                }
+            }
+        }
+        if(blood>0 && blood<4){
+            for(var enemy_type in elite_enemy_data){
+                var spawn = Math.floor(Math.random()*100) ;  // 生成機率為 [0,100]
+                var spawn_rate = elite_enemy_data[enemy_type]["spawn_prob_data"]*100
 
-                this.enemy_location[this.max_distance-1].push(new enemy(enemy_data[enemy_type]));
+                if(spawn_rate>=spawn){
+                    this.enemy_location[this.max_distance-1].push(new elite_enemy(elite_enemy_data[enemy_type]));
+                }
             }
         }
     }
-
+    /*
     roadBossSpawn(boss_data){
         this.enemy_location[this.max_distance-1].push(new boss(boss_data))
     }
-
+    */
     /*
         戰鬥系統
         ----回合結束時呼叫
@@ -841,6 +903,7 @@ class road{
                 }
                 var enemy_damage_remain = enemy_total_damage
                 while(enemy_damage_remain>0){
+                    hp_msg += "我方部隊訊息"
                     if(this.army_location[farest_army].length){
                         var farest_army_hp = this.army_location[farest_army][0].hp;
                         if(farest_army_hp<=enemy_damage_remain){
@@ -1046,13 +1109,13 @@ class enemy{
         this.attack = data.attack
         this.attack_range = data.attack_range
         this.mobility = data.mobility
-        this.spawm_prob = data.spawm_prob
+        //this.spawm_prob = data.spawm_prob
         this.reward = data.reward
         this.description = data.description
     }
 }
 
-class boss{
+class elite_enemy{
     constructor(data){
         this.type = data.type
         this.hp = data.hp

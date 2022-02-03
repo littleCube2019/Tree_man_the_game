@@ -97,7 +97,6 @@ function chooseCharacter(id)
 
 //============遊戲開始========
 var Env = new Environment()
-
 function newGame(){
 	Env = new Environment();
 }
@@ -160,7 +159,6 @@ function roll_the_dice(lo=0 ,range=100){
 function roundCheck(){
 	
 	Env.enemySpawn()
-	Env.bossSpawn()
 	Env.armyMove()
 	Env.enemyMove()
 	var reports = Env.combat()

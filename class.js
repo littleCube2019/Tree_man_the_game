@@ -50,7 +50,8 @@ exports.Environment = class{
 
         this.factory_resource = {
             "resin":{"valid":false, "factory":new factory()},
-            "coal":{"valid":false, "factory":new factory()}
+            "coal":{"valid":false, "factory":new factory()},
+            "armor":{"valid":false, "factory":new factory()},
         }
 
         //==探索地圖=============================
@@ -143,12 +144,23 @@ exports.Environment = class{
     }
 
     updateToClient(){
+        var factory_data = {}
+        for(var type in this.factory_resource){
+            factory_data[type] = {
+                "valid":this.factory_resource[type].valid,
+                "data":{
+                    "name":this.factory_resource[type].factory.name,
+                    "cost":this.factory_resource[type].factory.input,
+                    "description":this.factory_resource[type].factory.description,
+                }
+            }
+        }
         var report = {
             "roads":this.roads,
             "round":this.round,
             "resource":this.resource,
             "resource_gain":this.resource_gain,
-            "factory_resource":this.factory_resource,
+            "factory_data":this.factory_data,
             "map_x":this.map_x,
             "map_y":this.map_y,
             "map":this.map,
@@ -1033,9 +1045,11 @@ class road{
 
 class factory{
     constructor(){
+        this.name = ""
         this.input = {}
         this.output = {}
         this.storage = {}
+        this.description = ""
     }
     active(){
         var inaff = true
